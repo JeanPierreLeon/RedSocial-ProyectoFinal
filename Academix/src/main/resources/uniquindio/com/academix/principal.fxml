@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml">
+    <center>
+        <Label text="¡Bienvenido a la Red de Aprendizaje!" style="-fx-font-size: 18;" />
+    </center>
+</BorderPane>
