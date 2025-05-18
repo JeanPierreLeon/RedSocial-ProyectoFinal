@@ -34,17 +34,27 @@ public class LoginController {
 
     @FXML
     public void iniciarSesion() {
-        String usuario = campoUsuario.getText();
-        String contrasena = campoContrasena.getText();
+        String usuario     = campoUsuario.getText();
+        String contrasena  = campoContrasena.getText();
 
+        /* 1. ‑‑‑‑‑‑‑‑‑‑‑‑ Comprobación de moderador ‑‑‑‑‑‑‑‑‑‑‑‑ */
+        if ("admin".equals(usuario) && "12345".equals(contrasena)) {
+            HelloApplication.cambiarVista("moderador.fxml", "Panel del Moderador");
+            return;                     // ✅  ¡Listo!  No seguimos revisando estudiantes
+        }
+
+        /* 2. ‑‑‑‑‑‑‑‑‑‑‑‑ Comprobación de estudiantes ‑‑‑‑‑‑‑‑‑‑‑‑ */
         for (Estudiante est : estudiantes) {
-            if (est.getUsuario().equals(usuario) && est.getContrasena().equals(contrasena)) {
-                HelloApplication.setEstudianteActual(est); // ← Guardar sesión
-                HelloApplication.cambiarVista("principal.fxml", "Inicio"); // ← Ir al menú principal
-                return;
+            if (est.getUsuario().equals(usuario) &&
+                    est.getContrasena().equals(contrasena)) {
+
+                HelloApplication.setEstudianteActual(est);
+                HelloApplication.cambiarVista("principal.fxml", "Inicio");
+                return;                 // ✅ Sesión iniciada como estudiante
             }
         }
 
+        /* 3. ‑‑‑‑‑‑‑‑‑‑‑‑ Credenciales inválidas ‑‑‑‑‑‑‑‑‑‑‑‑ */
         mensajeError.setText("Usuario o contraseña incorrectos");
     }
 
