@@ -31,26 +31,22 @@ public class RegistroController {
     public void initialize() {
         // Inicialización si es necesario
     }
-
     @FXML
     public void registrarEstudiante() {
         String usuario = campoUsuario.getText();
         String contrasena = campoContrasena.getText();
         String confirmarContrasena = campoConfirmarContrasena.getText();
 
-        // Validar que las contraseñas coincidan
         if (!contrasena.equals(confirmarContrasena)) {
             mensajeError.setText("Las contraseñas no coinciden");
             return;
         }
 
-        // Validar que el campo de usuario no esté vacío
         if (usuario.isEmpty() || contrasena.isEmpty()) {
             mensajeError.setText("Por favor, complete todos los campos");
             return;
         }
 
-        // Verificar si el usuario ya existe
         for (Estudiante est : estudiantes) {
             if (est.getUsuario().equals(usuario)) {
                 mensajeError.setText("El usuario ya existe");
@@ -58,14 +54,17 @@ public class RegistroController {
             }
         }
 
-        // Si todo está bien, agregar el nuevo estudiante a la lista
-        estudiantes.add(new Estudiante(usuario, contrasena));
+        Estudiante nuevo = new Estudiante(usuario, contrasena);
+        estudiantes.add(nuevo);
 
-        // Mostrar mensaje de éxito
-        mensajeError.setText("Registro exitoso, ahora puedes iniciar sesión.");
+        // Establecer el estudiante en sesión
+        uniquindio.com.academix.HelloApplication.setEstudianteActual(nuevo);
 
-        // Cerrar la ventana de registro después de 2 segundos (opcional)
-        cerrarVentana();
+        // Cambiar a la vista principal
+        uniquindio.com.academix.HelloApplication.cambiarVista("principal.fxml", "Inicio");
+
+        // También podrías cerrar esta ventana si fuese un pop-up (no obligatorio si estás cambiando de escena)
+        // cerrarVentana();
     }
 
     // Método para cerrar la ventana de registro

@@ -1,10 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="uniquindio.com.academix.Controller.PrincipalController"
+            fx:id="borderPane"
+            prefWidth="900" prefHeight="600"
+            minWidth="800" minHeight="500"
+            style="-fx-background-color: #ffffff; -fx-padding: 20px;">
+
+    <!-- Barra superior con botones azules -->
+    <top>
+        <ToolBar>
+            <Button text="Buscar Contenido" onAction="#irABuscarContenido"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <Button text="Publicar Contenido" onAction="#irAPublicarContenido"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <Button text="Solicitar Ayuda" onAction="#irASolicitarAyuda"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <Button text="Ver Sugerencias" onAction="#irASugerencias"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <Button text="Grupos de Estudio" onAction="#irAGrupos"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" />
+            <Button text="Mensajes" onAction="#irAMensajes"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" />
+        </ToolBar>
+    </top>
+
+    <!-- Contenido central -->
     <center>
-        <Label text="¡Bienvenido a la Red de Aprendizaje!" style="-fx-font-size: 18;" />
+        <StackPane alignment="CENTER">
+            <Label text="Bienvenido a Academix"
+                   style="-fx-font-size: 24px; -fx-text-fill: #0077cc; -fx-font-weight: bold;" />
+        </StackPane>
     </center>
+
 </BorderPane>

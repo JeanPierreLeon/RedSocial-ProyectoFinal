@@ -1,15 +1,14 @@
 package uniquindio.com.academix.Controller;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
+import uniquindio.com.academix.HelloApplication;
 import uniquindio.com.academix.Model.Estudiante;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +20,10 @@ public class LoginController {
 
     private List<Estudiante> estudiantes;
 
-    // Constructor sin parámetros, necesario para FXML
     public LoginController() {
-        estudiantes = new ArrayList<>();
+        estudiantes = HelloApplication.getEstudiantes(); // Usa la lista centralizada
     }
 
-    // Método para inicializar los datos de ejemplo
     @FXML
     public void initialize() {
         if (estudiantes.isEmpty()) {
@@ -35,7 +32,6 @@ public class LoginController {
         }
     }
 
-    // Método para iniciar sesión
     @FXML
     public void iniciarSesion() {
         String usuario = campoUsuario.getText();
@@ -43,7 +39,8 @@ public class LoginController {
 
         for (Estudiante est : estudiantes) {
             if (est.getUsuario().equals(usuario) && est.getContrasena().equals(contrasena)) {
-                abrirVentanaPrincipal();
+                HelloApplication.setEstudianteActual(est); // ← Guardar sesión
+                HelloApplication.cambiarVista("principal.fxml", "Inicio"); // ← Ir al menú principal
                 return;
             }
         }
@@ -51,34 +48,20 @@ public class LoginController {
         mensajeError.setText("Usuario o contraseña incorrectos");
     }
 
-    // Método para abrir la ventana principal
-    private void abrirVentanaPrincipal() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/principal.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) campoUsuario.getScene().getWindow();
-            stage.setScene(new Scene(root, 600, 400));
-            stage.show();
-        } catch (Exception e) {
-            mensajeError.setText("Error al abrir la ventana principal");
-            e.printStackTrace();
-        }
-    }
-
-    // Abrir la ventana de registro de estudiantes
     public void abrirVentanaRegistro() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/registroEstudiantes.fxml"));  // Ruta corregida
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/registroEstudiantes.fxml"));
             Parent root = loader.load();
 
-            // Obtener el controlador de la ventana de registro
             RegistroController registroController = loader.getController();
-            registroController.setEstudiantes(estudiantes); // Aquí se pasa la lista de estudiantes
+            registroController.setEstudiantes(estudiantes); // Pasa la lista compartida
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
+            stage.setTitle("Registro de Estudiantes");
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            mensajeError.setText("Error al abrir el registro");
             e.printStackTrace();
         }
     }

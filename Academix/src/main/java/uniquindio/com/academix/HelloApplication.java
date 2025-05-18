@@ -6,25 +6,44 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import uniquindio.com.academix.Model.Estudiante;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HelloApplication extends Application {
 
-    private final List<Estudiante> estudiantes = new ArrayList<>();
+    private static Stage primaryStage;
+    private static final List<Estudiante> estudiantes = new ArrayList<>();
+    private static Estudiante estudianteActual; // <-- Sesión activa
 
     @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/login.fxml"));
+    public void start(Stage stage) throws IOException {
+        primaryStage = stage;
+        cambiarVista("login.fxml", "Iniciar sesión");
+    }
 
-        // Elimina esta línea porque el controlador ya está especificado en el archivo FXML
-        // LoginController loginController = new LoginController(estudiantes);
-        // loader.setController(loginController);  <- Esta línea debe ser eliminada
+    public static void cambiarVista(String fxml, String titulo) {
+        try {
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("/uniquindio/com/academix/" + fxml));
+            Scene scene = new Scene(loader.load());
+            primaryStage.setTitle(titulo);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        Scene scene = new Scene(loader.load());
-        stage.setTitle("Iniciar sesión");
-        stage.setScene(scene);
-        stage.show();
+    public static List<Estudiante> getEstudiantes() {
+        return estudiantes;
+    }
+
+    public static Estudiante getEstudianteActual() {
+        return estudianteActual;
+    }
+
+    public static void setEstudianteActual(Estudiante estudiante) {
+        estudianteActual = estudiante;
     }
 
     public static void main(String[] args) {

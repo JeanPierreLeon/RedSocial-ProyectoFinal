@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="uniquindio.com.academix.Controller.PublicarContenidoController">
+
+    <center>
+        <VBox alignment="CENTER" spacing="15">
+            <Label text="Publicar Contenido" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+            <TextField fx:id="campoTitulo" promptText="Título del contenido"/>
+            <TextArea fx:id="campoDescripcion" promptText="Descripción del contenido"/>
+            <Button text="Publicar" onAction="#publicarContenido"/>
+        </VBox>
+    </center>
+
+</BorderPane>
