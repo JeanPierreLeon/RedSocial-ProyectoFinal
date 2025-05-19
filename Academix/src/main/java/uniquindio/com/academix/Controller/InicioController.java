@@ -1,12 +1,11 @@
 package uniquindio.com.academix.Controller;
-import javafx.scene.Node;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import java.awt.Desktop;
-import java.net.URI;
 
+import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import uniquindio.com.academix.Factory.ModelFactory;
 import uniquindio.com.academix.Model.ContenidoEducativo;
 
 public class InicioController {
@@ -17,10 +16,16 @@ public class InicioController {
     @FXML private ChoiceBox<String> tipoChoiceBox;
     @FXML private VBox contenedorPublicaciones;
 
+    private final ModelFactory modelFactory = ModelFactory.getInstance();
+
     @FXML
     public void initialize() {
         tipoChoiceBox.getItems().addAll("Archivo", "Enlace", "Video");
         tipoChoiceBox.setValue("Archivo");
+
+        for (ContenidoEducativo contenido : modelFactory.getAcademix().getContenidoEducativo()) {
+            mostrarPublicacion(contenido);
+        }
     }
 
     @FXML
@@ -30,12 +35,15 @@ public class InicioController {
         String url = urlField.getText().trim();
         String tipo = tipoChoiceBox.getValue();
 
-        if (titulo.isEmpty() || descripcion.isEmpty() || url.isEmpty()) {
-            mostrarAlerta("Por favor completa todos los campos.");
+        if (titulo.isEmpty() || descripcion.isEmpty() || url.isEmpty() || tipo == null) {
+            mostrarAlerta("Por favor completa todos los campos y selecciona un tipo.");
             return;
         }
 
         ContenidoEducativo contenido = new ContenidoEducativo(titulo, tipo, descripcion, url);
+        modelFactory.getAcademix().agregarContenido(contenido);
+        modelFactory.guardarRecursosXML();  // Aquí guardamos cambios
+
         mostrarPublicacion(contenido);
 
         tituloField.clear();
@@ -46,13 +54,13 @@ public class InicioController {
     private void mostrarPublicacion(ContenidoEducativo contenido) {
         VBox tarjeta = new VBox();
         tarjeta.setStyle(
-            "-fx-background-color: white; " +
-            "-fx-border-color: #ddd; " +
-            "-fx-border-radius: 10; " +
-            "-fx-background-radius: 10; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5,0,0,2);" +
-            "-fx-padding: 15;" +
-            "-fx-spacing: 10;"
+                "-fx-background-color: white; " +
+                        "-fx-border-color: #ddd; " +
+                        "-fx-border-radius: 10; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5,0,0,2);" +
+                        "-fx-padding: 15;" +
+                        "-fx-spacing: 10;"
         );
 
         Label tituloLabel = new Label(contenido.getTitulo());
@@ -68,10 +76,13 @@ public class InicioController {
 
         Button eliminarBtn = new Button("Eliminar");
         eliminarBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-size: 12px;");
-        eliminarBtn.setOnAction(e -> contenedorPublicaciones.getChildren().remove(tarjeta));
+        eliminarBtn.setOnAction(e -> {
+            contenedorPublicaciones.getChildren().remove(tarjeta);
+            modelFactory.getAcademix().getContenidoEducativo().remove(contenido);
+            modelFactory.guardarRecursosXML();  // Guardamos también al eliminar
+        });
 
         tarjeta.getChildren().addAll(tituloLabel, tipoLabel, descripcionText, urlNode, eliminarBtn);
-
         contenedorPublicaciones.getChildren().add(0, tarjeta);
     }
 
