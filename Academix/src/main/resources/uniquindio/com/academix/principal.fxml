@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 
-<?import javafx.collections.FXCollections?>
-<BorderPane fx:id="rootPane" fx:controller="uniquindio.com.academix.Controller.DashboardController"
-
-            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" prefHeight="805.0" prefWidth="1274.0">
+<BorderPane fx:id="rootPane" prefHeight="805.0" prefWidth="1274.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.DashboardController">
     <!-- Barra superior -->
     <top>
         <HBox spacing="40.0" style="-fx-background-color: white; -fx-padding: 20 40;">
             <children>
-                <Label text="Académix" style="-fx-font-size: 24px; -fx-text-fill: #1d4ed8; -fx-font-weight: bold;" />
+                <Label style="-fx-font-size: 24px; -fx-text-fill: #1d4ed8; -fx-font-weight: bold;" text="Académix" />
                 <Pane HBox.hgrow="ALWAYS" />
-                <Hyperlink fx:id="inicioLink" text="Inicio" onAction="#goToInicio" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" />
-                <Hyperlink fx:id="panelLink" text="Panel del Estudiante" onAction="#goToPanel" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" />
-                <Hyperlink fx:id="gruposLink" text="Grupos" onAction="#goToGrupos" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" />
-                <Hyperlink fx:id="mensajeriaLink" text="Mensajería" onAction="#goToMensajeria" style="-fx-text-fill: #2563eb; -fx-font-size: 14px; -fx-font-weight: bold;" />
-                <Label text="estudiante@academix.com" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" />
+                <Hyperlink fx:id="inicioLink" onAction="#goToInicio" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" text="Inicio" />
+                <Hyperlink fx:id="panelLink" onAction="#goToPanel" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" text="Panel del Estudiante" />
+                <Hyperlink fx:id="gruposLink" onAction="#goToGrupos" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" text="Grupos" />
+                <Hyperlink fx:id="mensajeriaLink" onAction="#goToMensajeria" style="-fx-text-fill: #1e293b; -fx-font-size: 14px;" text="Mensajería" />
+                <Label style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" text="estudiante@academix.com" />
             </children>
         </HBox>
     </top>
