@@ -1,12 +1,13 @@
 package uniquindio.com.academix.Controller;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import uniquindio.com.academix.Model.ContenidoEducativo;
+import javafx.scene.layout.*;
+import java.awt.Desktop;
+import java.net.URI;
 
+import javafx.scene.text.Text;
+import uniquindio.com.academix.Model.ContenidoEducativo;
 
 public class InicioController {
 
@@ -14,35 +15,20 @@ public class InicioController {
     @FXML private TextField descripcionField;
     @FXML private TextField urlField;
     @FXML private ChoiceBox<String> tipoChoiceBox;
-    @FXML private TableView<ContenidoEducativo> tablaContenidos;
-    @FXML private TableColumn<ContenidoEducativo, String> colTitulo;
-    @FXML private TableColumn<ContenidoEducativo, String> colTipo;
-    @FXML private TableColumn<ContenidoEducativo, String> colValoracion;
-    @FXML private TextField valoracionField;
-
-    private final ObservableList<ContenidoEducativo> listaContenidos = FXCollections.observableArrayList();
+    @FXML private VBox contenedorPublicaciones;
 
     @FXML
     public void initialize() {
+        tipoChoiceBox.getItems().addAll("Archivo", "Enlace", "Video");
         tipoChoiceBox.setValue("Archivo");
-
-        colTitulo.setCellValueFactory(new PropertyValueFactory<>("titulo"));
-        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
-        colValoracion.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(
-                        String.format("%.2f", cellData.getValue().getPromedioValoracion())
-                )
-        );
-
-        tablaContenidos.setItems(listaContenidos);
     }
 
     @FXML
     private void publicarContenido() {
-        String titulo = tituloField.getText();
+        String titulo = tituloField.getText().trim();
+        String descripcion = descripcionField.getText().trim();
+        String url = urlField.getText().trim();
         String tipo = tipoChoiceBox.getValue();
-        String descripcion = descripcionField.getText();
-        String url = urlField.getText();
 
         if (titulo.isEmpty() || descripcion.isEmpty() || url.isEmpty()) {
             mostrarAlerta("Por favor completa todos los campos.");
@@ -50,33 +36,71 @@ public class InicioController {
         }
 
         ContenidoEducativo contenido = new ContenidoEducativo(titulo, tipo, descripcion, url);
-        listaContenidos.add(contenido);
+        mostrarPublicacion(contenido);
 
         tituloField.clear();
         descripcionField.clear();
         urlField.clear();
     }
 
-    @FXML
-    private void valorarSeleccionado() {
-        ContenidoEducativo seleccionado = tablaContenidos.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) {
-            mostrarAlerta("Selecciona un contenido para valorar.");
-            return;
-        }
+    private void mostrarPublicacion(ContenidoEducativo contenido) {
+        VBox tarjeta = new VBox();
+        tarjeta.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-border-color: #ddd; " +
+            "-fx-border-radius: 10; " +
+            "-fx-background-radius: 10; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5,0,0,2);" +
+            "-fx-padding: 15;" +
+            "-fx-spacing: 10;"
+        );
 
-        try {
-            int valor = Integer.parseInt(valoracionField.getText());
-            if (valor < 1 || valor > 5) {
-                mostrarAlerta("La valoración debe estar entre 1 y 5.");
-                return;
-            }
+        Label tituloLabel = new Label(contenido.getTitulo());
+        tituloLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
 
-            seleccionado.agregarValoracion(valor);
-            tablaContenidos.refresh();
-            valoracionField.clear();
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Introduce un número válido.");
+        Label tipoLabel = new Label("Tipo: " + contenido.getTipo());
+        tipoLabel.setStyle("-fx-text-fill: #555; -fx-font-size: 12px;");
+
+        Text descripcionText = new Text(contenido.getDescripcion());
+        descripcionText.setWrappingWidth(500);
+
+        Node urlNode = crearNodoContenido(contenido);
+
+        Button eliminarBtn = new Button("Eliminar");
+        eliminarBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-size: 12px;");
+        eliminarBtn.setOnAction(e -> contenedorPublicaciones.getChildren().remove(tarjeta));
+
+        tarjeta.getChildren().addAll(tituloLabel, tipoLabel, descripcionText, urlNode, eliminarBtn);
+
+        contenedorPublicaciones.getChildren().add(0, tarjeta);
+    }
+
+    private Node crearNodoContenido(ContenidoEducativo contenido) {
+        String tipo = contenido.getTipo();
+        String url = contenido.getUrl();
+
+        switch (tipo) {
+            case "Enlace":
+                Hyperlink link = new Hyperlink(url);
+                link.setOnAction(e -> {
+                    try {
+                        java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                    } catch (Exception ex) {
+                        mostrarAlerta("No se pudo abrir el enlace.");
+                    }
+                });
+                return link;
+
+            case "Video":
+                Label videoLabel = new Label("🎬 Video: " + url);
+                videoLabel.setStyle("-fx-text-fill: #1565c0; -fx-underline: true;");
+                return videoLabel;
+
+            case "Archivo":
+            default:
+                Label archivoLabel = new Label("📎 Archivo: " + url);
+                archivoLabel.setStyle("-fx-text-fill: #333;");
+                return archivoLabel;
         }
     }
 

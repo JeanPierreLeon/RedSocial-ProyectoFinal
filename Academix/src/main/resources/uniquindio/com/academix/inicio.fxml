@@ -1,140 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="538.0" prefWidth="1049.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController">
+<AnchorPane prefHeight="650.0" prefWidth="900.0" style="-fx-background-color: #f5f7fa;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController">
 
-    <!-- Título principal -->
-    <Label layoutX="20" layoutY="15" style="-fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: #0047b3;" text="Académix" />
+    <!-- Título -->
+    <Label layoutX="30" layoutY="20" text="Académix" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a73e8;" />
 
-    <HBox layoutX="20" layoutY="50" prefHeight="480.0" prefWidth="1016.0" spacing="30">
-        <!-- Columna 4: Publicar y Valorar Contenidos -->
-        <VBox prefHeight="456.0" prefWidth="357.0" spacing="10" style="-fx-background-color: #f9f9f9; -fx-padding: 15; -fx-background-radius: 10;">
-            <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Publicar Contenido" />
+    <HBox layoutX="30" layoutY="70" spacing="40" prefWidth="840" prefHeight="540">
 
-               <TextField fx:id="tituloField" promptText="Título" />
-            <TextField fx:id="descripcionField" promptText="Descripción" />
+        <!-- Panel Publicar Contenido -->
+        <VBox spacing="15" prefWidth="360" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);">
+            <Label text="Publicar Contenido" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" />
 
-               <ChoiceBox fx:id="tipoChoiceBox">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Archivo" />
-                        <String fx:value="Enlace" />
-                        <String fx:value="Video" />
-                    </FXCollections>
-                </items>
-            </ChoiceBox>
+            <TextField fx:id="tituloField" promptText="Título" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+            <TextField fx:id="descripcionField" promptText="Descripción" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+            <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+            <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
 
-               <TextField fx:id="urlField" promptText="URL o ruta del archivo" />
-            <Button onAction="#publicarContenido" style="-fx-background-color: #1565c0; -fx-text-fill: white;" text="Publicar" />
-
-               <Label style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Contenidos Publicados" />
-
-               <TableView fx:id="tablaContenidos" prefHeight="120">
-                <columns>
-                    <TableColumn fx:id="colTitulo" prefWidth="86.0" text="Título" />
-                    <TableColumn fx:id="colTipo" prefWidth="77.0" text="Tipo" />
-                    <TableColumn fx:id="colValoracion" prefWidth="83.0" text="Valoración" />
-                </columns>
-            </TableView>
-
-               <HBox spacing="10">
-                <TextField fx:id="valoracionField" prefWidth="50" promptText="1-5" />
-                <Button onAction="#valorarSeleccionado" style="-fx-background-color: #1565c0; -fx-text-fill: white;" text="Valorar" />
-            </HBox>
+            <Button text="Publicar" onAction="#publicarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" />
         </VBox>
 
-        <!-- Columna 1: Explorar Contenidos -->
-        <VBox prefWidth="270" spacing="10" style="-fx-background-color: #f9f9f9; -fx-padding: 15; -fx-background-radius: 10;">
+        <!-- Panel Publicaciones que se expande -->
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" HBox.hgrow="ALWAYS">
+            <Label text="Publicaciones" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" />
 
-            <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Explorar Contenidos" />
-
-            <VBox spacing="5" style="-fx-border-color: #ddd; -fx-border-radius: 8; -fx-padding: 10;">
-
-                <Label style="-fx-text-fill: #1565c0; -fx-font-weight: bold;" text="Título del Contenido" />
-
-                <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="por Autor" />
-
-                <Label style="-fx-font-size: 12px;" text="Este es un resumen del contenido compartido. Revisa el documento adjunto para más información." wrapText="true" />
-
-
-
-            </VBox>
-
-        </VBox>
-
-        <!-- Columna 2: Grupos Sugeridos -->
-        <VBox prefWidth="270" spacing="10" style="-fx-background-color: #f9f9f9; -fx-padding: 15; -fx-background-radius: 10;">
-
-            <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Grupos Sugeridos" />
-
-            <Label style="-fx-text-fill: #1565c0; -fx-font-size: 11px;" text="Curso relacionado: Oratoria y Comunicación" />
-
-            <VBox spacing="10" style="-fx-border-color: #ddd; -fx-border-radius: 8; -fx-padding: 10;">
-
-                <VBox spacing="3" style="-fx-border-color: #ddd; -fx-border-radius: 6; -fx-padding: 8;">
-                    <Label style="-fx-font-weight: bold;" text="Grupo de Estudio 1" />
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="Intereses: Comunicación, Liderazgo" />
-                    <Button prefWidth="70" style="-fx-background-color: #1565c0; -fx-text-fill: white;" text="Unirse" />
-                </VBox>
-
-                <VBox spacing="3" style="-fx-border-color: #ddd; -fx-border-radius: 6; -fx-padding: 8;">
-                    <Label style="-fx-font-weight: bold;" text="Grupo de Estudio 2" />
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="Intereses: Debate, Argumentación" />
-                    <Button prefWidth="70" style="-fx-background-color: #1565c0; -fx-text-fill: white;" text="Unirse" />
-                </VBox>
-
-                <VBox spacing="3" style="-fx-border-color: #ddd; -fx-border-radius: 6; -fx-padding: 8;">
-                    <Label style="-fx-font-weight: bold;" text="Grupo de Estudio 3" />
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: gray;" text="Intereses: Presentaciones, Expresión Oral" />
-                    <Button prefWidth="70" style="-fx-background-color: #1565c0; -fx-text-fill: white;" text="Unirse" />
-                </VBox>
-
-            </VBox>
-
-        </VBox>
-
-        <!-- Columna 3: Mensajes Recientes -->
-        <VBox prefHeight="456.0" prefWidth="319.0" spacing="10" style="-fx-background-color: #f9f9f9; -fx-padding: 15; -fx-background-radius: 10;">
-
-            <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Mensajes Recientes" />
-
-            <VBox spacing="10">
-
-                <VBox>
-                    <Label style="-fx-font-weight: bold;" text="Alex Ramírez" />
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: gray;" text="Hola, ¿ya revisaste el material?" />
-                </VBox>
-
-                <VBox>
-                    <Label style="-fx-font-weight: bold;" text="Alexa Indresen" />
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: gray;" text="Nos vemos en la reunión de grupo." />
-                </VBox>
-
-                <VBox>
-                    <Label style="-fx-font-weight: bold;" text="Alan Wedé" />
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: gray;" text="Gracias por el aporte en el foro." />
-                </VBox>
-
-                <VBox>
-                    <Label style="-fx-font-weight: bold;" text="Olga Lández" />
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: gray;" text="He compartido un nuevo documento." />
-                </VBox>
-
-            </VBox>
-
+            <ScrollPane fitToWidth="true" fitToHeight="true" prefHeight="480" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" VBox.vgrow="ALWAYS">
+                <VBox fx:id="contenedorPublicaciones" spacing="15" style="
+                    -fx-background-color: #f9fbff;
+                    -fx-padding: 15;
+                    -fx-border-radius: 15;
+                    -fx-background-radius: 15;
+                    -fx-border-color: #d2d8e7;
+                    " />
+            </ScrollPane>
         </VBox>
 
     </HBox>
 
 </AnchorPane>
+

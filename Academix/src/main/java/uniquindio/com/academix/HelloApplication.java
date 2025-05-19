@@ -1,14 +1,14 @@
 package uniquindio.com.academix;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import uniquindio.com.academix.Model.Estudiante;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HelloApplication extends Application {
 

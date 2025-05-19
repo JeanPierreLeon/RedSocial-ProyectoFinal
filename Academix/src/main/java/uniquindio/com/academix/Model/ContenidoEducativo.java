@@ -1,18 +1,13 @@
 package uniquindio.com.academix.Model;
 
-
-
 public class ContenidoEducativo {
     private static int contadorId = 0;
 
-    private int id;
-    private String titulo;
-    private String tipo;
-    private String descripcion;
-    private String url;
-    private double promedioValoracion;
-    private int totalValoraciones;
-    private int sumaValoraciones;
+    private final int id;
+    private final String titulo;
+    private final String tipo;
+    private final String descripcion;
+    private final String url;
 
     public ContenidoEducativo(String titulo, String tipo, String descripcion, String url) {
         this.id = ++contadorId;
@@ -20,15 +15,10 @@ public class ContenidoEducativo {
         this.tipo = tipo;
         this.descripcion = descripcion;
         this.url = url;
-        this.promedioValoracion = 0.0;
-        this.totalValoraciones = 0;
-        this.sumaValoraciones = 0;
     }
 
-    public void agregarValoracion(int valoracion) {
-        totalValoraciones++;
-        sumaValoraciones += valoracion;
-        promedioValoracion = (double) sumaValoraciones / totalValoraciones;
+    public int getId() {
+        return id;
     }
 
     public String getTitulo() {
@@ -39,7 +29,11 @@ public class ContenidoEducativo {
         return tipo;
     }
 
-    public double getPromedioValoracion() {
-        return promedioValoracion;
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }
