@@ -27,8 +27,8 @@ public class LoginController {
     @FXML
     public void initialize() {
         if (estudiantes.isEmpty()) {
-            estudiantes.add(new Estudiante("juan", "1234"));
-            estudiantes.add(new Estudiante("ana", "abcd"));
+            estudiantes.add(new Estudiante("juan@academix.com.co", "1234"));
+            estudiantes.add(new Estudiante("ana@academix.com.co", "abcd"));
         }
     }
 
@@ -40,7 +40,7 @@ public class LoginController {
         /* 1. ‑‑‑‑‑‑‑‑‑‑‑‑ Comprobación de moderador ‑‑‑‑‑‑‑‑‑‑‑‑ */
         if ("admin".equals(usuario) && "12345".equals(contrasena)) {
             HelloApplication.cambiarVista("moderador.fxml", "Panel del Moderador");
-            return;                     // ✅  ¡Listo!  No seguimos revisando estudiantes
+            return;
         }
 
         /* 2. ‑‑‑‑‑‑‑‑‑‑‑‑ Comprobación de estudiantes ‑‑‑‑‑‑‑‑‑‑‑‑ */
@@ -48,9 +48,30 @@ public class LoginController {
             if (est.getUsuario().equals(usuario) &&
                     est.getContrasena().equals(contrasena)) {
 
-                HelloApplication.setEstudianteActual(est);
-                HelloApplication.cambiarVista("principal.fxml", "Inicio");
-                return;                 // ✅ Sesión iniciada como estudiante
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/principal.fxml"));
+                    Parent root = loader.load();
+
+                    // Obtener el controlador e inyectar el nombre del usuario
+                    DashboardController controller = loader.getController();
+                    controller.setNombreUsuario(est.getUsuario());
+
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Inicio");
+                    stage.setScene(new Scene(root));
+                    stage.show();
+
+                    // Cerrar ventana actual (login)
+                    Stage ventanaLogin = (Stage) campoUsuario.getScene().getWindow();
+                    ventanaLogin.close();
+
+                    HelloApplication.setEstudianteActual(est);
+                } catch (Exception e) {
+                    mensajeError.setText("Error al cargar la vista principal");
+                    e.printStackTrace();
+                }
+                // ✅ Sesión iniciada como estudiante
             }
         }
 

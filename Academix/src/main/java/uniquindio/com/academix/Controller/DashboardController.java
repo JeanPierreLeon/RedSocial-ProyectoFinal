@@ -6,12 +6,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
 public class DashboardController {
 
+    public Label IDcorreoEst;
     @FXML
     private BorderPane rootPane;
 
@@ -19,6 +21,7 @@ public class DashboardController {
     public Hyperlink panelLink;
     public Hyperlink gruposLink;
     public Hyperlink mensajeriaLink;
+    public String nombreUsuario;
 
     @FXML
     public void initialize() {
@@ -49,5 +52,9 @@ public class DashboardController {
     private void cambiarVista(String rutaFXML) throws IOException {
         Parent nuevaVista = FXMLLoader.load(getClass().getResource(rutaFXML));
         rootPane.setCenter(nuevaVista);
+    }
+
+    public void setNombreUsuario(String usuario) {
+        IDcorreoEst.setText(usuario);
     }
 }

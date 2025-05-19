@@ -11,6 +11,7 @@
 
 <AnchorPane prefHeight="688.0" prefWidth="1101.0" style="-fx-background-color: #f5f7fa;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController">
 
+
     <!-- Título -->
     <Label layoutX="30" layoutY="20" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a73e8;" text="Académix" />
 
@@ -24,6 +25,8 @@
             <TextField fx:id="descripcionField" promptText="Descripción" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
             <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
             <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+            <Label fx:id="nombreUsuarioLabel" layoutX="900.0" layoutY="20.0" text="NombreUsuario" />
+
 
             <Button onAction="#publicarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="Publicar" />
         </VBox>
