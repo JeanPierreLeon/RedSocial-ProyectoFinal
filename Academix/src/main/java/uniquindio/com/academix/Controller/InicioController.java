@@ -122,4 +122,12 @@ public class InicioController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+    @FXML
+    private Label nombreUsuarioLabel;
+
+    public void setNombreUsuario(String nombre) {
+        nombreUsuarioLabel.setText(nombre);
+    }
+
 }

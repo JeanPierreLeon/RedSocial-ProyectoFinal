@@ -70,5 +70,7 @@ public class PrincipalController {
         // Regresar a la vista de login
         HelloApplication.cambiarVista("login.fxml", "Iniciar sesión");
     }
+
+
 }
 
