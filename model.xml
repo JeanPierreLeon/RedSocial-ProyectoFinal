@@ -24,6 +24,28 @@
      </void>
     </object>
    </void>
+   <void method="add">
+    <object class="uniquindio.com.academix.Model.ContenidoEducativo">
+     <void property="autor">
+      <string>ana@academix.com.co</string>
+     </void>
+     <void property="descripcion">
+      <string>vdv</string>
+     </void>
+     <void property="id">
+      <int>3</int>
+     </void>
+     <void property="tipo">
+      <string>Imagen</string>
+     </void>
+     <void property="titulo">
+      <string>cdvdv</string>
+     </void>
+     <void property="url">
+      <string>C:\Users\theza\Downloads\prueba.jpeg</string>
+     </void>
+    </object>
+   </void>
   </void>
  </object>
 </java>
