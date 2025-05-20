@@ -13,12 +13,10 @@ public class ContenidoEducativo implements Serializable {
     private String url;
     private String autor;
 
-    // Constructor vacío requerido por serializadores
     public ContenidoEducativo() {
         this.id = ++contadorId;
     }
 
-    // Constructor con todos los campos
     public ContenidoEducativo(String titulo, String tipo, String descripcion, String url, String autor) {
         this.id = ++contadorId;
         this.titulo = titulo;
@@ -35,6 +33,7 @@ public class ContenidoEducativo implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+        contadorId = Math.max(contadorId, id); // importante para mantener IDs únicos
     }
 
     public String getTitulo() {
@@ -76,10 +75,4 @@ public class ContenidoEducativo implements Serializable {
     public void setAutor(String autor) {
         this.autor = autor;
     }
-
-    // Método para actualizar el contador estático
-    public static void setContadorId(int id) {
-        contadorId = id;
-    }
 }
-

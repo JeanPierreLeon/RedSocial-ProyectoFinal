@@ -18,4 +18,8 @@ public class Academix implements Serializable {
     public void agregarContenido(ContenidoEducativo contenido) {
         contenidoEducativo.add(contenido);
     }
+
+    public void eliminarContenido(ContenidoEducativo contenido) {
+        contenidoEducativo.removeIf(c -> c.getId() == contenido.getId());
+    }
 }

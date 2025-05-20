@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="21.0.6" class="java.beans.XMLDecoder">
+ <object class="uniquindio.com.academix.Model.Academix" id="Academix0">
+  <void property="contenidoEducativo">
+   <void method="add">
+    <object class="uniquindio.com.academix.Model.ContenidoEducativo">
+     <void property="autor">
+      <string>juan@academix.com.co</string>
+     </void>
+     <void property="descripcion">
+      <string>ds</string>
+     </void>
+     <void property="id">
+      <int>1</int>
+     </void>
+     <void property="tipo">
+      <string>Imagen</string>
+     </void>
+     <void property="titulo">
+      <string>dsd</string>
+     </void>
+     <void property="url">
+      <string>C:\Users\theza\Downloads\prueba.jpeg</string>
+     </void>
+    </object>
+   </void>
+  </void>
+ </object>
+</java>
