@@ -1,25 +1,26 @@
 package uniquindio.com.academix.Model;
 
+import uniquindio.com.academix.Estructuras.ListaSimple;
+
 import java.io.Serializable;
-import java.util.ArrayList;
 
 public class Academix implements Serializable {
 
-    private ArrayList<ContenidoEducativo> contenidoEducativo = new ArrayList<>();
+    private ListaSimple<ContenidoEducativo> contenidoEducativo = new ListaSimple<>();
 
-    public ArrayList<ContenidoEducativo> getContenidoEducativo() {
+    public ListaSimple<ContenidoEducativo> getContenidoEducativo() {
         return contenidoEducativo;
     }
 
-    public void setContenidoEducativo(ArrayList<ContenidoEducativo> contenidoEducativo) {
+    public void setContenidoEducativo(ListaSimple<ContenidoEducativo> contenidoEducativo) {
         this.contenidoEducativo = contenidoEducativo;
     }
 
     public void agregarContenido(ContenidoEducativo contenido) {
-        contenidoEducativo.add(contenido);
+        contenidoEducativo.agregar(contenido);
     }
 
     public void eliminarContenido(ContenidoEducativo contenido) {
-        contenidoEducativo.removeIf(c -> c.getId() == contenido.getId());
+        contenidoEducativo.eliminar(contenido);
     }
 }

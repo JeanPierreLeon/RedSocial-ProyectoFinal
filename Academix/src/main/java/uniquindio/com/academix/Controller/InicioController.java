@@ -7,7 +7,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import uniquindio.com.academix.HelloApplication;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.ContenidoEducativo;
 import uniquindio.com.academix.Model.Estudiante;
@@ -16,7 +15,6 @@ import uniquindio.com.academix.Utils.Persistencia;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class InicioController {
 
@@ -29,11 +27,18 @@ public class InicioController {
     private File archivoSeleccionado;
     private Academix academix;
 
+    private Estudiante estudianteActual;
+
+    public void setEstudianteActual(Estudiante estudiante) {
+        this.estudianteActual = estudiante;
+        academix = Persistencia.cargarRecursoBancoBinario();
+        cargarPublicaciones();
+    }
+
     @FXML
     public void initialize() {
         tipoChoiceBox.getItems().addAll("Imagen", "PDF", "Video", "Otro");
-        academix = Persistencia.cargarRecursoBancoXML();
-        cargarPublicaciones();
+        // No cargar publicaciones aquí, se hace cuando se setea estudiante
     }
 
     private void cargarPublicaciones() {
@@ -60,7 +65,6 @@ public class InicioController {
         String tipo = tipoChoiceBox.getValue();
         String url = urlField.getText();
 
-        Estudiante estudianteActual = HelloApplication.getEstudianteActual();
         if (estudianteActual == null) {
             mostrarAlerta("Error", "No hay sesión activa.");
             return;
@@ -73,10 +77,9 @@ public class InicioController {
 
         ContenidoEducativo contenido = new ContenidoEducativo(titulo, tipo, descripcion, url, estudianteActual.getUsuario());
         academix.agregarContenido(contenido);
-        Persistencia.guardarRecursoBancoXML(academix);
+        Persistencia.guardarRecursoBancoBinario(academix);
         agregarPublicacionVista(contenido);
 
-        // Limpiar campos
         tituloField.clear();
         descripcionField.clear();
         tipoChoiceBox.setValue(null);
@@ -96,7 +99,8 @@ public class InicioController {
 
         tarjeta.getChildren().addAll(titulo, descripcion);
 
-        if (contenido.getTipo().equalsIgnoreCase("Imagen") && contenido.getUrl().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif|bmp)")) {
+        if (contenido.getTipo().equalsIgnoreCase("Imagen") &&
+                contenido.getUrl().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif|bmp)")) {
             try {
                 Image imagen = new Image(new File(contenido.getUrl()).toURI().toString(), 300, 200, true, true);
                 ImageView imageView = new ImageView(imagen);
@@ -112,14 +116,13 @@ public class InicioController {
         abrirBtn.setOnAction(e -> abrirArchivo(contenido.getUrl()));
         botones.getChildren().add(abrirBtn);
 
-        Estudiante estudianteActual = HelloApplication.getEstudianteActual();
         if (contenido.getAutor().equals(estudianteActual.getUsuario())) {
             Button eliminarBtn = new Button("Eliminar");
             eliminarBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
             eliminarBtn.setOnAction(e -> {
                 contenedorPublicaciones.getChildren().remove(tarjeta);
                 academix.eliminarContenido(contenido);
-                Persistencia.guardarRecursoBancoXML(academix);
+                Persistencia.guardarRecursoBancoBinario(academix);
             });
             botones.getChildren().add(eliminarBtn);
         }

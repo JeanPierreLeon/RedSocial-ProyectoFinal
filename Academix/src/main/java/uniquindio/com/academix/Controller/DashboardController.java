@@ -1,59 +1,75 @@
 package uniquindio.com.academix.Controller;
 
-
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import uniquindio.com.academix.Model.Estudiante;
 
 import java.io.IOException;
 
 public class DashboardController {
 
-    public Label IDcorreoEst;
     @FXML
     private BorderPane rootPane;
-    public Hyperlink inicioLink;
-    public Hyperlink panelLink;
-    public Hyperlink gruposLink;
-    public Hyperlink mensajeriaLink;
-    public String nombreUsuario;
+
+    @FXML
+    private Label IDcorreoEst;
+
+    private Estudiante estudianteActual;
 
     @FXML
     public void initialize() {
+        // No hacer nada hasta que se setee el estudiante
+    }
+
+    public void setEstudianteActual(Estudiante estudiante) {
+        this.estudianteActual = estudiante;
+        IDcorreoEst.setText(estudianteActual.getUsuario());
         try {
-            goToInicio(null); // Carga la vista de inicio al iniciar
+            goToInicio();  // Mostrar vista inicio al cargar
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void goToInicio(ActionEvent event) throws IOException {
-        cambiarVista("/uniquindio/com/academix/inicio.fxml");
+    @FXML
+    public void goToInicio() throws IOException {
+        cargarVista("/uniquindio/com/academix/inicio.fxml");
     }
 
-    public void goToPanel(ActionEvent event) throws IOException {
-        cambiarVista("/uniquindio/com/academix/panel.fxml");
+    @FXML
+    public void goToPanel() throws IOException {
+        cargarVista("/uniquindio/com/academix/panelEstudiante.fxml");
     }
 
-    public void goToGrupos(ActionEvent event) throws IOException {
-        cambiarVista("/uniquindio/com/academix/grupos.fxml");
+    @FXML
+    public void goToGrupos() throws IOException {
+        cargarVista("/uniquindio/com/academix/grupos.fxml");
     }
 
-    public void goToMensajeria(ActionEvent event) throws IOException {
-        cambiarVista("/uniquindio/com/academix/mensajeria.fxml");
+    @FXML
+    public void goToMensajeria() throws IOException {
+        cargarVista("/uniquindio/com/academix/mensajeria.fxml");
     }
 
+    private void cargarVista(String fxmlPath) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+        Parent vista = loader.load();
 
-    private void cambiarVista(String rutaFXML) throws IOException {
-        Parent nuevaVista = FXMLLoader.load(getClass().getResource(rutaFXML));
-        rootPane.setCenter(nuevaVista);
-    }
+        // Aquí si cada controlador tiene método setEstudianteActual, lo llamamos para pasarle el estudiante
+        Object controller = loader.getController();
+        try {
+            controller.getClass()
+                    .getMethod("setEstudianteActual", Estudiante.class)
+                    .invoke(controller, estudianteActual);
+        } catch (NoSuchMethodException e) {
+            // El controlador no tiene método setEstudianteActual, lo ignoramos
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-    public void setNombreUsuario(String usuario) {
-        IDcorreoEst.setText(usuario);
+        rootPane.setCenter(vista);
     }
 }

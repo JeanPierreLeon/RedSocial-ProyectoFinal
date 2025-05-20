@@ -23,11 +23,11 @@ public class ModelFactory {
         return academix;
     }
 
-    public void guardarRecursosXML() {
-        Persistencia.guardarRecursoBancoXML(academix);
+    private void cargarRecursosXML() {
+        this.academix = Persistencia.cargarRecursoBancoBinario();
     }
 
-    private void cargarRecursosXML() {
-        this.academix = Persistencia.cargarRecursoBancoXML();
+    public void guardarRecursosXML() {
+        Persistencia.guardarRecursoBancoBinario(academix);
     }
 }
