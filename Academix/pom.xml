@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uniquindio.com</groupId>
@@ -11,27 +13,41 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
+        <javafx.version>17.0.6</javafx.version>
         <junit.version>5.10.2</junit.version>
     </properties>
 
     <dependencies>
+        <!-- JavaFX Controls -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>17.0.6</version>
+            <version>${javafx.version}</version>
         </dependency>
+
+        <!-- JavaFX FXML -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>17.0.6</version>
+            <version>${javafx.version}</version>
         </dependency>
 
+        <!-- JavaFX Media (para video/audio) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- JUnit para tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -42,16 +58,19 @@
 
     <build>
         <plugins>
+            <!-- Compilador Maven -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <release>21</release>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
+
+            <!-- Plugin de JavaFX para Maven -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -59,8 +78,11 @@
                 <executions>
                     <execution>
                         <id>default-cli</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                         <configuration>
-                            <mainClass>uniquindio.com.academix/uniquindio.com.academix.HelloApplication</mainClass>
+                            <mainClass>uniquindio.com.academix.HelloApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

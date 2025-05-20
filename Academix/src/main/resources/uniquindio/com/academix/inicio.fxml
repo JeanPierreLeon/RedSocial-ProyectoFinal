@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="688.0" prefWidth="1101.0" style="-fx-background-color: #f5f7fa;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController">
-
 
     <!-- Título -->
     <Label layoutX="30" layoutY="20" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a73e8;" text="Académix" />
@@ -24,22 +18,27 @@
             <TextField fx:id="tituloField" promptText="Título" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
             <TextField fx:id="descripcionField" promptText="Descripción" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
             <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-            <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-            <Label fx:id="nombreUsuarioLabel" layoutX="900.0" layoutY="20.0" text="NombreUsuario" />
 
+            <!-- Campo de URL con botón para seleccionar archivo -->
+            <HBox spacing="10">
+                <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS"/>
+                <Button text="Seleccionar" onAction="#seleccionarArchivo" style="-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-background-radius: 10;"/>
+            </HBox>
 
             <Button onAction="#publicarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="Publicar" />
         </VBox>
 
-        <!-- Panel Publicaciones que se expande -->
-        <VBox prefHeight="540.0" prefWidth="496.0" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" HBox.hgrow="ALWAYS">
+        <!-- Panel Publicaciones -->
+        <VBox prefHeight="540.0" prefWidth="600.0" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" HBox.hgrow="ALWAYS">
             <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Publicaciones" />
 
             <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="480" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" VBox.vgrow="ALWAYS">
-                <VBox fx:id="contenedorPublicaciones" spacing="15" style="                     -fx-background-color: #f9fbff;                     -fx-padding: 15;                     -fx-border-radius: 15;                     -fx-background-radius: 15;                     -fx-border-color: #d2d8e7;                     " />
+                <VBox fx:id="contenedorPublicaciones" spacing="10" style="-fx-background-color: #f9fbff; -fx-padding: 15; -fx-border-radius: 15; -fx-background-radius: 15; -fx-border-color: #d2d8e7;" />
             </ScrollPane>
         </VBox>
 
     </HBox>
 
 </AnchorPane>
+
+

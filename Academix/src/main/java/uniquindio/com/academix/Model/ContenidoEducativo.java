@@ -3,6 +3,7 @@ package uniquindio.com.academix.Model;
 import java.io.Serializable;
 
 public class ContenidoEducativo implements Serializable {
+
     private static int contadorId = 0;
 
     private int id;
@@ -10,22 +11,24 @@ public class ContenidoEducativo implements Serializable {
     private String tipo;
     private String descripcion;
     private String url;
+    private String autor;
 
-    // Constructor vacío (requerido por XMLEncoder)
+    // Constructor vacío requerido por serializadores
     public ContenidoEducativo() {
         this.id = ++contadorId;
     }
 
-    // Constructor adicional para crear contenidos desde la aplicación
-    public ContenidoEducativo(String titulo, String tipo, String descripcion, String url) {
+    // Constructor con todos los campos
+    public ContenidoEducativo(String titulo, String tipo, String descripcion, String url, String autor) {
         this.id = ++contadorId;
         this.titulo = titulo;
         this.tipo = tipo;
         this.descripcion = descripcion;
         this.url = url;
+        this.autor = autor;
     }
 
-    // Getters y setters
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -64,5 +67,13 @@ public class ContenidoEducativo implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getAutor() {
+        return autor;
+    }
+
+    public void setAutor(String autor) {
+        this.autor = autor;
     }
 }
