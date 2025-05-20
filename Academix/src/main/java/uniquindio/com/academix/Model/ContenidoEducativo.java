@@ -76,4 +76,10 @@ public class ContenidoEducativo implements Serializable {
     public void setAutor(String autor) {
         this.autor = autor;
     }
+
+    // Método para actualizar el contador estático
+    public static void setContadorId(int id) {
+        contadorId = id;
+    }
 }
+

@@ -4,7 +4,6 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -18,8 +17,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import uniquindio.com.academix.HelloApplication;
+import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.ContenidoEducativo;
 import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Utils.Persistencia;
 
 public class InicioController {
 
@@ -29,11 +30,22 @@ public class InicioController {
     @FXML private TextField urlField;
     @FXML private VBox contenedorPublicaciones;
 
-    private final List<ContenidoEducativo> listaContenido = new ArrayList<>();
+    private Academix academix;
     private File archivoSeleccionado;
 
     @FXML
     public void initialize() {
+        // Cargar datos guardados
+        academix = Persistencia.cargarRecursoBancoXML();
+        if (academix == null) {
+            academix = new Academix();
+        }
+
+        // Mostrar las publicaciones existentes
+        for (ContenidoEducativo contenido : academix.getContenidoEducativo()) {
+            agregarPublicacionVista(contenido);
+        }
+
         tipoChoiceBox.getItems().addAll("Imagen", "PDF", "Video", "Otro");
     }
 
@@ -41,7 +53,6 @@ public class InicioController {
     public void seleccionarArchivo() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar archivo");
-
         File archivo = fileChooser.showOpenDialog(null);
         if (archivo != null) {
             archivoSeleccionado = archivo;
@@ -51,10 +62,10 @@ public class InicioController {
 
     @FXML
     public void publicarContenido() {
-        String titulo = tituloField.getText();
-        String descripcion = descripcionField.getText();
+        String titulo = tituloField.getText().trim();
+        String descripcion = descripcionField.getText().trim();
         String tipo = tipoChoiceBox.getValue();
-        String url = urlField.getText();
+        String url = urlField.getText().trim();
 
         Estudiante estudianteActual = HelloApplication.getEstudianteActual();
         if (estudianteActual == null) {
@@ -68,7 +79,10 @@ public class InicioController {
         }
 
         ContenidoEducativo contenido = new ContenidoEducativo(titulo, tipo, descripcion, url, estudianteActual.getUsuario());
-        listaContenido.add(contenido);
+
+        academix.agregarContenido(contenido);
+        Persistencia.guardarRecursoBancoXML(academix);
+
         agregarPublicacionVista(contenido);
 
         // Limpiar campos
@@ -81,22 +95,20 @@ public class InicioController {
 
     private void agregarPublicacionVista(ContenidoEducativo contenido) {
         VBox tarjeta = new VBox(5);
-        tarjeta.setStyle("-fx-background-color: #f0f5ff; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #c3d0f7; -fx-border-radius: 10;");
+        tarjeta.setStyle("-fx-background-color: #f9f9f9; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #ccc;");
 
         Label titulo = new Label(contenido.getTitulo());
-        titulo.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
+        titulo.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
         Label descripcion = new Label(contenido.getDescripcion());
         descripcion.setWrapText(true);
-        descripcion.setMaxWidth(400);
 
         Label autor = new Label("Publicado por: " + contenido.getAutor());
-        autor.setStyle("-fx-font-size: 10px; -fx-text-fill: #555555;");
+        autor.setStyle("-fx-font-style: italic; -fx-font-size: 10px; -fx-text-fill: #555;");
 
         tarjeta.getChildren().addAll(titulo, descripcion);
 
-        if (contenido.getTipo().equalsIgnoreCase("Imagen") &&
-            contenido.getUrl().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif|bmp)")) {
+        if ("Imagen".equalsIgnoreCase(contenido.getTipo()) && contenido.getUrl().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif|bmp)")) {
             try {
                 Image imagen = new Image(new File(contenido.getUrl()).toURI().toString(), 300, 200, true, true);
                 ImageView imageView = new ImageView(imagen);
@@ -107,20 +119,21 @@ public class InicioController {
         }
 
         Button abrirBtn = new Button("Abrir");
-        abrirBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;");
+        abrirBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         abrirBtn.setOnAction(e -> abrirArchivo(contenido.getUrl()));
 
         Button eliminarBtn = new Button("Eliminar");
-        eliminarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;");
+        eliminarBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
         eliminarBtn.setOnAction(e -> {
             contenedorPublicaciones.getChildren().remove(tarjeta);
-            listaContenido.remove(contenido);
+            academix.getContenidoEducativo().remove(contenido);
+            Persistencia.guardarRecursoBancoXML(academix);
         });
 
         HBox botones = new HBox(10, abrirBtn, eliminarBtn);
         tarjeta.getChildren().addAll(botones, autor);
 
-        contenedorPublicaciones.getChildren().add(0, tarjeta); // Agrega arriba
+        contenedorPublicaciones.getChildren().add(0, tarjeta);
     }
 
     private void abrirArchivo(String ruta) {
@@ -143,3 +156,5 @@ public class InicioController {
         alerta.showAndWait();
     }
 }
+
+
