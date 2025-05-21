@@ -11,6 +11,7 @@ import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.ContenidoEducativo;
 import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Utils.Persistencia;
+import uniquindio.com.academix.Estructuras.ListaSimple;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -23,28 +24,33 @@ public class InicioController {
     @FXML private ChoiceBox<String> tipoChoiceBox;
     @FXML private TextField urlField;
     @FXML private VBox contenedorPublicaciones;
+    @FXML private TextField busquedaField;
+    @FXML private ChoiceBox<String> ordenChoiceBox;
 
     private File archivoSeleccionado;
     private Academix academix;
-
     private Estudiante estudianteActual;
 
     public void setEstudianteActual(Estudiante estudiante) {
         this.estudianteActual = estudiante;
         academix = Persistencia.cargarRecursoBancoBinario();
-        cargarPublicaciones();
+        buscarContenido();
     }
 
     @FXML
     public void initialize() {
         tipoChoiceBox.getItems().addAll("Imagen", "PDF", "Video", "Otro");
-        // No cargar publicaciones aquí, se hace cuando se setea estudiante
-    }
+        tipoChoiceBox.getSelectionModel().selectFirst();
 
-    private void cargarPublicaciones() {
-        contenedorPublicaciones.getChildren().clear();
-        for (ContenidoEducativo contenido : academix.getContenidoEducativo()) {
-            agregarPublicacionVista(contenido);
+        if (ordenChoiceBox != null) {
+            ordenChoiceBox.getItems().addAll("Sin ordenar", "Tipo", "Fecha");
+            ordenChoiceBox.getSelectionModel().selectFirst();
+
+            ordenChoiceBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> buscarContenido());
+        }
+
+        if (busquedaField != null) {
+            busquedaField.textProperty().addListener((obs, oldVal, newVal) -> buscarContenido());
         }
     }
 
@@ -78,13 +84,76 @@ public class InicioController {
         ContenidoEducativo contenido = new ContenidoEducativo(titulo, tipo, descripcion, url, estudianteActual.getUsuario());
         academix.agregarContenido(contenido);
         Persistencia.guardarRecursoBancoBinario(academix);
-        agregarPublicacionVista(contenido);
+        buscarContenido();
 
+        // Limpiar formulario y seleccionar primer tipo por defecto
         tituloField.clear();
         descripcionField.clear();
-        tipoChoiceBox.setValue(null);
+        tipoChoiceBox.getSelectionModel().selectFirst();
         urlField.clear();
         archivoSeleccionado = null;
+    }
+
+    public void buscarContenido() {
+        String filtro = busquedaField != null ? busquedaField.getText().toLowerCase() : "";
+        String criterioOrden = ordenChoiceBox != null ? ordenChoiceBox.getValue() : "Sin ordenar";
+
+        ListaSimple<ContenidoEducativo> contenidos = academix.getContenidoEducativo();
+        ListaSimple<ContenidoEducativo> filtrados = new ListaSimple<>();
+
+        // Filtrado manual
+        for (ContenidoEducativo c : contenidos) {
+            if (c.getTitulo().toLowerCase().contains(filtro) ||
+                    c.getAutor().toLowerCase().contains(filtro) ||
+                    c.getTipo().toLowerCase().contains(filtro)) {
+                filtrados.agregar(c);
+            }
+        }
+
+        // Orden manual
+        if ("Tipo".equals(criterioOrden)) {
+            filtrados = ordenarPorTipo(filtrados);
+        } else if ("Fecha".equals(criterioOrden)) {
+            filtrados = ordenarPorFecha(filtrados);
+        }
+
+        contenedorPublicaciones.getChildren().clear();
+        for (ContenidoEducativo contenido : filtrados) {
+            agregarPublicacionVista(contenido);
+        }
+    }
+
+    private ListaSimple<ContenidoEducativo> ordenarPorTipo(ListaSimple<ContenidoEducativo> lista) {
+        ListaSimple<ContenidoEducativo> ordenada = new ListaSimple<>();
+
+        for (int i = 0; i < lista.size(); i++) {
+            ContenidoEducativo actual = lista.get(i);
+            int j = 0;
+            while (j < ordenada.size() && actual.getTipo().compareToIgnoreCase(ordenada.get(j).getTipo()) > 0) {
+                j++;
+            }
+            insertarEnLista(ordenada, j, actual);
+        }
+        return ordenada;
+    }
+
+    private ListaSimple<ContenidoEducativo> ordenarPorFecha(ListaSimple<ContenidoEducativo> lista) {
+        ListaSimple<ContenidoEducativo> ordenada = new ListaSimple<>();
+
+        // Orden descendente: fecha más reciente primero
+        for (int i = 0; i < lista.size(); i++) {
+            ContenidoEducativo actual = lista.get(i);
+            int j = 0;
+            while (j < ordenada.size() && actual.getFechaPublicacion().isBefore(ordenada.get(j).getFechaPublicacion())) {
+                j++;
+            }
+            insertarEnLista(ordenada, j, actual);
+        }
+        return ordenada;
+    }
+
+    private void insertarEnLista(ListaSimple<ContenidoEducativo> lista, int index, ContenidoEducativo dato) {
+        lista.insertarEn(index, dato);
     }
 
     private void agregarPublicacionVista(ContenidoEducativo contenido) {
@@ -99,7 +168,7 @@ public class InicioController {
 
         tarjeta.getChildren().addAll(titulo, descripcion);
 
-        if (contenido.getTipo().equalsIgnoreCase("Imagen") &&
+        if ("Imagen".equalsIgnoreCase(contenido.getTipo()) &&
                 contenido.getUrl().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif|bmp)")) {
             try {
                 Image imagen = new Image(new File(contenido.getUrl()).toURI().toString(), 300, 200, true, true);
@@ -123,6 +192,7 @@ public class InicioController {
                 contenedorPublicaciones.getChildren().remove(tarjeta);
                 academix.eliminarContenido(contenido);
                 Persistencia.guardarRecursoBancoBinario(academix);
+                buscarContenido(); // actualizar vista tras eliminar
             });
             botones.getChildren().add(eliminarBtn);
         }

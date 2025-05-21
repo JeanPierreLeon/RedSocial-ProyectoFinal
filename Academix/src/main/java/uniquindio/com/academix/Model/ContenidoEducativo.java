@@ -1,6 +1,7 @@
 package uniquindio.com.academix.Model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 public class ContenidoEducativo implements Serializable {
 
@@ -12,9 +13,11 @@ public class ContenidoEducativo implements Serializable {
     private String descripcion;
     private String url;
     private String autor;
+    private LocalDateTime fechaPublicacion;
 
     public ContenidoEducativo() {
         this.id = ++contadorId;
+        this.fechaPublicacion = LocalDateTime.now();
     }
 
     public ContenidoEducativo(String titulo, String tipo, String descripcion, String url, String autor) {
@@ -24,16 +27,16 @@ public class ContenidoEducativo implements Serializable {
         this.descripcion = descripcion;
         this.url = url;
         this.autor = autor;
+        this.fechaPublicacion = LocalDateTime.now();
     }
 
-    // Getters y Setters
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-        contadorId = Math.max(contadorId, id); // importante para mantener IDs únicos
+        contadorId = Math.max(contadorId, id);
     }
 
     public String getTitulo() {
@@ -74,5 +77,13 @@ public class ContenidoEducativo implements Serializable {
 
     public void setAutor(String autor) {
         this.autor = autor;
+    }
+
+    public LocalDateTime getFechaPublicacion() {
+        return fechaPublicacion;
+    }
+
+    public void setFechaPublicacion(LocalDateTime fechaPublicacion) {
+        this.fechaPublicacion = fechaPublicacion;
     }
 }

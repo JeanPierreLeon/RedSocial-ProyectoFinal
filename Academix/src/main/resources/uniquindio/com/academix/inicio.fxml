@@ -19,7 +19,6 @@
             <TextField fx:id="descripcionField" promptText="Descripción" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
             <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
 
-            <!-- Campo de URL con botón para seleccionar archivo -->
             <HBox spacing="10">
                 <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS"/>
                 <Button text="Seleccionar" onAction="#seleccionarArchivo" style="-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-background-radius: 10;"/>
@@ -32,6 +31,15 @@
         <VBox prefHeight="540.0" prefWidth="600.0" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" HBox.hgrow="ALWAYS">
             <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Publicaciones" />
 
+            <HBox spacing="10">
+                <TextField fx:id="busquedaField" promptText="Buscar por título, autor o tipo" HBox.hgrow="ALWAYS"
+                           style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+                <ChoiceBox fx:id="ordenChoiceBox" prefWidth="120"
+                           style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+                <Button text="Buscar" onAction="#buscarContenido"
+                        style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" />
+            </HBox>
+
             <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="480" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" VBox.vgrow="ALWAYS">
                 <VBox fx:id="contenedorPublicaciones" spacing="10" style="-fx-background-color: #f9fbff; -fx-padding: 15; -fx-border-radius: 15; -fx-background-radius: 15; -fx-border-color: #d2d8e7;" />
             </ScrollPane>
@@ -40,5 +48,3 @@
     </HBox>
 
 </AnchorPane>
-
-

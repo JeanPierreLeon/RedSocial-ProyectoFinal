@@ -1,5 +1,6 @@
 package uniquindio.com.academix.Estructuras;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -8,8 +9,9 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
 
     private Nodo<T> cabeza;
     private int tamaño;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    // Nodo interno
     private static class Nodo<T> implements Serializable {
         T dato;
         Nodo<T> siguiente;
@@ -19,7 +21,6 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
         }
     }
 
-    // Agrega un elemento al final de la lista
     public void agregar(T dato) {
         Nodo<T> nuevoNodo = new Nodo<>(dato);
         if (cabeza == null) {
@@ -34,7 +35,26 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
         tamaño++;
     }
 
-    // Elimina un elemento por igualdad
+    // Nuevo método para insertar en cualquier posición
+    public void insertarEn(int index, T dato) {
+        if (index < 0 || index > tamaño) {
+            throw new IndexOutOfBoundsException("Índice fuera de rango: " + index);
+        }
+        Nodo<T> nuevoNodo = new Nodo<>(dato);
+        if (index == 0) {
+            nuevoNodo.siguiente = cabeza;
+            cabeza = nuevoNodo;
+        } else {
+            Nodo<T> actual = cabeza;
+            for (int i = 0; i < index - 1; i++) {
+                actual = actual.siguiente;
+            }
+            nuevoNodo.siguiente = actual.siguiente;
+            actual.siguiente = nuevoNodo;
+        }
+        tamaño++;
+    }
+
     public void eliminar(T dato) {
         if (cabeza == null) return;
 
@@ -55,7 +75,6 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
         }
     }
 
-    // Obtiene un elemento por índice
     public T get(int index) {
         if (index < 0 || index >= tamaño) {
             throw new IndexOutOfBoundsException("Índice fuera de rango: " + index);
@@ -68,12 +87,10 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
         return actual.dato;
     }
 
-    // Tamaño de la lista
     public int size() {
         return tamaño;
     }
 
-    // Implementación del iterador para usar for-each
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
@@ -92,5 +109,11 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
                 return dato;
             }
         };
+    }
+
+    public void imprimir() {
+        for (T item : this) {
+            System.out.println(item);
+        }
     }
 }
