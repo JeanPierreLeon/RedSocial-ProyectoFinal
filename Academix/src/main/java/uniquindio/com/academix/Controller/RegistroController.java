@@ -23,8 +23,8 @@ public class RegistroController {
     }
 
     // Método para inyectar los parámetros después de la creación del controlador
-    public void setEstudiantes(List<Estudiante> estudiantes) {
-        this.estudiantes = estudiantes;
+    public void setEstudiantes(uniquindio.com.academix.Estructuras.ListaSimple<Estudiante> estudiantes) {
+        this.estudiantes = (List<Estudiante>) estudiantes;
     }
 
     @FXML

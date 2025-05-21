@@ -25,7 +25,13 @@ public class ModelFactory {
 
     private void cargarRecursosXML() {
         this.academix = Persistencia.cargarRecursoBancoBinario();
+
+        // Si al cargar es null, crea uno nuevo para evitar errores
+        if (this.academix == null) {
+            this.academix = new Academix();
+        }
     }
+
 
     public void guardarRecursosXML() {
         Persistencia.guardarRecursoBancoBinario(academix);

@@ -12,7 +12,16 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static class Nodo<T> implements Serializable {
+    public void limpiar() {
+        cabeza = null;
+        tamaño = 0;
+    }
+
+
+    public static class Nodo<T> implements Serializable {
+
+        @Serial
+        private static final long serialVersionUID = 9032758452518630826L;
         T dato;
         Nodo<T> siguiente;
 
@@ -20,6 +29,12 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
             this.dato = dato;
         }
     }
+
+    public boolean estaVacia() {
+        return cabeza == null;
+        // o también se podría usar: return tamaño == 0;
+    }
+
 
     public void agregar(T dato) {
         Nodo<T> nuevoNodo = new Nodo<>(dato);

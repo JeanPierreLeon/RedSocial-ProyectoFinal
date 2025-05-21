@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="688.0" prefWidth="1101.0" style="-fx-background-color: #f5f7fa;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController">
-
-    <!-- Título -->
-    <Label layoutX="30" layoutY="20" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a73e8;" text="Académix" />
 
     <HBox layoutX="30" layoutY="70" prefHeight="613.0" prefWidth="1063.0" spacing="40">
 
@@ -20,8 +22,8 @@
             <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
 
             <HBox spacing="10">
-                <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS"/>
-                <Button text="Seleccionar" onAction="#seleccionarArchivo" style="-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-background-radius: 10;"/>
+                <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS" />
+                <Button onAction="#seleccionarArchivo" style="-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-background-radius: 10;" text="Seleccionar" />
             </HBox>
 
             <Button onAction="#publicarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="Publicar" />
@@ -32,12 +34,9 @@
             <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Publicaciones" />
 
             <HBox spacing="10">
-                <TextField fx:id="busquedaField" promptText="Buscar por título, autor o tipo" HBox.hgrow="ALWAYS"
-                           style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-                <ChoiceBox fx:id="ordenChoiceBox" prefWidth="120"
-                           style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-                <Button text="Buscar" onAction="#buscarContenido"
-                        style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" />
+                <TextField fx:id="busquedaField" promptText="Buscar por título, autor o tipo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS" />
+                <ChoiceBox fx:id="ordenChoiceBox" prefWidth="120" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+                <Button onAction="#buscarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" text="Buscar" />
             </HBox>
 
             <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="480" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" VBox.vgrow="ALWAYS">

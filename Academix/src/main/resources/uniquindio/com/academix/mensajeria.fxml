@@ -1,14 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="uniquindio.com.academix.Controller.MensajeriaController" prefWidth="600" prefHeight="400">
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="uniquindio.com.academix.Mensajeria"
-            prefHeight="400.0" prefWidth="600.0">
+    <ListView fx:id="listaMensajes" layoutX="20" layoutY="20" prefWidth="560" prefHeight="280" />
+    <ComboBox fx:id="comboDestinatarios"
+              onAction="#cargarMensajesPrevios"
+              layoutX="420" layoutY="310" prefWidth="160" />
+
+    <TextField fx:id="mensajeField" layoutX="20" layoutY="350" prefWidth="450" />
+    <Button fx:id="btnEnviar" layoutX="480" layoutY="350" text="Enviar" onAction="#enviarMensaje" />
 
 </AnchorPane>

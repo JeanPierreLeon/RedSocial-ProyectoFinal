@@ -8,9 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import uniquindio.com.academix.Estructuras.ListaSimple;
 import uniquindio.com.academix.Model.Estudiante;
-
-import java.util.List;
 
 public class LoginController {
 
@@ -18,7 +17,7 @@ public class LoginController {
     @FXML private PasswordField campoContrasena;
     @FXML private Label mensajeError;
 
-    private List<Estudiante> estudiantes;
+    private ListaSimple<Estudiante> estudiantes;
 
     public LoginController() {
         estudiantes = uniquindio.com.academix.HelloApplication.getEstudiantes(); // Lista centralizada
@@ -26,9 +25,9 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        if (estudiantes.isEmpty()) {
-            estudiantes.add(new Estudiante("juan@academix.com.co", "1234"));
-            estudiantes.add(new Estudiante("ana@academix.edu", "abcd"));
+        if (estudiantes.estaVacia()) {
+            estudiantes.agregar(new Estudiante("juan@academix.com.co", "1234"));
+            estudiantes.agregar(new Estudiante("ana@academix.edu", "abcd"));
         }
     }
 
@@ -43,7 +42,6 @@ public class LoginController {
             return;
         }
 
-        // Comprobación de estudiantes
         for (Estudiante est : estudiantes) {
             if (est.getUsuario().equals(usuario) && est.getContrasena().equals(contrasena)) {
                 try {
@@ -63,13 +61,14 @@ public class LoginController {
                     Stage ventanaLogin = (Stage) campoUsuario.getScene().getWindow();
                     ventanaLogin.close();
 
+                    // Registrar el estudiante logueado en la sesión
                     uniquindio.com.academix.HelloApplication.setEstudianteActual(est);
 
                 } catch (Exception e) {
                     mensajeError.setText("Error al cargar la vista principal");
                     e.printStackTrace();
                 }
-                return;  // Salir al encontrar usuario
+                return;
             }
         }
 

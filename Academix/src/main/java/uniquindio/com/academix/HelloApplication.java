@@ -8,12 +8,13 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import uniquindio.com.academix.Estructuras.ListaSimple;
 import uniquindio.com.academix.Model.Estudiante;
 
 public class HelloApplication extends Application {
 
     private static Stage primaryStage;
-    private static final List<Estudiante> estudiantes = new ArrayList<>();
+    private static final uniquindio.com.academix.Estructuras.ListaSimple<Estudiante> estudiantes = new ListaSimple<Estudiante>();
     private static Estudiante estudianteActual; // <-- Sesión activa
 
     @Override
@@ -34,7 +35,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    public static List<Estudiante> getEstudiantes() {
+    public static ListaSimple<Estudiante> getEstudiantes() {
         return estudiantes;
     }
 
