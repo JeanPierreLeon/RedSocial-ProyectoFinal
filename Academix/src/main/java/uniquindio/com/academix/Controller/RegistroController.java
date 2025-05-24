@@ -16,7 +16,6 @@ public class RegistroController {
     @FXML private Label mensajeError;
     @FXML private Button btnRegistrar;
 
-    private ListaSimple<Estudiante> estudiantes;
     private Academix academix;
 
     // Constructor sin parámetros, necesario para FXML
@@ -25,23 +24,18 @@ public class RegistroController {
     }
 
     // Método para inyectar los parámetros después de la creación del controlador
-    public void setEstudiantes(ListaSimple<Estudiante> estudiantes) {
-        this.estudiantes = estudiantes;
-    }
-
-    // Agrega este setter para que LoginController pueda pasar el objeto Academix
     public void setAcademix(Academix academix) {
         this.academix = academix;
     }
 
     @FXML
     public void initialize() {
-        // Inicialización si es necesario
+        // Nada necesario aquí
     }
 
     @FXML
     public void registrarEstudiante() {
-        String usuario = campoUsuario.getText();
+        String usuario = campoUsuario.getText().trim();
         String contrasena = campoContrasena.getText();
         String confirmarContrasena = campoConfirmarContrasena.getText();
 
@@ -55,9 +49,9 @@ public class RegistroController {
             return;
         }
 
-        // Usar la lista de estudiantes de academix para evitar referencias distintas
+        // Validación case-insensitive
         for (Estudiante est : academix.getListaEstudiantes()) {
-            if (est.getUsuario().equals(usuario)) {
+            if (est.getUsuario().equalsIgnoreCase(usuario)) {
                 mensajeError.setText("El usuario ya existe");
                 return;
             }

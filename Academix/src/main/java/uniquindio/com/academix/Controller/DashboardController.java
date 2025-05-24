@@ -59,7 +59,7 @@ public class DashboardController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         Parent vista = loader.load();
 
-        // Aquí si cada controlador tiene método setEstudianteActual, lo llamamos para pasarle el estudiante
+        // Si el controlador tiene setEstudianteActual, pásale el estudiante
         Object controller = loader.getController();
         try {
             controller.getClass()

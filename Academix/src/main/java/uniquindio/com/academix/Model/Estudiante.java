@@ -45,8 +45,8 @@ public class Estudiante implements Serializable {
     }
 
     public void agregarInteres(String interes) {
-        if (!intereses.contains(interes)) {
-            intereses.add(interes);
+        if (interes != null && !interes.trim().isEmpty() && !intereses.contains(interes.trim())) {
+            intereses.add(interes.trim());
         }
     }
 

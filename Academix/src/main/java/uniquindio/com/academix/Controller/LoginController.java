@@ -38,17 +38,17 @@ public class LoginController {
 
     @FXML
     public void iniciarSesion() {
-        String usuario    = campoUsuario.getText();
+        String usuario    = campoUsuario.getText().trim();
         String contrasena = campoContrasena.getText();
 
         // Comprobación de moderador
-        if ("admin".equals(usuario) && "12345".equals(contrasena)) {
+        if ("admin".equalsIgnoreCase(usuario) && "12345".equals(contrasena)) {
             uniquindio.com.academix.HelloApplication.cambiarVista("moderador.fxml", "Panel del Moderador");
             return;
         }
 
         for (Estudiante est : academix.getListaEstudiantes()) {
-            if (est.getUsuario().equals(usuario) && est.getContrasena().equals(contrasena)) {
+            if (est.getUsuario().equalsIgnoreCase(usuario) && est.getContrasena().equals(contrasena)) {
                 try {
                     uniquindio.com.academix.HelloApplication.setEstudianteActual(est);
 

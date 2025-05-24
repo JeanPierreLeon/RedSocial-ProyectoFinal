@@ -22,42 +22,36 @@ public class GruposEstudioController {
     private Estudiante estudianteActual;
     private Academix academix;
 
-    // Setter para recibir el Estudiante actual y la instancia de Academix
     public void setEstudianteActual(Estudiante estudiante) {
         this.estudianteActual = estudiante;
-        // No recargar academix aquí, se debe pasar desde el DashboardController
         cargarInteresesEstudiante();
         formarGruposAutomaticos();
     }
 
-    // Nuevo setter para recibir Academix desde el DashboardController
     public void setAcademix(Academix academix) {
         this.academix = academix;
+        // Al recibir la instancia de Academix, refresca los intereses y grupos
+        cargarInteresesEstudiante();
+        formarGruposAutomaticos();
     }
 
     @FXML
     public void initialize() {
-        // Inicialización de controles si es necesario
+        // Al inicializar, intenta cargar intereses y grupos si academix ya está seteado
+        cargarInteresesEstudiante();
+        formarGruposAutomaticos();
     }
 
     @FXML
     public void agregarInteres() {
         String interes = campoNuevoInteres.getText().trim();
-        if (!interes.isEmpty() && estudianteActual != null && academix != null) {
-            // Buscar el estudiante real en la lista de academix para asegurar referencia correcta
-            Estudiante estudiantePersistente = null;
-            for (Estudiante est : academix.getListaEstudiantes()) {
-                if (est.getUsuario().equals(estudianteActual.getUsuario())) {
-                    estudiantePersistente = est;
-                    break;
-                }
-            }
-            if (estudiantePersistente != null) {
-                estudiantePersistente.agregarInteres(interes);
-                Persistencia.guardarRecursoBancoBinario(academix);
-                // Actualiza la referencia local también
-                estudianteActual = estudiantePersistente;
-            }
+        if (interes.isEmpty() || estudianteActual == null || academix == null) {
+            return;
+        }
+        Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
+        if (estudiantePersistente != null && !estudiantePersistente.getIntereses().contains(interes)) {
+            estudiantePersistente.agregarInteres(interes);
+            Persistencia.guardarRecursoBancoBinario(academix);
             cargarInteresesEstudiante();
             formarGruposAutomaticos();
             campoNuevoInteres.clear();
@@ -65,14 +59,18 @@ public class GruposEstudioController {
     }
 
     private void cargarInteresesEstudiante() {
+        if (listaIntereses == null) return;
         listaIntereses.getItems().clear();
-        if (estudianteActual != null) {
-            listaIntereses.getItems().addAll(estudianteActual.getIntereses());
+        if (estudianteActual != null && academix != null) {
+            Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
+            if (estudiantePersistente != null) {
+                listaIntereses.getItems().addAll(estudiantePersistente.getIntereses());
+            }
         }
     }
 
-    // Forma grupos automáticos según intereses compartidos
     private void formarGruposAutomaticos() {
+        if (listaGrupos == null) return;
         listaGrupos.getItems().clear();
         if (academix == null) return;
 
@@ -89,7 +87,7 @@ public class GruposEstudioController {
         for (Map.Entry<String, List<String>> entry : gruposPorInteres.entrySet()) {
             String interes = entry.getKey();
             List<String> miembros = entry.getValue();
-            if (miembros.size() > 1) { // Solo mostrar grupos con más de un miembro
+            if (miembros.size() > 1) {
                 listaGrupos.getItems().add("Interés: " + interes + " | Miembros: " + String.join(", ", miembros));
                 hayGrupos = true;
             }
