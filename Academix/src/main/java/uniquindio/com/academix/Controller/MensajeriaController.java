@@ -53,9 +53,11 @@ public class MensajeriaController {
     private void cargarDestinatarios() {
         comboDestinatarios.getItems().clear();
         if (academix == null || estudianteActual == null) return;
+        java.util.HashSet<String> usuariosAgregados = new java.util.HashSet<>();
         for (Estudiante est : academix.getListaEstudiantes()) {
-            if (!est.getUsuario().equals(estudianteActual.getUsuario())) {
-                comboDestinatarios.getItems().add(est.getUsuario());
+            String usuario = est.getUsuario();
+            if (!usuario.equals(estudianteActual.getUsuario()) && usuariosAgregados.add(usuario)) {
+                comboDestinatarios.getItems().add(usuario);
             }
         }
     }
