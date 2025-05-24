@@ -42,7 +42,7 @@ public class DashboardController {
 
     @FXML
     public void goToPanel() throws IOException {
-        cargarVista("/uniquindio/com/academix/panelEstudiante.fxml");
+        cargarVista("/uniquindio/com/academix/panel.fxml");
     }
 
     @FXML
