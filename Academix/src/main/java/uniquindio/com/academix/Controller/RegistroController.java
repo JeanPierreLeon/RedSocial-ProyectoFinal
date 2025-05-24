@@ -55,7 +55,8 @@ public class RegistroController {
             return;
         }
 
-        for (Estudiante est : estudiantes) {
+        // Usar la lista de estudiantes de academix para evitar referencias distintas
+        for (Estudiante est : academix.getListaEstudiantes()) {
             if (est.getUsuario().equals(usuario)) {
                 mensajeError.setText("El usuario ya existe");
                 return;
@@ -66,15 +67,10 @@ public class RegistroController {
 
         inicializarEstudiantePorDefecto(nuevo);
 
-        // Cargar el modelo persistente actualizado antes de agregar el nuevo estudiante
-        Academix academix = Persistencia.cargarRecursoBancoBinario();
         academix.agregarEstudiante(nuevo);
         Persistencia.guardarRecursoBancoBinario(academix);
 
-        // Redirigir al login para que el usuario inicie sesión normalmente
         uniquindio.com.academix.HelloApplication.cambiarVista("login.fxml", "Iniciar sesión");
-
-        // Cerrar la ventana de registro si está abierta
         cerrarVentana();
     }
 

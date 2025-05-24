@@ -44,9 +44,20 @@ public class GruposEstudioController {
     public void agregarInteres() {
         String interes = campoNuevoInteres.getText().trim();
         if (!interes.isEmpty() && estudianteActual != null && academix != null) {
-            estudianteActual.agregarInteres(interes);
-            // Guardar SIEMPRE usando la instancia de Academix que se está usando en toda la app
-            uniquindio.com.academix.Factory.ModelFactory.getInstance().guardarRecursosXML();
+            // Buscar el estudiante real en la lista de academix para asegurar referencia correcta
+            Estudiante estudiantePersistente = null;
+            for (Estudiante est : academix.getListaEstudiantes()) {
+                if (est.getUsuario().equals(estudianteActual.getUsuario())) {
+                    estudiantePersistente = est;
+                    break;
+                }
+            }
+            if (estudiantePersistente != null) {
+                estudiantePersistente.agregarInteres(interes);
+                Persistencia.guardarRecursoBancoBinario(academix);
+                // Actualiza la referencia local también
+                estudianteActual = estudiantePersistente;
+            }
             cargarInteresesEstudiante();
             formarGruposAutomaticos();
             campoNuevoInteres.clear();
