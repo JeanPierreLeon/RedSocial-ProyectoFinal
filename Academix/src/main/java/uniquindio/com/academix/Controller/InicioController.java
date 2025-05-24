@@ -16,6 +16,7 @@ import uniquindio.com.academix.Estructuras.ListaSimple;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import javafx.geometry.Pos;
 
 public class InicioController {
 
@@ -166,7 +167,12 @@ public class InicioController {
         Label descripcion = new Label(contenido.getDescripcion());
         Label autor = new Label("Publicado por: " + contenido.getAutor());
 
-        tarjeta.getChildren().addAll(titulo, descripcion);
+        // Mostrar promedio de valoraciones
+        double promedio = contenido.getPromedioValoracion();
+        Label promedioLabel = new Label("Valoración: " + (promedio > 0 ? String.format("%.1f", promedio) + " / 5 (" + contenido.getCantidadValoraciones() + ")" : "Sin valorar"));
+        promedioLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888;");
+
+        tarjeta.getChildren().addAll(titulo, descripcion, promedioLabel);
 
         if ("Imagen".equalsIgnoreCase(contenido.getTipo()) &&
                 contenido.getUrl().toLowerCase().matches(".*\\.(png|jpg|jpeg|gif|bmp)")) {
@@ -180,6 +186,7 @@ public class InicioController {
         }
 
         HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER_LEFT);
         Button abrirBtn = new Button("Abrir");
         abrirBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
         abrirBtn.setOnAction(e -> abrirArchivo(contenido.getUrl()));
@@ -195,6 +202,27 @@ public class InicioController {
                 buscarContenido(); // actualizar vista tras eliminar
             });
             botones.getChildren().add(eliminarBtn);
+        } else {
+            // Control de valoración solo si NO es el autor
+            int valoracionActual = contenido.getValoracionDe(estudianteActual.getUsuario());
+            Label tuValoracion = new Label(valoracionActual > 0 ? "Tu valoración: " + valoracionActual : "Valorar:");
+            ComboBox<Integer> valoracionCombo = new ComboBox<>();
+            valoracionCombo.getItems().addAll(1, 2, 3, 4, 5);
+            valoracionCombo.setValue(valoracionActual > 0 ? valoracionActual : 5);
+            valoracionCombo.setDisable(valoracionActual > 0); // No permitir valorar dos veces
+
+            Button valorarBtn = new Button("Enviar");
+            valorarBtn.setDisable(valoracionActual > 0);
+            valorarBtn.setOnAction(e -> {
+                int val = valoracionCombo.getValue();
+                contenido.valorar(estudianteActual.getUsuario(), val);
+                Persistencia.guardarRecursoBancoBinario(academix);
+                buscarContenido(); // refrescar vista
+            });
+
+            HBox valorarBox = new HBox(5, tuValoracion, valoracionCombo, valorarBtn);
+            valorarBox.setAlignment(Pos.CENTER_LEFT);
+            botones.getChildren().add(valorarBox);
         }
 
         tarjeta.getChildren().addAll(botones, autor);

@@ -2,8 +2,14 @@ package uniquindio.com.academix.Model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 public class ContenidoEducativo implements Serializable {
+
+    private static final long serialVersionUID = -407735784476436657L; // Usa el valor que aparece en el error
 
     private static int contadorId = 0;
 
@@ -14,6 +20,9 @@ public class ContenidoEducativo implements Serializable {
     private String url;
     private String autor;
     private LocalDateTime fechaPublicacion;
+
+    // Valoraciones: usuario -> puntuación (1-5)
+    private Map<String, Integer> valoraciones = new HashMap<>();
 
     public ContenidoEducativo() {
         this.id = ++contadorId;
@@ -85,5 +94,34 @@ public class ContenidoEducativo implements Serializable {
 
     public void setFechaPublicacion(LocalDateTime fechaPublicacion) {
         this.fechaPublicacion = fechaPublicacion;
+    }
+
+    public void valorar(String usuario, int puntuacion) {
+        if (usuario != null && puntuacion >= 1 && puntuacion <= 5) {
+            valoraciones.put(usuario, puntuacion);
+        }
+    }
+
+    public double getPromedioValoracion() {
+        if (valoraciones.isEmpty()) return 0;
+        int suma = 0;
+        for (int v : valoraciones.values()) suma += v;
+        return (double) suma / valoraciones.size();
+    }
+
+    public int getValoracionDe(String usuario) {
+        return valoraciones.getOrDefault(usuario, 0);
+    }
+
+    public int getCantidadValoraciones() {
+        return valoraciones.size();
+    }
+
+    // Añade este método para asegurar la inicialización tras deserializar
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        if (valoraciones == null) {
+            valoraciones = new HashMap<>();
+        }
     }
 }
