@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Factory.ModelFactory;
 
 import java.io.IOException;
 
@@ -68,6 +69,19 @@ public class DashboardController {
             // El controlador no tiene método setEstudianteActual, lo ignoramos
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        // Si el controlador es GruposEstudioController, pásale también la instancia de Academix
+        if (fxmlPath.contains("grupos.fxml")) {
+            try {
+                controller.getClass()
+                        .getMethod("setAcademix", uniquindio.com.academix.Model.Academix.class)
+                        .invoke(controller, ModelFactory.getInstance().getAcademix());
+            } catch (NoSuchMethodException e) {
+                // No tiene setAcademix, lo ignoramos
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         rootPane.setCenter(vista);

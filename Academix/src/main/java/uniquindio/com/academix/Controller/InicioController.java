@@ -192,37 +192,40 @@ public class InicioController {
         abrirBtn.setOnAction(e -> abrirArchivo(contenido.getUrl()));
         botones.getChildren().add(abrirBtn);
 
-        if (contenido.getAutor().equals(estudianteActual.getUsuario())) {
-            Button eliminarBtn = new Button("Eliminar");
-            eliminarBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
-            eliminarBtn.setOnAction(e -> {
-                contenedorPublicaciones.getChildren().remove(tarjeta);
-                academix.eliminarContenido(contenido);
-                Persistencia.guardarRecursoBancoBinario(academix);
-                buscarContenido(); // actualizar vista tras eliminar
-            });
-            botones.getChildren().add(eliminarBtn);
-        } else {
-            // Control de valoración solo si NO es el autor
-            int valoracionActual = contenido.getValoracionDe(estudianteActual.getUsuario());
-            Label tuValoracion = new Label(valoracionActual > 0 ? "Tu valoración: " + valoracionActual : "Valorar:");
-            ComboBox<Integer> valoracionCombo = new ComboBox<>();
-            valoracionCombo.getItems().addAll(1, 2, 3, 4, 5);
-            valoracionCombo.setValue(valoracionActual > 0 ? valoracionActual : 5);
-            valoracionCombo.setDisable(valoracionActual > 0); // No permitir valorar dos veces
+        // Comprobar que estudianteActual no sea null antes de usarlo
+        if (estudianteActual != null) {
+            if (contenido.getAutor().equals(estudianteActual.getUsuario())) {
+                Button eliminarBtn = new Button("Eliminar");
+                eliminarBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
+                eliminarBtn.setOnAction(e -> {
+                    contenedorPublicaciones.getChildren().remove(tarjeta);
+                    academix.eliminarContenido(contenido);
+                    Persistencia.guardarRecursoBancoBinario(academix);
+                    buscarContenido(); // actualizar vista tras eliminar
+                });
+                botones.getChildren().add(eliminarBtn);
+            } else {
+                // Control de valoración solo si NO es el autor
+                int valoracionActual = contenido.getValoracionDe(estudianteActual.getUsuario());
+                Label tuValoracion = new Label(valoracionActual > 0 ? "Tu valoración: " + valoracionActual : "Valorar:");
+                ComboBox<Integer> valoracionCombo = new ComboBox<>();
+                valoracionCombo.getItems().addAll(1, 2, 3, 4, 5);
+                valoracionCombo.setValue(valoracionActual > 0 ? valoracionActual : 5);
+                valoracionCombo.setDisable(valoracionActual > 0); // No permitir valorar dos veces
 
-            Button valorarBtn = new Button("Enviar");
-            valorarBtn.setDisable(valoracionActual > 0);
-            valorarBtn.setOnAction(e -> {
-                int val = valoracionCombo.getValue();
-                contenido.valorar(estudianteActual.getUsuario(), val);
-                Persistencia.guardarRecursoBancoBinario(academix);
-                buscarContenido(); // refrescar vista
-            });
+                Button valorarBtn = new Button("Enviar");
+                valorarBtn.setDisable(valoracionActual > 0);
+                valorarBtn.setOnAction(e -> {
+                    int val = valoracionCombo.getValue();
+                    contenido.valorar(estudianteActual.getUsuario(), val);
+                    Persistencia.guardarRecursoBancoBinario(academix);
+                    buscarContenido(); // refrescar vista
+                });
 
-            HBox valorarBox = new HBox(5, tuValoracion, valoracionCombo, valorarBtn);
-            valorarBox.setAlignment(Pos.CENTER_LEFT);
-            botones.getChildren().add(valorarBox);
+                HBox valorarBox = new HBox(5, tuValoracion, valoracionCombo, valorarBtn);
+                valorarBox.setAlignment(Pos.CENTER_LEFT);
+                botones.getChildren().add(valorarBox);
+            }
         }
 
         tarjeta.getChildren().addAll(botones, autor);

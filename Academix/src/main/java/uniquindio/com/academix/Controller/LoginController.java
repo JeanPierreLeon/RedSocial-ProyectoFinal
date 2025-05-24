@@ -8,8 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import uniquindio.com.academix.Estructuras.ListaSimple;
 import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Model.Academix;
+import uniquindio.com.academix.Utils.Persistencia;
 
 public class LoginController {
 
@@ -17,17 +18,21 @@ public class LoginController {
     @FXML private PasswordField campoContrasena;
     @FXML private Label mensajeError;
 
-    private ListaSimple<Estudiante> estudiantes;
+    private Academix academix;
 
     public LoginController() {
-        estudiantes = uniquindio.com.academix.HelloApplication.getEstudiantes(); // Lista centralizada
+        // La carga real se hace en initialize()
     }
 
     @FXML
     public void initialize() {
-        if (estudiantes.estaVacia()) {
-            estudiantes.agregar(new Estudiante("juan@academix.com.co", "1234"));
-            estudiantes.agregar(new Estudiante("ana@academix.edu", "abcd"));
+        // Cargar el modelo completo desde la persistencia
+        academix = Persistencia.cargarRecursoBancoBinario();
+        // Si la lista está vacía, agregar los de ejemplo y guardar
+        if (academix.getListaEstudiantes().estaVacia()) {
+            academix.agregarEstudiante(new Estudiante("juan@academix.com.co", "1234"));
+            academix.agregarEstudiante(new Estudiante("ana@academix.edu", "abcd"));
+            Persistencia.guardarRecursoBancoBinario(academix);
         }
     }
 
@@ -42,13 +47,14 @@ public class LoginController {
             return;
         }
 
-        for (Estudiante est : estudiantes) {
+        for (Estudiante est : academix.getListaEstudiantes()) {
             if (est.getUsuario().equals(usuario) && est.getContrasena().equals(contrasena)) {
                 try {
+                    uniquindio.com.academix.HelloApplication.setEstudianteActual(est);
+
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/principal.fxml"));
                     Parent root = loader.load();
 
-                    // Pasar el estudiante al dashboard
                     DashboardController controller = loader.getController();
                     controller.setEstudianteActual(est);
 
@@ -57,12 +63,8 @@ public class LoginController {
                     stage.setScene(new Scene(root));
                     stage.show();
 
-                    // Cerrar ventana login
                     Stage ventanaLogin = (Stage) campoUsuario.getScene().getWindow();
                     ventanaLogin.close();
-
-                    // Registrar el estudiante logueado en la sesión
-                    uniquindio.com.academix.HelloApplication.setEstudianteActual(est);
 
                 } catch (Exception e) {
                     mensajeError.setText("Error al cargar la vista principal");
@@ -75,13 +77,20 @@ public class LoginController {
         mensajeError.setText("Usuario o contraseña incorrectos");
     }
 
+    // Método temporal para depuración
+    public void imprimirUsuariosEnConsola() {
+        for (Estudiante est : academix.getListaEstudiantes()) {
+            System.out.println("Usuario: " + est.getUsuario() + " | Contraseña: " + est.getContrasena());
+        }
+    }
+
     public void abrirVentanaRegistro() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/registroEstudiantes.fxml"));
             Parent root = loader.load();
 
             RegistroController registroController = loader.getController();
-            registroController.setEstudiantes(estudiantes);
+            registroController.setAcademix(academix); // Mejor pasar el objeto completo
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));

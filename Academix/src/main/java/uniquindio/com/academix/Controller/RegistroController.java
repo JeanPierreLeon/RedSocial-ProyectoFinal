@@ -4,8 +4,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import uniquindio.com.academix.Model.Estudiante;
-
-import java.util.List;
+import uniquindio.com.academix.Model.Academix;
+import uniquindio.com.academix.Utils.Persistencia;
+import uniquindio.com.academix.Estructuras.ListaSimple;
 
 public class RegistroController {
 
@@ -15,7 +16,8 @@ public class RegistroController {
     @FXML private Label mensajeError;
     @FXML private Button btnRegistrar;
 
-    private List<Estudiante> estudiantes;
+    private ListaSimple<Estudiante> estudiantes;
+    private Academix academix;
 
     // Constructor sin parámetros, necesario para FXML
     public RegistroController() {
@@ -23,14 +25,20 @@ public class RegistroController {
     }
 
     // Método para inyectar los parámetros después de la creación del controlador
-    public void setEstudiantes(uniquindio.com.academix.Estructuras.ListaSimple<Estudiante> estudiantes) {
-        this.estudiantes = (List<Estudiante>) estudiantes;
+    public void setEstudiantes(ListaSimple<Estudiante> estudiantes) {
+        this.estudiantes = estudiantes;
+    }
+
+    // Agrega este setter para que LoginController pueda pasar el objeto Academix
+    public void setAcademix(Academix academix) {
+        this.academix = academix;
     }
 
     @FXML
     public void initialize() {
         // Inicialización si es necesario
     }
+
     @FXML
     public void registrarEstudiante() {
         String usuario = campoUsuario.getText();
@@ -55,16 +63,30 @@ public class RegistroController {
         }
 
         Estudiante nuevo = new Estudiante(usuario, contrasena);
-        estudiantes.add(nuevo);
 
-        // Establecer el estudiante en sesión
-        uniquindio.com.academix.HelloApplication.setEstudianteActual(nuevo);
+        inicializarEstudiantePorDefecto(nuevo);
 
-        // Cambiar a la vista principal
-        uniquindio.com.academix.HelloApplication.cambiarVista("principal.fxml", "Inicio");
+        // Cargar el modelo persistente actualizado antes de agregar el nuevo estudiante
+        Academix academix = Persistencia.cargarRecursoBancoBinario();
+        academix.agregarEstudiante(nuevo);
+        Persistencia.guardarRecursoBancoBinario(academix);
 
-        // También podrías cerrar esta ventana si fuese un pop-up (no obligatorio si estás cambiando de escena)
-        // cerrarVentana();
+        // Redirigir al login para que el usuario inicie sesión normalmente
+        uniquindio.com.academix.HelloApplication.cambiarVista("login.fxml", "Iniciar sesión");
+
+        // Cerrar la ventana de registro si está abierta
+        cerrarVentana();
+    }
+
+    /**
+     * Inicializa la lógica/configuración que tienen los estudiantes por defecto.
+     * Puedes agregar aquí lo que se le asigna a juan@academix.com.co y ana@academix.edu.
+     */
+    private void inicializarEstudiantePorDefecto(Estudiante estudiante) {
+        // Ejemplo: estudiante.setRol("estudiante");
+        // Ejemplo: estudiante.setGruposPorDefecto();
+        // Ejemplo: estudiante.setMensajesBienvenida();
+        // Si tienes lógica específica, agrégala aquí.
     }
 
     // Método para cerrar la ventana de registro

@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="uniquindio.com.academix.Grupos"
+            fx:controller="uniquindio.com.academix.Controller.GruposEstudioController"
             prefHeight="400.0" prefWidth="600.0">
 
+    <VBox spacing="20" layoutX="30" layoutY="20" AnchorPane.leftAnchor="30" AnchorPane.topAnchor="20" AnchorPane.rightAnchor="30" AnchorPane.bottomAnchor="20">
+        <Label text="Tus intereses:" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+        <ListView fx:id="listaIntereses" prefHeight="80" />
+        <HBox spacing="10">
+            <TextField fx:id="campoNuevoInteres" promptText="Agregar nuevo interés..." />
+            <Button text="Agregar" onAction="#agregarInteres" />
+        </HBox>
+        <Separator />
+        <Label text="Grupos de estudio automáticos por intereses compartidos:" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+        <ListView fx:id="listaGrupos" prefHeight="200" />
+    </VBox>
 </AnchorPane>

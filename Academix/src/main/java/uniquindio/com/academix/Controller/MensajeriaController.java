@@ -52,7 +52,7 @@ public class MensajeriaController {
 
     private void cargarDestinatarios() {
         comboDestinatarios.getItems().clear();
-        if (academix == null) return;
+        if (academix == null || estudianteActual == null) return;
         for (Estudiante est : academix.getListaEstudiantes()) {
             if (!est.getUsuario().equals(estudianteActual.getUsuario())) {
                 comboDestinatarios.getItems().add(est.getUsuario());
