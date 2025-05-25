@@ -53,6 +53,18 @@ public class GrafoUsuarios implements Serializable {
         return resultado;
     }
 
+    public void desconectar(String usuarioA, String usuarioB) {
+        if (usuarioA.equals(usuarioB)) return;
+
+        int indexA = obtenerIndice(usuarioA);
+        int indexB = obtenerIndice(usuarioB);
+
+        if (indexA != -1 && indexB != -1) {
+            eliminarConexion(indexA, usuarioB);
+            eliminarConexion(indexB, usuarioA);
+        }
+    }
+
     // Utilidades internas
 
     private int obtenerIndice(String usuario) {
@@ -78,6 +90,20 @@ public class GrafoUsuarios implements Serializable {
             }
             if (conexiones[index][i].equals(otroUsuario)) {
                 return; // Ya está conectado
+            }
+        }
+    }
+
+    private void eliminarConexion(int index, String otroUsuario) {
+        for (int i = 0; i < MAX_USUARIOS && conexiones[index][i] != null; i++) {
+            if (conexiones[index][i].equals(otroUsuario)) {
+                // Mover todas las conexiones siguientes una posición hacia atrás
+                while (i < MAX_USUARIOS - 1 && conexiones[index][i + 1] != null) {
+                    conexiones[index][i] = conexiones[index][i + 1];
+                    i++;
+                }
+                conexiones[index][i] = null;
+                return;
             }
         }
     }

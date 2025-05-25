@@ -1,6 +1,8 @@
 package uniquindio.com.academix;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,19 +10,91 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import uniquindio.com.academix.Model.ListaSimple;
+import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Utils.Persistencia;
 
 public class HelloApplication extends Application {
 
     private static Stage primaryStage;
-    private static final ListaSimple<Estudiante> estudiantes = new ListaSimple<Estudiante>();
+    private static List<Estudiante> estudiantes = new ArrayList<>();
     private static Estudiante estudianteActual; // <-- Sesión activa
 
     @Override
     public void start(Stage stage) throws IOException {
+        // Inicializar usuarios por defecto si no existen
+        inicializarUsuariosPorDefecto();
+        
         primaryStage = stage;
-        cambiarVista("login.fxml", "Iniciar sesión");
+        cambiarVista("login.fxml", "Login");
+    }
+
+    private void inicializarUsuariosPorDefecto() {
+        Academix academix = Persistencia.cargarRecursoBancoBinario();
+        if (academix == null) {
+            academix = new Academix();
+        }
+
+        // Verificar si los usuarios por defecto ya existen
+        boolean existeAna = false;
+        boolean existeJean = false;
+
+        for (Estudiante e : academix.getListaEstudiantes()) {
+            if (e.getUsuario().equals("ana")) existeAna = true;
+            if (e.getUsuario().equals("jean")) existeJean = true;
+        }
+
+        // Crear usuario Ana si no existe
+        if (!existeAna) {
+            Estudiante ana = new Estudiante("ana", "123");
+            ana.setNombre("Ana García");
+            ana.setUniversidad("Universidad del Quindío");
+            ana.setUbicacion("Armenia");
+            ana.agregarInteres("Matemáticas");
+            ana.agregarInteres("Física");
+            ana.setFotoPerfil("src/main/resources/images/ana_perfil.jpg");
+            ana.setFotoPortada("src/main/resources/images/ana_portada.jpg");
+            academix.agregarEstudiante(ana);
+        }
+
+        // Crear usuario Jean si no existe
+        if (!existeJean) {
+            Estudiante jean = new Estudiante("jean", "123");
+            jean.setNombre("Jean");
+            jean.setUniversidad("Universidad del Quindío");
+            jean.setUbicacion("Armenia");
+            jean.agregarInteres("Programación");
+            jean.agregarInteres("Matemáticas");
+            
+            // Copiar las imágenes a la carpeta de perfiles
+            try {
+                File carpetaPerfiles = new File("data/perfiles");
+                if (!carpetaPerfiles.exists()) carpetaPerfiles.mkdirs();
+
+                // Copiar foto de perfil
+                File perfilJean = new File("data/perfiles/jean_perfil.jpg");
+                if (!perfilJean.exists()) {
+                    Files.copy(getClass().getResourceAsStream("/images/jean_perfil.jpg"), perfilJean.toPath());
+                }
+                jean.setFotoPerfil(perfilJean.getAbsolutePath());
+
+                // Copiar foto de portada
+                File portadaJean = new File("data/perfiles/jean_portada.jpg");
+                if (!portadaJean.exists()) {
+                    Files.copy(getClass().getResourceAsStream("/images/jean_portada.jpg"), portadaJean.toPath());
+                }
+                jean.setFotoPortada(portadaJean.getAbsolutePath());
+            } catch (Exception e) {
+                System.out.println("Error copiando imágenes de Jean: " + e.getMessage());
+            }
+            
+            academix.agregarEstudiante(jean);
+        }
+
+        // Si se creó algún usuario nuevo, guardar los cambios
+        if (!existeAna || !existeJean) {
+            Persistencia.guardarRecursoBancoBinario(academix);
+        }
     }
 
     public static void cambiarVista(String fxml, String titulo) {
@@ -35,7 +109,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    public static ListaSimple<Estudiante> getEstudiantes() {
+    public static List<Estudiante> getEstudiantes() {
         return estudiantes;
     }
 

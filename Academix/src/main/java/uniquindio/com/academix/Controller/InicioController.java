@@ -37,6 +37,9 @@ public class InicioController {
     @FXML private ListView<PublicacionItem> publicacionesListView;
     @FXML private VBox sugerenciasContainer;
     @FXML private VBox solicitudesPendientesContainer;
+    @FXML private VBox amigosContainer;
+    @FXML private ImageView perfilImageView;
+    @FXML private Label nombreUsuarioLabel;
 
     private File archivoSeleccionado;
     private Academix academix;
@@ -80,30 +83,76 @@ public class InicioController {
             private final Label nombreUsuario = new Label();
             private final Label tiempoPublicacion = new Label();
             private final Label texto = new Label();
+            private final ImageView imagenPublicacion = new ImageView();
             private final HBox interacciones = new HBox(10);
             private final Label estrellas = new Label();
             private final Button btnValorar = new Button("Valorar");
+            private final Button btnComentar = new Button("Comentar");
 
             {
-                // Configurar foto de perfil
+                // Configurar foto de perfil circular
                 fotoPerfil.setFitHeight(40);
                 fotoPerfil.setFitWidth(40);
-                fotoPerfil.setStyle("-fx-background-radius: 20;");
+                
+                // Crear clip circular para la foto de perfil
+                javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20);
+                clip.setCenterX(20);
+                clip.setCenterY(20);
+                fotoPerfil.setClip(clip);
+                
+                fotoPerfil.setStyle(
+                    "-fx-background-radius: 20; " +
+                    "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 2, 0, 0, 0); " +
+                    "-fx-background-color: white; " +
+                    "-fx-border-radius: 20; " +
+                    "-fx-border-color: #e0e0e0; " +
+                    "-fx-border-width: 1;"
+                );
+
+                // Configurar imagen de la publicación
+                imagenPublicacion.setFitWidth(400);
+                imagenPublicacion.setPreserveRatio(true);
+                imagenPublicacion.setSmooth(true);
 
                 // Estilos
-                nombreUsuario.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
-                tiempoPublicacion.setStyle("-fx-text-fill: #65676b; -fx-font-size: 12;");
+                nombreUsuario.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Segoe UI';");
+                tiempoPublicacion.setStyle("-fx-text-fill: #65676b; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
                 texto.setWrapText(true);
-                texto.setStyle("-fx-font-size: 14;");
-                estrellas.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 14;");
-                btnValorar.setStyle("-fx-background-color: #1e88e5; -fx-text-fill: white;");
+                texto.setStyle("-fx-font-size: 14px; -fx-font-family: 'Segoe UI';");
+                estrellas.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 14px;");
+                
+                btnValorar.setStyle(
+                    "-fx-background-color: #1a73e8; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-font-family: 'Segoe UI'; " +
+                    "-fx-cursor: hand;"
+                );
+                
+                btnComentar.setStyle(
+                    "-fx-background-color: #1a73e8; " +
+                    "-fx-text-fill: white; " +
+                    "-fx-font-size: 12px; " +
+                    "-fx-font-family: 'Segoe UI'; " +
+                    "-fx-cursor: hand;"
+                );
 
                 // Estructura
                 infoUsuario.getChildren().addAll(nombreUsuario, tiempoPublicacion);
                 encabezado.getChildren().addAll(fotoPerfil, infoUsuario);
-                interacciones.getChildren().addAll(estrellas, btnValorar);
-                contenido.getChildren().addAll(encabezado, texto, interacciones);
-                contenido.setStyle("-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 10;");
+                encabezado.setAlignment(Pos.CENTER_LEFT);
+                interacciones.getChildren().addAll(estrellas, btnValorar, btnComentar);
+                interacciones.setAlignment(Pos.CENTER_LEFT);
+                
+                contenido.getChildren().addAll(encabezado, texto);
+                contenido.setStyle(
+                    "-fx-padding: 15; " +
+                    "-fx-background-color: white; " +
+                    "-fx-background-radius: 10; " +
+                    "-fx-border-color: #e4e6eb; " +
+                    "-fx-border-radius: 10; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 1);"
+                );
             }
 
             @Override
@@ -114,36 +163,71 @@ public class InicioController {
                 } else {
                     nombreUsuario.setText(item.getAutorNombre());
                     tiempoPublicacion.setText(item.getTiempoTranscurrido());
-                    texto.setText(item.getContenido());
-
-                    // Mostrar imagen si existe
-                    contenido.getChildren().removeIf(node -> node instanceof ImageView && node != fotoPerfil);
-                    if (item.getRutaImagen() != null) {
+                    
+                    // Mostrar el contenido sin la parte de "Imagen seleccionada: "
+                    String contenidoTexto = item.getContenido();
+                    if (contenidoTexto.startsWith("Imagen seleccionada: ")) {
+                        contenidoTexto = contenidoTexto.substring("Imagen seleccionada: ".length());
+                    }
+                    texto.setText(contenidoTexto);
+                    
+                    // Cargar imagen de perfil con manejo de errores mejorado
+                    try {
+                        if (item.getImagenPerfil() != null) {
+                            File archivoFoto = new File(item.getImagenPerfil());
+                            if (archivoFoto.exists()) {
+                                Image imagen = new Image(archivoFoto.toURI().toString());
+                                fotoPerfil.setImage(imagen);
+                            } else {
+                                System.out.println("Archivo de foto de perfil no encontrado: " + item.getImagenPerfil());
+                                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                            }
+                        } else {
+                            System.out.println("Ruta de foto de perfil es null para: " + item.getAutorNombre());
+                            fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error cargando foto de perfil para " + item.getAutorNombre() + ": " + e.getMessage());
                         try {
-                            ImageView imagenPublicacion = new ImageView(new Image(new File(item.getRutaImagen()).toURI().toString()));
-                            imagenPublicacion.setFitWidth(400);
-                            imagenPublicacion.setPreserveRatio(true);
-                            imagenPublicacion.setSmooth(true);
-                            contenido.getChildren().add(2, imagenPublicacion); // después del encabezado y texto
-                        } catch (Exception e) {
-                            // Si hay error, no mostrar imagen
+                            fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                        } catch (Exception ex) {
+                            System.err.println("Error al cargar la imagen por defecto: " + ex.getMessage());
                         }
                     }
 
-                    // Cargar imagen de perfil
-                    if (item.getImagenPerfil() != null) {
+                    // Cargar imagen de la publicación si existe
+                    if (item.getRutaImagen() != null) {
                         try {
-                            Image imagen = new Image(new File(item.getImagenPerfil()).toURI().toString());
-                            fotoPerfil.setImage(imagen);
+                            File archivoImagen = new File(item.getRutaImagen());
+                            if (archivoImagen.exists()) {
+                                Image imagen = new Image(archivoImagen.toURI().toString());
+                                imagenPublicacion.setImage(imagen);
+                                if (!contenido.getChildren().contains(imagenPublicacion)) {
+                                    contenido.getChildren().add(contenido.getChildren().indexOf(interacciones), imagenPublicacion);
+                                }
+                            } else {
+                                System.out.println("Archivo de imagen de publicación no encontrado: " + item.getRutaImagen());
+                                contenido.getChildren().remove(imagenPublicacion);
+                            }
                         } catch (Exception e) {
-                            // Usar imagen por defecto si hay error
+                            System.err.println("Error cargando imagen de publicación: " + e.getMessage());
+                            contenido.getChildren().remove(imagenPublicacion);
                         }
+                    } else {
+                        contenido.getChildren().remove(imagenPublicacion);
+                    }
+
+                    // Asegurarse de que las interacciones estén al final
+                    if (!contenido.getChildren().contains(interacciones)) {
+                        contenido.getChildren().add(interacciones);
                     }
 
                     int promedio = item.getPromedioValoraciones();
                     estrellas.setText("★".repeat(promedio) + "☆".repeat(5 - promedio));
                     
                     btnValorar.setOnAction(e -> mostrarDialogoValoracion(item));
+                    btnComentar.setOnAction(e -> mostrarDialogoComentario(item));
+                    
                     setGraphic(contenido);
                 }
             }
@@ -157,9 +241,54 @@ public class InicioController {
     public void setEstudianteActual(Estudiante estudiante) {
         this.estudianteActual = estudiante;
         academix = Persistencia.cargarRecursoBancoBinario();
+
+        // Actualizar foto de perfil y nombre del usuario
+        if (estudiante != null) {
+            nombreUsuarioLabel.setText(estudiante.getNombre());
+            actualizarFotoPerfil(estudiante.getFotoPerfil());
+        }
+
         buscarContenido();
         cargarPublicaciones();
         cargarSugerenciasYSolicitudes();
+    }
+
+    private void actualizarFotoPerfil(String rutaFoto) {
+        try {
+            if (rutaFoto != null) {
+                File archivoFoto = new File(rutaFoto);
+                if (archivoFoto.exists()) {
+                    Image imagen = new Image(archivoFoto.toURI().toString());
+                    perfilImageView.setImage(imagen);
+                } else {
+                    perfilImageView.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                }
+            } else {
+                perfilImageView.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+            }
+
+            // Aplicar estilo circular
+            javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20);
+            clip.setCenterX(20);
+            clip.setCenterY(20);
+            perfilImageView.setClip(clip);
+            
+            perfilImageView.setStyle(
+                "-fx-background-radius: 20; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 2, 0, 0, 0); " +
+                "-fx-background-color: white; " +
+                "-fx-border-radius: 20; " +
+                "-fx-border-color: #e0e0e0; " +
+                "-fx-border-width: 1;"
+            );
+        } catch (Exception e) {
+            System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
+            try {
+                perfilImageView.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+            } catch (Exception ex) {
+                System.err.println("Error al cargar la imagen por defecto: " + ex.getMessage());
+            }
+        }
     }
 
     @FXML
@@ -205,8 +334,9 @@ public class InicioController {
             return;
         }
 
+        String contenidoPublicacion = titulo + "\n" + descripcion;
         PublicacionItem nuevaPublicacion = new PublicacionItem(
-            titulo + "\n" + descripcion,
+            contenidoPublicacion,
             estudianteActual.getUsuario(),
             estudianteActual.getNombre(),
             estudianteActual.getFotoPerfil()
@@ -222,7 +352,7 @@ public class InicioController {
                 String nombreArchivo = System.currentTimeMillis() + "_" + archivoSeleccionado.getName();
                 File destino = new File(carpetaDestino, nombreArchivo);
                 Files.copy(archivoSeleccionado.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                nuevaPublicacion.setRutaImagen("data/archivos/" + nombreArchivo);
+                nuevaPublicacion.setRutaImagen(destino.getAbsolutePath());
             } catch (Exception e) {
                 mostrarAlerta("Error", "No se pudo copiar el archivo adjunto.");
             }
@@ -567,19 +697,190 @@ public class InicioController {
     }
 
     private void cargarSugerenciasYSolicitudes() {
+        cargarAmigos();
         cargarSugerencias();
         cargarSolicitudesPendientes();
     }
 
+    private void cargarAmigos() {
+        amigosContainer.getChildren().clear();
+        Label tituloAmigos = new Label("Mis Amigos");
+        tituloAmigos.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #666666; -fx-font-family: 'Segoe UI';");
+        amigosContainer.getChildren().add(tituloAmigos);
+
+        if (estudianteActual != null) {
+            // Solo mostrar amigos cuando la solicitud ha sido aceptada
+            List<SolicitudAmistad> solicitudesAceptadas = academix.obtenerTodasLasSolicitudes().stream()
+                .filter(s -> (s.getRemitente().equals(estudianteActual.getUsuario()) || 
+                            s.getDestinatario().equals(estudianteActual.getUsuario())) &&
+                            s.getEstado() == SolicitudAmistad.EstadoSolicitud.ACEPTADA)
+                .toList();
+
+            if (solicitudesAceptadas.isEmpty()) {
+                Label noAmigosLabel = new Label("No tienes amigos agregados");
+                noAmigosLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
+                amigosContainer.getChildren().add(noAmigosLabel);
+            } else {
+                for (SolicitudAmistad solicitud : solicitudesAceptadas) {
+                    Estudiante amigo;
+                    if (solicitud.getRemitente().equals(estudianteActual.getUsuario())) {
+                        amigo = academix.buscarEstudiante(solicitud.getDestinatario());
+                    } else {
+                        amigo = academix.buscarEstudiante(solicitud.getRemitente());
+                    }
+                    if (amigo != null) {
+                        VBox tarjeta = crearTarjetaAmigo(amigo);
+                        amigosContainer.getChildren().add(tarjeta);
+                    }
+                }
+            }
+        }
+    }
+
+    private ImageView crearFotoPerfilCircular(String rutaFoto, double size) {
+        ImageView fotoPerfil = new ImageView();
+        fotoPerfil.setFitHeight(size);
+        fotoPerfil.setFitWidth(size);
+        
+        try {
+            if (rutaFoto != null) {
+                File archivoFoto = new File(rutaFoto);
+                if (archivoFoto.exists()) {
+                    fotoPerfil.setImage(new Image(archivoFoto.toURI().toString()));
+                } else {
+                    fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                }
+            } else {
+                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
+            try {
+                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+            } catch (Exception ex) {
+                System.err.println("Error al cargar la imagen por defecto: " + ex.getMessage());
+            }
+        }
+
+        // Aplicar estilo circular
+        fotoPerfil.setStyle(
+            "-fx-background-radius: " + (size/2) + "; " +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 2, 0, 0, 0); " +
+            "-fx-background-color: white; " +
+            "-fx-border-radius: " + (size/2) + "; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-width: 1;"
+        );
+
+        // Crear y aplicar el recorte circular
+        javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(size/2);
+        clip.setCenterX(size/2);
+        clip.setCenterY(size/2);
+        fotoPerfil.setClip(clip);
+
+        return fotoPerfil;
+    }
+
+    private VBox crearTarjetaAmigo(Estudiante amigo) {
+        VBox tarjeta = new VBox(5);
+        tarjeta.setStyle("-fx-background-color: white; -fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5;");
+        
+        // Foto y nombre en la misma línea
+        HBox infoBox = new HBox(10);
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Foto de perfil circular
+        ImageView fotoPerfil = crearFotoPerfilCircular(amigo.getFotoPerfil(), 40);
+        
+        VBox infoUsuario = new VBox(2);
+        Label nombreLabel = new Label(amigo.getNombre());
+        nombreLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Segoe UI';");
+        Label universidadLabel = new Label(amigo.getUniversidad());
+        universidadLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
+        infoUsuario.getChildren().addAll(nombreLabel, universidadLabel);
+        
+        infoBox.getChildren().addAll(fotoPerfil, infoUsuario);
+
+        // Botón de eliminar amigo
+        Button eliminarAmigoBtn = new Button("Eliminar amigo");
+        eliminarAmigoBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI';");
+        eliminarAmigoBtn.setOnAction(e -> {
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Confirmar eliminación");
+            confirmacion.setHeaderText("¿Estás seguro de que quieres eliminar a " + amigo.getNombre() + " de tu lista de amigos?");
+            confirmacion.setContentText("Esta acción no se puede deshacer.");
+
+            confirmacion.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    eliminarAmigo(amigo);
+                }
+            });
+        });
+        
+        tarjeta.getChildren().addAll(infoBox, eliminarAmigoBtn);
+        return tarjeta;
+    }
+
+    private void eliminarAmigo(Estudiante amigo) {
+        // Buscar y eliminar la solicitud de amistad correspondiente
+        List<SolicitudAmistad> solicitudes = academix.obtenerTodasLasSolicitudes();
+        for (SolicitudAmistad solicitud : solicitudes) {
+            if ((solicitud.getRemitente().equals(estudianteActual.getUsuario()) && 
+                 solicitud.getDestinatario().equals(amigo.getUsuario())) ||
+                (solicitud.getRemitente().equals(amigo.getUsuario()) && 
+                 solicitud.getDestinatario().equals(estudianteActual.getUsuario()))) {
+                
+                // Eliminar la solicitud
+                academix.eliminarSolicitudAmistad(solicitud);
+                break;
+            }
+        }
+
+        // Guardar en persistencia
+        Persistencia.guardarRecursoBancoBinario(academix);
+        
+        // Recargar la vista
+        cargarSugerenciasYSolicitudes();
+        
+        // Mostrar mensaje de confirmación
+        mostrarAlerta("Amigo eliminado", 
+            "Has eliminado a " + amigo.getNombre() + " de tu lista de amigos");
+    }
+
     private void cargarSugerencias() {
         sugerenciasContainer.getChildren().clear();
+        Label tituloSugerencias = new Label("Sugerencias");
+        tituloSugerencias.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #666666; -fx-font-family: 'Segoe UI';");
+        sugerenciasContainer.getChildren().add(tituloSugerencias);
         
-        List<SugerenciasEstudio.SugerenciaCompañero> sugerencias = 
-            SugerenciasEstudio.obtenerSugerencias(estudianteActual, academix);
-        
-        for (SugerenciasEstudio.SugerenciaCompañero sugerencia : sugerencias) {
-            VBox tarjeta = crearTarjetaSugerencia(sugerencia);
-            sugerenciasContainer.getChildren().add(tarjeta);
+        if (estudianteActual != null) {
+            List<SugerenciasEstudio.SugerenciaCompañero> sugerencias = 
+                SugerenciasEstudio.obtenerSugerencias(estudianteActual, academix);
+            
+            if (sugerencias.isEmpty()) {
+                Label noSugerenciasLabel = new Label("No hay sugerencias disponibles");
+                noSugerenciasLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
+                sugerenciasContainer.getChildren().add(noSugerenciasLabel);
+            } else {
+                for (SugerenciasEstudio.SugerenciaCompañero sugerencia : sugerencias) {
+                    boolean mostrarSugerencia = true;
+                    
+                    for (SolicitudAmistad solicitud : academix.obtenerTodasLasSolicitudes()) {
+                        if ((solicitud.getRemitente().equals(estudianteActual.getUsuario()) && 
+                             solicitud.getDestinatario().equals(sugerencia.getEstudiante().getUsuario())) ||
+                            (solicitud.getRemitente().equals(sugerencia.getEstudiante().getUsuario()) && 
+                             solicitud.getDestinatario().equals(estudianteActual.getUsuario()))) {
+                            mostrarSugerencia = false;
+                            break;
+                        }
+                    }
+                    
+                    if (mostrarSugerencia) {
+                        VBox tarjeta = crearTarjetaSugerencia(sugerencia);
+                        sugerenciasContainer.getChildren().add(tarjeta);
+                    }
+                }
+            }
         }
     }
 
@@ -591,38 +892,30 @@ public class InicioController {
         HBox infoBox = new HBox(10);
         infoBox.setAlignment(Pos.CENTER_LEFT);
         
-        // Foto de perfil
-        ImageView fotoPerfil = new ImageView();
-        fotoPerfil.setFitHeight(40);
-        fotoPerfil.setFitWidth(40);
-        
-        try {
-            if (sugerencia.getEstudiante().getFotoPerfil() != null) {
-                File archivoFoto = new File(sugerencia.getEstudiante().getFotoPerfil());
-                if (archivoFoto.exists()) {
-                    fotoPerfil.setImage(new Image(archivoFoto.toURI().toString()));
-                } else {
-                    fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
-                }
-            } else {
-                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
-            }
-        } catch (Exception e) {
-            System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
-        }
+        // Foto de perfil circular
+        ImageView fotoPerfil = crearFotoPerfilCircular(sugerencia.getEstudiante().getFotoPerfil(), 40);
         
         VBox infoUsuario = new VBox(2);
         Label nombreLabel = new Label(sugerencia.getEstudiante().getNombre());
-        nombreLabel.setStyle("-fx-font-weight: bold;");
+        nombreLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Segoe UI';");
         Label universidadLabel = new Label(sugerencia.getEstudiante().getUniversidad());
-        universidadLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px;");
-        infoUsuario.getChildren().addAll(nombreLabel, universidadLabel);
+        universidadLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
+        
+        // Agregar intereses en común si existen
+        if (!sugerencia.getInteresesComunes().isEmpty()) {
+            Label interesesLabel = new Label("Intereses en común: " + String.join(", ", sugerencia.getInteresesComunes()));
+            interesesLabel.setStyle("-fx-text-fill: #1a73e8; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
+            interesesLabel.setWrapText(true);
+            infoUsuario.getChildren().addAll(nombreLabel, universidadLabel, interesesLabel);
+        } else {
+            infoUsuario.getChildren().addAll(nombreLabel, universidadLabel);
+        }
         
         infoBox.getChildren().addAll(fotoPerfil, infoUsuario);
         
         // Botón de enviar solicitud
         Button enviarSolicitudBtn = new Button("Enviar solicitud");
-        enviarSolicitudBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px;");
+        enviarSolicitudBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
         enviarSolicitudBtn.setOnAction(e -> enviarSolicitudAmistad(sugerencia.getEstudiante()));
         
         tarjeta.getChildren().addAll(infoBox, enviarSolicitudBtn);
@@ -631,12 +924,27 @@ public class InicioController {
 
     private void cargarSolicitudesPendientes() {
         solicitudesPendientesContainer.getChildren().clear();
+        Label titleLabel = new Label("Solicitudes Pendientes");
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #666666; -fx-font-family: 'Segoe UI';");
+        solicitudesPendientesContainer.getChildren().add(titleLabel);
         
-        List<SolicitudAmistad> solicitudes = academix.obtenerSolicitudesPendientes(estudianteActual.getUsuario());
-        
-        for (SolicitudAmistad solicitud : solicitudes) {
-            VBox tarjeta = crearTarjetaSolicitud(solicitud);
-            solicitudesPendientesContainer.getChildren().add(tarjeta);
+        if (estudianteActual != null) {
+            // Obtener solo las solicitudes pendientes donde el usuario actual es el destinatario
+            List<SolicitudAmistad> solicitudes = academix.obtenerTodasLasSolicitudes().stream()
+                .filter(s -> s.getDestinatario().equals(estudianteActual.getUsuario()) &&
+                           s.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE)
+                .toList();
+            
+            if (solicitudes.isEmpty()) {
+                Label noSolicitudesLabel = new Label("No tienes solicitudes pendientes");
+                noSolicitudesLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px;");
+                solicitudesPendientesContainer.getChildren().add(noSolicitudesLabel);
+            } else {
+                for (SolicitudAmistad solicitud : solicitudes) {
+                    VBox tarjeta = crearTarjetaSolicitud(solicitud);
+                    solicitudesPendientesContainer.getChildren().add(tarjeta);
+                }
+            }
         }
     }
 
@@ -670,22 +978,33 @@ public class InicioController {
             System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
         }
         
+        VBox infoUsuario = new VBox(2);
         Label nombreLabel = new Label(remitente.getNombre());
         nombreLabel.setStyle("-fx-font-weight: bold;");
+        Label universidadLabel = new Label(remitente.getUniversidad());
+        universidadLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px;");
+        infoUsuario.getChildren().addAll(nombreLabel, universidadLabel);
         
-        infoBox.getChildren().addAll(fotoPerfil, nombreLabel);
+        infoBox.getChildren().addAll(fotoPerfil, infoUsuario);
         
         // Botones de acción
         HBox botonesBox = new HBox(10);
         botonesBox.setAlignment(Pos.CENTER_LEFT);
+        botonesBox.setStyle("-fx-padding: 5 0 0 0;");
         
         Button aceptarBtn = new Button("Aceptar");
-        aceptarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px;");
-        aceptarBtn.setOnAction(e -> aceptarSolicitud(solicitud));
+        aceptarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand;");
+        aceptarBtn.setOnAction(e -> {
+            aceptarSolicitud(solicitud);
+            mostrarAlerta("Solicitud aceptada", "Ahora eres amigo de " + remitente.getNombre());
+        });
         
-        Button rechazarBtn = new Button("Rechazar");
-        rechazarBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px;");
-        rechazarBtn.setOnAction(e -> rechazarSolicitud(solicitud));
+        Button rechazarBtn = new Button("Eliminar");
+        rechazarBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand;");
+        rechazarBtn.setOnAction(e -> {
+            rechazarSolicitud(solicitud);
+            mostrarAlerta("Solicitud eliminada", "Has eliminado la solicitud de " + remitente.getNombre());
+        });
         
         botonesBox.getChildren().addAll(aceptarBtn, rechazarBtn);
         
@@ -694,20 +1013,46 @@ public class InicioController {
     }
 
     private void enviarSolicitudAmistad(Estudiante destinatario) {
+        // 1. Enviar la solicitud
         academix.enviarSolicitudAmistad(estudianteActual.getUsuario(), destinatario.getUsuario());
+        
+        // 2. Guardar en persistencia
         Persistencia.guardarRecursoBancoBinario(academix);
+        
+        // 3. Recargar la vista de sugerencias y solicitudes
         cargarSugerenciasYSolicitudes();
+        
+        // 4. Mostrar mensaje de confirmación
+        mostrarAlerta("Solicitud enviada", 
+            "Se ha enviado una solicitud de amistad a " + destinatario.getNombre());
     }
 
     private void aceptarSolicitud(SolicitudAmistad solicitud) {
+        // 1. Aceptar la solicitud
         academix.aceptarSolicitudAmistad(solicitud.getRemitente(), solicitud.getDestinatario());
+        
+        // 2. Guardar en persistencia
         Persistencia.guardarRecursoBancoBinario(academix);
+        
+        // 3. Recargar la vista de sugerencias y solicitudes
         cargarSugerenciasYSolicitudes();
+        
+        // 4. Mostrar mensaje de confirmación
+        Estudiante remitente = academix.buscarEstudiante(solicitud.getRemitente());
+        if (remitente != null) {
+            mostrarAlerta("Solicitud aceptada", 
+                "Ahora eres amigo de " + remitente.getNombre());
+        }
     }
 
     private void rechazarSolicitud(SolicitudAmistad solicitud) {
+        // 1. Rechazar la solicitud
         academix.rechazarSolicitudAmistad(solicitud.getRemitente(), solicitud.getDestinatario());
+        
+        // 2. Guardar en persistencia
         Persistencia.guardarRecursoBancoBinario(academix);
+        
+        // 3. Recargar la vista de sugerencias y solicitudes
         cargarSugerenciasYSolicitudes();
     }
 }

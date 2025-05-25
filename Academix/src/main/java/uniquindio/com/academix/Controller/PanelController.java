@@ -875,10 +875,46 @@ private boolean estaEnArreglo(String[] arreglo, String valor) {
     private void actualizarFotoPerfil(String rutaArchivo) {
         try {
             Image imagen = new Image(new File(rutaArchivo).toURI().toString());
+            
+            // Aplicar estilo circular a las imágenes de perfil
             perfilImageView.setImage(imagen);
+            perfilImageView.setFitHeight(150);
+            perfilImageView.setFitWidth(150);
+            perfilImageView.setStyle(
+                "-fx-background-radius: 75; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0); " +
+                "-fx-background-color: white; " +
+                "-fx-border-radius: 75; " +
+                "-fx-border-color: #e0e0e0; " +
+                "-fx-border-width: 1;"
+            );
+            
+            // Aplicar el mismo estilo a la miniatura
             perfilMiniaturaImageView.setImage(imagen);
+            perfilMiniaturaImageView.setFitHeight(40);
+            perfilMiniaturaImageView.setFitWidth(40);
+            perfilMiniaturaImageView.setStyle(
+                "-fx-background-radius: 20; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 2, 0, 0, 0); " +
+                "-fx-background-color: white; " +
+                "-fx-border-radius: 20; " +
+                "-fx-border-color: #e0e0e0; " +
+                "-fx-border-width: 1;"
+            );
+            
+            // Recortar las imágenes en forma circular
+            perfilImageView.setClip(createCircularClip(150));
+            perfilMiniaturaImageView.setClip(createCircularClip(40));
+            
         } catch (Exception e) {
             mostrarAlerta("Error", "No se pudo cargar la imagen de perfil.");
         }
+    }
+
+    private javafx.scene.shape.Circle createCircularClip(double size) {
+        javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(size/2);
+        clip.setCenterX(size/2);
+        clip.setCenterY(size/2);
+        return clip;
     }
 }

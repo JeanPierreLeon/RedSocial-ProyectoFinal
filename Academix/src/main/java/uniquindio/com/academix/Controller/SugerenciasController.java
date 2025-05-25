@@ -14,10 +14,10 @@ import java.io.File;
 import java.util.List;
 
 public class SugerenciasController {
-    
+
     @FXML
     private VBox contenedorSugerencias;
-    
+
     private Estudiante estudianteActual;
     private Academix academix;
     private Image imagenPorDefecto;

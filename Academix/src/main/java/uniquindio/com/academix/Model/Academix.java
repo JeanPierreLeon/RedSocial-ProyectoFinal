@@ -112,29 +112,39 @@ public class Academix implements Serializable {
 
     /* ─────────── Serialización ─────────── */
     private void writeObject(ObjectOutputStream oos) throws IOException {
-        oos.defaultWriteObject();
-        oos.writeObject(mensajesPorUsuario);
+        try {
+            // Escribir todos los campos no transient
+            oos.defaultWriteObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-        ois.defaultReadObject();
-
-        Object obj = ois.readObject();
-
-        if (obj instanceof ListaSimple) {
-            mensajesPorUsuario = (ListaSimple<MensajesPorUsuario>) obj;
-        } else {
-            throw new IOException("Tipo inesperado en mensajesPorUsuario: " + obj.getClass());
-        }
-
-        // Inicializar grafoUsuarios si es null (por compatibilidad con versiones anteriores)
-        if (grafoUsuarios == null) {
-            grafoUsuarios = new GrafoUsuarios();
-        }
-
-        // Inicializar solicitudesAmistad si es null
-        if (solicitudesAmistad == null) {
-            solicitudesAmistad = new ListaSimple<>();
+        try {
+            // Leer todos los campos no transient
+            ois.defaultReadObject();
+            
+            // Inicializar campos si son null
+            if (mensajesPorUsuario == null) {
+                mensajesPorUsuario = new ListaSimple<>();
+            }
+            if (contenidoEducativo == null) {
+                contenidoEducativo = new ListaSimple<>();
+            }
+            if (listaEstudiantes == null) {
+                listaEstudiantes = new ListaSimple<>();
+            }
+            if (grafoUsuarios == null) {
+                grafoUsuarios = new GrafoUsuarios();
+            }
+            if (solicitudesAmistad == null) {
+                solicitudesAmistad = new ListaSimple<>();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -193,21 +203,26 @@ public class Academix implements Serializable {
     }
 
     public void aceptarSolicitudAmistad(String remitente, String destinatario) {
+        // Buscar y actualizar la solicitud
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
             SolicitudAmistad solicitud = solicitudesAmistad.get(i);
             if (solicitud.getRemitente().equals(remitente) && 
                 solicitud.getDestinatario().equals(destinatario) &&
                 solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
                 
+                // 1. Marcar la solicitud como aceptada
                 solicitud.setEstado(SolicitudAmistad.EstadoSolicitud.ACEPTADA);
                 
-                // Conectar usuarios en el grafo
+                // 2. Obtener los estudiantes involucrados
                 Estudiante estudianteRemitente = buscarEstudiante(remitente);
                 Estudiante estudianteDestinatario = buscarEstudiante(destinatario);
                 
                 if (estudianteRemitente != null && estudianteDestinatario != null) {
+                    // 3. Actualizar las listas de amigos de ambos estudiantes
                     estudianteRemitente.agregarAmigo(estudianteDestinatario);
                     estudianteDestinatario.agregarAmigo(estudianteRemitente);
+                    
+                    // 4. Actualizar el grafo de usuarios
                     grafoUsuarios.conectar(remitente, destinatario);
                 }
                 break;
@@ -224,6 +239,34 @@ public class Academix implements Serializable {
                 
                 solicitud.setEstado(SolicitudAmistad.EstadoSolicitud.RECHAZADA);
                 break;
+            }
+        }
+    }
+
+    public List<SolicitudAmistad> obtenerTodasLasSolicitudes() {
+        List<SolicitudAmistad> todas = new ArrayList<>();
+        for (int i = 0; i < solicitudesAmistad.size(); i++) {
+            todas.add(solicitudesAmistad.get(i));
+        }
+        return todas;
+    }
+
+    public void eliminarSolicitudAmistad(SolicitudAmistad solicitud) {
+        // Eliminar la solicitud de la lista
+        solicitudesAmistad.eliminar(solicitud);
+        
+        // Si la solicitud estaba aceptada, también eliminar la conexión en el grafo
+        if (solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.ACEPTADA) {
+            // Eliminar la conexión del grafo
+            grafoUsuarios.desconectar(solicitud.getRemitente(), solicitud.getDestinatario());
+            
+            // Eliminar la relación de amigos entre los estudiantes
+            Estudiante remitente = buscarEstudiante(solicitud.getRemitente());
+            Estudiante destinatario = buscarEstudiante(solicitud.getDestinatario());
+            
+            if (remitente != null && destinatario != null) {
+                remitente.getAmigos().remove(destinatario);
+                destinatario.getAmigos().remove(remitente);
             }
         }
     }
