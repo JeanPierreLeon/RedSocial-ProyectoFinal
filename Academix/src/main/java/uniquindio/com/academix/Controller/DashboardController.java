@@ -51,6 +51,11 @@ public class DashboardController {
     }
 
     @FXML
+    public void goToSugerencias() throws IOException {
+        cargarVista("/uniquindio/com/academix/sugerencias.fxml");
+    }
+
+    @FXML
     public void goToMensajeria() throws IOException {
         cargarVista("/uniquindio/com/academix/mensajeria.fxml");
     }
@@ -71,8 +76,8 @@ public class DashboardController {
             e.printStackTrace();
         }
 
-        // Si el controlador es GruposEstudioController, pásale también la instancia de Academix
-        if (fxmlPath.contains("grupos.fxml")) {
+        // Si el controlador es GruposEstudioController o SugerenciasController, pásale también la instancia de Academix
+        if (fxmlPath.contains("grupos.fxml") || fxmlPath.contains("sugerencias.fxml")) {
             try {
                 controller.getClass()
                         .getMethod("setAcademix", uniquindio.com.academix.Model.Academix.class)

@@ -8,8 +8,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -129,6 +131,11 @@ public class Academix implements Serializable {
         if (grafoUsuarios == null) {
             grafoUsuarios = new GrafoUsuarios();
         }
+
+        // Inicializar solicitudesAmistad si es null
+        if (solicitudesAmistad == null) {
+            solicitudesAmistad = new ListaSimple<>();
+        }
     }
 
     public void sincronizarEstudiantesConGlobal() {
@@ -148,6 +155,77 @@ public class Academix implements Serializable {
 
     public void setGrafoUsuarios(GrafoUsuarios grafoUsuarios) {
         this.grafoUsuarios = grafoUsuarios;
+    }
+
+    private ListaSimple<SolicitudAmistad> solicitudesAmistad = new ListaSimple<>();
+
+    public void enviarSolicitudAmistad(String remitente, String destinatario) {
+        // Verificar que no exista una solicitud pendiente
+        for (int i = 0; i < solicitudesAmistad.size(); i++) {
+            SolicitudAmistad solicitud = solicitudesAmistad.get(i);
+            if (solicitud.getRemitente().equals(remitente) && 
+                solicitud.getDestinatario().equals(destinatario) &&
+                solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
+                return; // Ya existe una solicitud pendiente
+            }
+        }
+        
+        solicitudesAmistad.agregar(new SolicitudAmistad(remitente, destinatario));
+    }
+
+    public List<SolicitudAmistad> obtenerSolicitudesPendientes(String usuario) {
+        List<SolicitudAmistad> pendientes = new ArrayList<>();
+        
+        // Verificar que la lista no sea null
+        if (solicitudesAmistad == null) {
+            solicitudesAmistad = new ListaSimple<>();
+            return pendientes;
+        }
+        
+        for (int i = 0; i < solicitudesAmistad.size(); i++) {
+            SolicitudAmistad solicitud = solicitudesAmistad.get(i);
+            if (solicitud.getDestinatario().equals(usuario) && 
+                solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
+                pendientes.add(solicitud);
+            }
+        }
+        return pendientes;
+    }
+
+    public void aceptarSolicitudAmistad(String remitente, String destinatario) {
+        for (int i = 0; i < solicitudesAmistad.size(); i++) {
+            SolicitudAmistad solicitud = solicitudesAmistad.get(i);
+            if (solicitud.getRemitente().equals(remitente) && 
+                solicitud.getDestinatario().equals(destinatario) &&
+                solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
+                
+                solicitud.setEstado(SolicitudAmistad.EstadoSolicitud.ACEPTADA);
+                
+                // Conectar usuarios en el grafo
+                Estudiante estudianteRemitente = buscarEstudiante(remitente);
+                Estudiante estudianteDestinatario = buscarEstudiante(destinatario);
+                
+                if (estudianteRemitente != null && estudianteDestinatario != null) {
+                    estudianteRemitente.agregarAmigo(estudianteDestinatario);
+                    estudianteDestinatario.agregarAmigo(estudianteRemitente);
+                    grafoUsuarios.conectar(remitente, destinatario);
+                }
+                break;
+            }
+        }
+    }
+
+    public void rechazarSolicitudAmistad(String remitente, String destinatario) {
+        for (int i = 0; i < solicitudesAmistad.size(); i++) {
+            SolicitudAmistad solicitud = solicitudesAmistad.get(i);
+            if (solicitud.getRemitente().equals(remitente) && 
+                solicitud.getDestinatario().equals(destinatario) &&
+                solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
+                
+                solicitud.setEstado(SolicitudAmistad.EstadoSolicitud.RECHAZADA);
+                break;
+            }
+        }
     }
 
 }

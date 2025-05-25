@@ -17,6 +17,7 @@
                 <Hyperlink fx:id="inicioLink" onAction="#goToInicio" text="Inicio" />
                 <Hyperlink fx:id="panelLink" onAction="#goToPanel" text="Panel del Estudiante" />
                 <Hyperlink fx:id="gruposLink" onAction="#goToGrupos" text="Grupos" />
+                <Hyperlink fx:id="sugerenciasLink" onAction="#goToSugerencias" text="Sugerencias" />
                 <Hyperlink fx:id="mensajeriaLink" onAction="#goToMensajeria" text="Mensajería" />
                 <Label fx:id="IDcorreoEst" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" />
             </children>

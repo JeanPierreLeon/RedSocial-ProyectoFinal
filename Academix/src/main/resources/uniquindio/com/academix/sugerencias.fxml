@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<ScrollPane fitToWidth="true" xmlns:fx="http://javafx.com/fxml" fx:controller="uniquindio.com.academix.Controller.SugerenciasController">
+    <VBox spacing="20" style="-fx-background-color: #f5f5f5;">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <Label text="Sugerencias de Compañeros de Estudio" 
+               style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+               
+        <Label text="Basado en tus intereses, universidad y conexiones" 
+               style="-fx-font-size: 14px; -fx-text-fill: #757575;"/>
+               
+        <VBox fx:id="contenedorSugerencias" spacing="15"/>
+    </VBox>
+</ScrollPane> 

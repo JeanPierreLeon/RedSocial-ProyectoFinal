@@ -13,6 +13,8 @@ import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.PublicacionItem;
 import uniquindio.com.academix.Utils.Persistencia;
 import uniquindio.com.academix.Model.ListaSimple;
+import uniquindio.com.academix.Model.SugerenciasEstudio;
+import uniquindio.com.academix.Model.SolicitudAmistad;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import javafx.geometry.Pos;
 import javafx.util.Pair;
 
@@ -32,6 +35,8 @@ public class InicioController {
     @FXML private TextField busquedaField;
     @FXML private ChoiceBox<String> ordenChoiceBox;
     @FXML private ListView<PublicacionItem> publicacionesListView;
+    @FXML private VBox sugerenciasContainer;
+    @FXML private VBox solicitudesPendientesContainer;
 
     private File archivoSeleccionado;
     private Academix academix;
@@ -143,6 +148,10 @@ public class InicioController {
                 }
             }
         });
+
+        // Inicializar contenedores
+        sugerenciasContainer.setSpacing(10);
+        solicitudesPendientesContainer.setSpacing(10);
     }
 
     public void setEstudianteActual(Estudiante estudiante) {
@@ -150,6 +159,7 @@ public class InicioController {
         academix = Persistencia.cargarRecursoBancoBinario();
         buscarContenido();
         cargarPublicaciones();
+        cargarSugerenciasYSolicitudes();
     }
 
     @FXML
@@ -554,5 +564,150 @@ public class InicioController {
                 publicacionesListView.getItems().addAll(est.getPublicaciones());
             }
         }
+    }
+
+    private void cargarSugerenciasYSolicitudes() {
+        cargarSugerencias();
+        cargarSolicitudesPendientes();
+    }
+
+    private void cargarSugerencias() {
+        sugerenciasContainer.getChildren().clear();
+        
+        List<SugerenciasEstudio.SugerenciaCompañero> sugerencias = 
+            SugerenciasEstudio.obtenerSugerencias(estudianteActual, academix);
+        
+        for (SugerenciasEstudio.SugerenciaCompañero sugerencia : sugerencias) {
+            VBox tarjeta = crearTarjetaSugerencia(sugerencia);
+            sugerenciasContainer.getChildren().add(tarjeta);
+        }
+    }
+
+    private VBox crearTarjetaSugerencia(SugerenciasEstudio.SugerenciaCompañero sugerencia) {
+        VBox tarjeta = new VBox(5);
+        tarjeta.setStyle("-fx-background-color: white; -fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5;");
+        
+        // Foto y nombre en la misma línea
+        HBox infoBox = new HBox(10);
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Foto de perfil
+        ImageView fotoPerfil = new ImageView();
+        fotoPerfil.setFitHeight(40);
+        fotoPerfil.setFitWidth(40);
+        
+        try {
+            if (sugerencia.getEstudiante().getFotoPerfil() != null) {
+                File archivoFoto = new File(sugerencia.getEstudiante().getFotoPerfil());
+                if (archivoFoto.exists()) {
+                    fotoPerfil.setImage(new Image(archivoFoto.toURI().toString()));
+                } else {
+                    fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                }
+            } else {
+                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
+        }
+        
+        VBox infoUsuario = new VBox(2);
+        Label nombreLabel = new Label(sugerencia.getEstudiante().getNombre());
+        nombreLabel.setStyle("-fx-font-weight: bold;");
+        Label universidadLabel = new Label(sugerencia.getEstudiante().getUniversidad());
+        universidadLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px;");
+        infoUsuario.getChildren().addAll(nombreLabel, universidadLabel);
+        
+        infoBox.getChildren().addAll(fotoPerfil, infoUsuario);
+        
+        // Botón de enviar solicitud
+        Button enviarSolicitudBtn = new Button("Enviar solicitud");
+        enviarSolicitudBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px;");
+        enviarSolicitudBtn.setOnAction(e -> enviarSolicitudAmistad(sugerencia.getEstudiante()));
+        
+        tarjeta.getChildren().addAll(infoBox, enviarSolicitudBtn);
+        return tarjeta;
+    }
+
+    private void cargarSolicitudesPendientes() {
+        solicitudesPendientesContainer.getChildren().clear();
+        
+        List<SolicitudAmistad> solicitudes = academix.obtenerSolicitudesPendientes(estudianteActual.getUsuario());
+        
+        for (SolicitudAmistad solicitud : solicitudes) {
+            VBox tarjeta = crearTarjetaSolicitud(solicitud);
+            solicitudesPendientesContainer.getChildren().add(tarjeta);
+        }
+    }
+
+    private VBox crearTarjetaSolicitud(SolicitudAmistad solicitud) {
+        VBox tarjeta = new VBox(5);
+        tarjeta.setStyle("-fx-background-color: white; -fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5;");
+        
+        Estudiante remitente = academix.buscarEstudiante(solicitud.getRemitente());
+        
+        // Foto y nombre en la misma línea
+        HBox infoBox = new HBox(10);
+        infoBox.setAlignment(Pos.CENTER_LEFT);
+        
+        // Foto de perfil
+        ImageView fotoPerfil = new ImageView();
+        fotoPerfil.setFitHeight(40);
+        fotoPerfil.setFitWidth(40);
+        
+        try {
+            if (remitente.getFotoPerfil() != null) {
+                File archivoFoto = new File(remitente.getFotoPerfil());
+                if (archivoFoto.exists()) {
+                    fotoPerfil.setImage(new Image(archivoFoto.toURI().toString()));
+                } else {
+                    fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                }
+            } else {
+                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
+        }
+        
+        Label nombreLabel = new Label(remitente.getNombre());
+        nombreLabel.setStyle("-fx-font-weight: bold;");
+        
+        infoBox.getChildren().addAll(fotoPerfil, nombreLabel);
+        
+        // Botones de acción
+        HBox botonesBox = new HBox(10);
+        botonesBox.setAlignment(Pos.CENTER_LEFT);
+        
+        Button aceptarBtn = new Button("Aceptar");
+        aceptarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px;");
+        aceptarBtn.setOnAction(e -> aceptarSolicitud(solicitud));
+        
+        Button rechazarBtn = new Button("Rechazar");
+        rechazarBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px;");
+        rechazarBtn.setOnAction(e -> rechazarSolicitud(solicitud));
+        
+        botonesBox.getChildren().addAll(aceptarBtn, rechazarBtn);
+        
+        tarjeta.getChildren().addAll(infoBox, botonesBox);
+        return tarjeta;
+    }
+
+    private void enviarSolicitudAmistad(Estudiante destinatario) {
+        academix.enviarSolicitudAmistad(estudianteActual.getUsuario(), destinatario.getUsuario());
+        Persistencia.guardarRecursoBancoBinario(academix);
+        cargarSugerenciasYSolicitudes();
+    }
+
+    private void aceptarSolicitud(SolicitudAmistad solicitud) {
+        academix.aceptarSolicitudAmistad(solicitud.getRemitente(), solicitud.getDestinatario());
+        Persistencia.guardarRecursoBancoBinario(academix);
+        cargarSugerenciasYSolicitudes();
+    }
+
+    private void rechazarSolicitud(SolicitudAmistad solicitud) {
+        academix.rechazarSolicitudAmistad(solicitud.getRemitente(), solicitud.getDestinatario());
+        Persistencia.guardarRecursoBancoBinario(academix);
+        cargarSugerenciasYSolicitudes();
     }
 }
