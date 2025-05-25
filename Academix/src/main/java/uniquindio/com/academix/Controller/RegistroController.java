@@ -73,10 +73,16 @@ public class RegistroController {
      * Puedes agregar aquí lo que se le asigna a juan@academix.com.co y ana@academix.edu.
      */
     private void inicializarEstudiantePorDefecto(Estudiante estudiante) {
-        // Ejemplo: estudiante.setRol("estudiante");
-        // Ejemplo: estudiante.setGruposPorDefecto();
-        // Ejemplo: estudiante.setMensajesBienvenida();
-        // Si tienes lógica específica, agrégala aquí.
+        // Asignar intereses por defecto según el usuario
+        if (estudiante.getUsuario().equals("juan@academix.com.co")) {
+            estudiante.agregarInteres("Matemáticas");
+            estudiante.agregarInteres("Física");
+            estudiante.agregarInteres("Programación");
+        } else if (estudiante.getUsuario().equals("ana@academix.edu")) {
+            estudiante.agregarInteres("Literatura");
+            estudiante.agregarInteres("Historia");
+            estudiante.agregarInteres("Biología");
+        }
     }
 
     // Método para cerrar la ventana de registro
