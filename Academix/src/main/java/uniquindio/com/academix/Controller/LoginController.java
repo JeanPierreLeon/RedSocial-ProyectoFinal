@@ -12,6 +12,9 @@ import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Utils.Persistencia;
 
+import java.io.File;
+import java.nio.file.Files;
+
 public class LoginController {
 
     @FXML private TextField campoUsuario;
@@ -26,13 +29,47 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        // Cargar el modelo completo desde la persistencia
         academix = Persistencia.cargarRecursoBancoBinario();
         // Si la lista está vacía, agregar los de ejemplo y guardar
         if (academix.getListaEstudiantes().estaVacia()) {
-            academix.agregarEstudiante(new Estudiante("juan@academix.com.co", "1234"));
-            academix.agregarEstudiante(new Estudiante("ana@academix.edu", "abcd"));
-            Persistencia.guardarRecursoBancoBinario(academix);
+            try {
+                // Crear carpeta interna para imágenes de perfil si no existe
+                File carpetaPerfiles = new File("data/perfiles");
+                if (!carpetaPerfiles.exists()) {
+                    carpetaPerfiles.mkdirs();
+                }
+                // Copiar imágenes de ejemplo solo si no existen
+                File perfilJuan = new File("data/perfiles/juan.png");
+                File perfilAna = new File("data/perfiles/ana.png");
+                if (!perfilJuan.exists()) {
+                    Files.copy(getClass().getResourceAsStream("/images/perfil_juan.png"), perfilJuan.toPath());
+                }
+                if (!perfilAna.exists()) {
+                    Files.copy(getClass().getResourceAsStream("/images/perfil_ana.png"), perfilAna.toPath());
+                }
+
+                Estudiante juan = new Estudiante("juan@academix.com.co", "1234");
+                juan.setNombre("Juan Pérez");
+                juan.setFotoPerfil("data/perfiles/juan.png");
+                juan.setFotoPortada(null); // Puedes agregar portada si quieres
+                juan.agregarInteres("Matemáticas");
+                juan.agregarInteres("Física");
+                juan.agregarInteres("Programación");
+
+                Estudiante ana = new Estudiante("ana@academix.edu", "abcd");
+                ana.setNombre("Ana Gómez");
+                ana.setFotoPerfil("data/perfiles/ana.png");
+                ana.setFotoPortada(null);
+                ana.agregarInteres("Literatura");
+                ana.agregarInteres("Historia");
+                ana.agregarInteres("Biología");
+
+                academix.agregarEstudiante(juan);
+                academix.agregarEstudiante(ana);
+                Persistencia.guardarRecursoBancoBinario(academix);
+            } catch (Exception e) {
+                System.out.println("Error copiando imágenes de ejemplo: " + e.getMessage());
+            }
         }
         imprimirUsuariosEnConsola();
     }

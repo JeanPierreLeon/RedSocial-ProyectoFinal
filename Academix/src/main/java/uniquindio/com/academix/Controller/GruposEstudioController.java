@@ -83,6 +83,17 @@ public class GruposEstudioController {
             }
         }
 
+        // Conectar usuarios en el grafo por grupo de estudio
+        for (List<String> miembros : gruposPorInteres.values()) {
+            if (miembros.size() > 1) {
+                for (int i = 0; i < miembros.size(); i++) {
+                    for (int j = i + 1; j < miembros.size(); j++) {
+                        academix.getGrafoUsuarios().conectar(miembros.get(i), miembros.get(j));
+                    }
+                }
+            }
+        }
+
         boolean hayGrupos = false;
         for (Map.Entry<String, List<String>> entry : gruposPorInteres.entrySet()) {
             String interes = entry.getKey();

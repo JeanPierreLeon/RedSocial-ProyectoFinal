@@ -8,6 +8,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Academix implements Serializable {
 
@@ -120,6 +124,11 @@ public class Academix implements Serializable {
         } else {
             throw new IOException("Tipo inesperado en mensajesPorUsuario: " + obj.getClass());
         }
+
+        // Inicializar grafoUsuarios si es null (por compatibilidad con versiones anteriores)
+        if (grafoUsuarios == null) {
+            grafoUsuarios = new GrafoUsuarios();
+        }
     }
 
     public void sincronizarEstudiantesConGlobal() {
@@ -128,6 +137,17 @@ public class Academix implements Serializable {
         for (Estudiante est : HelloApplication.getEstudiantes()) {
             listaEstudiantes.agregar(est);
         }
+    }
+
+    // Grafo de conexiones entre usuarios
+    private GrafoUsuarios grafoUsuarios = new GrafoUsuarios();
+
+    public GrafoUsuarios getGrafoUsuarios() {
+        return grafoUsuarios;
+    }
+
+    public void setGrafoUsuarios(GrafoUsuarios grafoUsuarios) {
+        this.grafoUsuarios = grafoUsuarios;
     }
 
 }

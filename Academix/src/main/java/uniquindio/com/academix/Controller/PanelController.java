@@ -477,7 +477,7 @@ public class PanelController {
                 resultado.getValue()
             );
             
-            // Guardar en persistencia
+            // Guardar en persistencia y conectar usuarios por valoraciones similares
             Academix academix = Persistencia.cargarRecursoBancoBinario();
             for (Estudiante est : academix.getListaEstudiantes()) {
                 for (PublicacionItem pub : est.getPublicaciones()) {
@@ -489,13 +489,17 @@ public class PanelController {
                             resultado.getKey(),
                             resultado.getValue()
                         );
+                        // Conectar usuarios que hayan valorado este contenido
+                        for (PublicacionItem.Valoracion val : pub.getValoraciones()) {
+                            if (!val.getAutorId().equals(estudianteActual.getUsuario())) {
+                                academix.getGrafoUsuarios().conectar(estudianteActual.getUsuario(), val.getAutorId());
+                            }
+                        }
                         break;
                     }
                 }
             }
             Persistencia.guardarRecursoBancoBinario(academix);
-            
-            // Actualizar la vista
             configurarListaPublicaciones();
         });
     }
@@ -687,18 +691,29 @@ public class PanelController {
         
         File archivo = fileChooser.showOpenDialog(null);
         if (archivo != null) {
-            String rutaArchivo = archivo.getAbsolutePath();
-            estudianteActual.setFotoPerfil(rutaArchivo);
-            
-            // Actualizar las imágenes
-            actualizarFotoPerfil(rutaArchivo);
-            
-            // Guardar en persistencia
-            Academix academix = Persistencia.cargarRecursoBancoBinario();
-            Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
-            if (estudiantePersistente != null) {
-                estudiantePersistente.setFotoPerfil(rutaArchivo);
-                Persistencia.guardarRecursoBancoBinario(academix);
+            try {
+                File carpetaDestino = new File("data/perfiles");
+                if (!carpetaDestino.exists()) {
+                    carpetaDestino.mkdirs();
+                }
+                String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getName();
+                File destino = new File(carpetaDestino, nombreArchivo);
+                Files.copy(archivo.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                String rutaRelativa = "data/perfiles/" + nombreArchivo;
+                estudianteActual.setFotoPerfil(rutaRelativa);
+
+                // Actualizar las imágenes
+                actualizarFotoPerfil(rutaRelativa);
+
+                // Guardar en persistencia
+                Academix academix = Persistencia.cargarRecursoBancoBinario();
+                Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
+                if (estudiantePersistente != null) {
+                    estudiantePersistente.setFotoPerfil(rutaRelativa);
+                    Persistencia.guardarRecursoBancoBinario(academix);
+                }
+            } catch (Exception e) {
+                mostrarAlerta("Error", "No se pudo copiar la imagen de perfil.");
             }
         }
     }
@@ -713,23 +728,34 @@ public class PanelController {
         
         File archivo = fileChooser.showOpenDialog(null);
         if (archivo != null) {
-            String rutaArchivo = archivo.getAbsolutePath();
-            estudianteActual.setFotoPortada(rutaArchivo);
-            
-            // Actualizar la imagen de portada
             try {
-                Image imagen = new Image(new File(rutaArchivo).toURI().toString());
-                portadaImageView.setImage(imagen);
+                File carpetaDestino = new File("data/perfiles");
+                if (!carpetaDestino.exists()) {
+                    carpetaDestino.mkdirs();
+                }
+                String nombreArchivo = "portada_" + System.currentTimeMillis() + "_" + archivo.getName();
+                File destino = new File(carpetaDestino, nombreArchivo);
+                Files.copy(archivo.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                String rutaRelativa = "data/perfiles/" + nombreArchivo;
+                estudianteActual.setFotoPortada(rutaRelativa);
+
+                // Actualizar la imagen de portada
+                try {
+                    Image imagen = new Image(new File(rutaRelativa).toURI().toString());
+                    portadaImageView.setImage(imagen);
+                } catch (Exception e) {
+                    mostrarAlerta("Error", "No se pudo cargar la imagen de portada.");
+                }
+
+                // Guardar en persistencia
+                Academix academix = Persistencia.cargarRecursoBancoBinario();
+                Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
+                if (estudiantePersistente != null) {
+                    estudiantePersistente.setFotoPortada(rutaRelativa);
+                    Persistencia.guardarRecursoBancoBinario(academix);
+                }
             } catch (Exception e) {
-                mostrarAlerta("Error", "No se pudo cargar la imagen de portada.");
-            }
-            
-            // Guardar en persistencia
-            Academix academix = Persistencia.cargarRecursoBancoBinario();
-            Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
-            if (estudiantePersistente != null) {
-                estudiantePersistente.setFotoPortada(rutaArchivo);
-                Persistencia.guardarRecursoBancoBinario(academix);
+                mostrarAlerta("Error", "No se pudo copiar la imagen de portada.");
             }
         }
     }

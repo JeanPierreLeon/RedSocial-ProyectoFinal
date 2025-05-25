@@ -5,10 +5,12 @@
 <?import javafx.scene.control.Label?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="uniquindio.com.academix.Controller.DashboardController"
-            prefHeight="805.0" prefWidth="1274.0">
+            prefHeight="805.0" prefWidth="1274.0"
+            minHeight="0.0" minWidth="0.0"
+            maxHeight="-1.0" maxWidth="-1.0">
 
     <top>
-        <HBox spacing="40.0" style="-fx-background-color: white; -fx-padding: 20 40;">
+        <HBox spacing="40.0" style="-fx-background-color: white; -fx-padding: 20 40;" HBox.hgrow="ALWAYS">
             <children>
                 <Label style="-fx-font-size: 24px; -fx-text-fill: #1d4ed8; -fx-font-weight: bold;" text="Académix" />
                 <Pane HBox.hgrow="ALWAYS" />
