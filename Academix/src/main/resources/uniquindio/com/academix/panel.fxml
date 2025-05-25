@@ -7,94 +7,94 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="uniquindio.com.academix.Controller.PanelController"
-            prefHeight="800.0" prefWidth="1000.0">
+            prefHeight="800.0" prefWidth="1000.0"
+            style="-fx-background-color: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);">
 
     <HBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" 
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
         <!-- Columna Izquierda -->
-        <VBox spacing="20" minWidth="300" style="-fx-background-color: white; -fx-padding: 20;">
+        <VBox spacing="20" minWidth="300" style="-fx-background-color: white; -fx-padding: 28; -fx-background-radius: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10,0,0,2);">
             <StackPane>
-                <ImageView fx:id="portadaImageView" fitWidth="300" fitHeight="150"/>
-                <Button text="Cambiar Portada" onAction="#onCambiarPortada" StackPane.alignment="BOTTOM_RIGHT"/>
+                <ImageView fx:id="portadaImageView" fitWidth="300" fitHeight="150" style="-fx-background-radius: 16;"/>
+                <Button text="Cambiar Portada" onAction="#onCambiarPortada" StackPane.alignment="BOTTOM_RIGHT" style="-fx-background-color: #e0e7ef; -fx-text-fill: #1e88e5; -fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
             </StackPane>
 
             <StackPane>
-                <ImageView fx:id="perfilImageView" fitHeight="150" fitWidth="150"/>
-                <Button text="Cambiar Foto" onAction="#onCambiarFotoPerfil" StackPane.alignment="BOTTOM_RIGHT"/>
+                <ImageView fx:id="perfilImageView" fitHeight="150" fitWidth="150" style="-fx-background-radius: 75;"/>
+                <Button text="Cambiar Foto" onAction="#onCambiarFotoPerfil" StackPane.alignment="BOTTOM_RIGHT" style="-fx-background-color: #e0e7ef; -fx-text-fill: #1e88e5; -fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
             </StackPane>
 
             <VBox spacing="5" alignment="CENTER">
-                <Label fx:id="nombreUsuarioLabel" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
-                <Label fx:id="correoLabel" style="-fx-text-fill: #65676b;"/>
+                <Label fx:id="nombreUsuarioLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-font-family: 'Segoe UI Semibold';"/>
+                <Label fx:id="correoLabel" style="-fx-text-fill: #65676b; -fx-font-family: 'Segoe UI';"/>
             </VBox>
 
             <VBox spacing="10">
-                <Label text="Ubicación:" style="-fx-font-weight: bold;"/>
-                <Label fx:id="ubicacionLabel"/>
-                <Label text="Estudios:" style="-fx-font-weight: bold;"/>
-                <Label fx:id="estudiosLabel"/>
+                <Label text="Ubicación:" style="-fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                <Label fx:id="ubicacionLabel" style="-fx-font-family: 'Segoe UI';"/>
+                <Label text="Estudios:" style="-fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                <Label fx:id="estudiosLabel" style="-fx-font-family: 'Segoe UI';"/>
             </VBox>
 
             <VBox spacing="10">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Materias de Interés" style="-fx-font-weight: bold;"/>
-                    <Button text="+" onAction="#onAgregarMateria"/>
+                    <Label text="Materias de Interés" style="-fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                    <Button text="+" onAction="#onAgregarMateria" style="-fx-background-color: #1e88e5; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-family: 'Segoe UI Semibold';"/>
                 </HBox>
-                <FlowPane fx:id="materiasInteresFlowPane" hgap="10" vgap="10"/>
+                <FlowPane fx:id="materiasInteresFlowPane" hgap="10" vgap="10" style="-fx-font-family: 'Segoe UI';"/>
             </VBox>
 
             <VBox spacing="5" alignment="CENTER">
-                <Label text="Valoración Promedio" style="-fx-font-weight: bold;"/>
-                <Label fx:id="valoracionPromedioLabel" style="-fx-font-size: 24; -fx-text-fill: #FFD700;"/>
+                <Label text="Valoración Promedio" style="-fx-font-weight: bold; -fx-font-family: 'Segoe UI';"/>
+                <Label fx:id="valoracionPromedioLabel" style="-fx-font-size: 24; -fx-text-fill: #FFD700; -fx-font-family: 'Segoe UI Semibold';"/>
             </VBox>
         </VBox>
 
         <!-- Columna Central -->
         <VBox spacing="20" HBox.hgrow="ALWAYS">
-            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20;">
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 28; -fx-background-radius: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10,0,0,2);">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <ImageView fx:id="perfilMiniaturaImageView" fitHeight="40" fitWidth="40"/>
-                    <TextField fx:id="publicacionTextField" promptText="¿Qué estás pensando?" 
-                               HBox.hgrow="ALWAYS"/>
+                    <ImageView fx:id="perfilMiniaturaImageView" fitHeight="40" fitWidth="40" style="-fx-background-radius: 20;"/>
+                    <TextField fx:id="publicacionTextField" promptText="¿Qué estás pensando?"
+                               HBox.hgrow="ALWAYS" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
                 </HBox>
                 <Separator/>
                 <HBox spacing="20" alignment="CENTER">
-                    <Button fx:id="fotoVideoBtn" text="📷 Foto/Video" onAction="#onAgregarFotoVideo"/>
-                    <Button fx:id="materialEstudioBtn" text="📚 Material de Estudio" onAction="#onAgregarMaterial"/>
-                    <Button fx:id="publicarBtn" text="Publicar" 
-                            style="-fx-background-color: #1e88e5; -fx-text-fill: white;" 
+                    <Button fx:id="fotoVideoBtn" text="📷 Foto/Video" onAction="#onAgregarFotoVideo" style="-fx-background-color: #e0e7ef; -fx-text-fill: #1e88e5; -fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
+                    <Button fx:id="materialEstudioBtn" text="📚 Material de Estudio" onAction="#onAgregarMaterial" style="-fx-background-color: #e0e7ef; -fx-text-fill: #1e88e5; -fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
+                    <Button fx:id="publicarBtn" text="Publicar"
+                            style="-fx-background-color: #1e88e5; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-family: 'Segoe UI Semibold';"
                             onAction="#onPublicar"/>
                 </HBox>
             </VBox>
 
-            <ListView fx:id="contenidosListView" VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="contenidosListView" VBox.vgrow="ALWAYS" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
         </VBox>
 
         <!-- Columna Derecha -->
-        <VBox spacing="20" minWidth="300" style="-fx-background-color: white; -fx-padding: 20;">
-            <Label text="Valoraciones Recibidas" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ListView fx:id="valoracionesListView" prefHeight="200"/>
+        <VBox spacing="20" minWidth="300" style="-fx-background-color: white; -fx-padding: 28; -fx-background-radius: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 10,0,0,2);">
+            <Label text="Valoraciones Recibidas" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-font-family: 'Segoe UI';"/>
+            <ListView fx:id="valoracionesListView" prefHeight="200" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
 
-            <Label text="Sugerencias de Conexión" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ListView fx:id="sugerenciasListView" prefHeight="150"/>
+            <Label text="Sugerencias de Conexión" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-font-family: 'Segoe UI';"/>
+            <ListView fx:id="sugerenciasListView" prefHeight="150" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
 
-            <!-- 🚀 Aquí se integra conexiones del grafo -->
-            <Label text="Conexiones por Grupos" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ListView fx:id="conexionesListView" prefHeight="150"/>
+            <Label text="Conexiones por Grupos" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-font-family: 'Segoe UI';"/>
+            <ListView fx:id="conexionesListView" prefHeight="150" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
 
-            <Label text="Solicitar Ayuda" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ComboBox fx:id="categoriaAyudaComboBox" promptText="Selecciona una materia"/>
-            <TextArea fx:id="descripcionAyudaTextArea" promptText="Describe tu solicitud..." prefRowCount="3"/>
+            <Label text="Solicitar Ayuda" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-font-family: 'Segoe UI';"/>
+            <ComboBox fx:id="categoriaAyudaComboBox" promptText="Selecciona una materia" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
+            <TextArea fx:id="descripcionAyudaTextArea" promptText="Describe tu solicitud..." prefRowCount="3" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Urgencia (1-10):"/>
-                <Spinner fx:id="spinnerUrgencia" prefWidth="100"/>
+                <Label text="Urgencia (1-10):" style="-fx-font-family: 'Segoe UI';"/>
+                <Spinner fx:id="spinnerUrgencia" prefWidth="100" style="-fx-font-family: 'Segoe UI';"/>
             </HBox>
             <Button text="Solicitar Ayuda" onAction="#onSolicitarAyuda" 
-                    style="-fx-background-color: #1e88e5; -fx-text-fill: white;"/>
+                    style="-fx-background-color: #1e88e5; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-family: 'Segoe UI Semibold';"/>
 
-            <Label text="Mis Solicitudes" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ListView fx:id="solicitudesListView" prefHeight="150"/>
+            <Label text="Mis Solicitudes" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-font-family: 'Segoe UI';"/>
+            <ListView fx:id="solicitudesListView" prefHeight="150" style="-fx-background-radius: 12; -fx-font-family: 'Segoe UI';"/>
         </VBox>
 
     </HBox>
