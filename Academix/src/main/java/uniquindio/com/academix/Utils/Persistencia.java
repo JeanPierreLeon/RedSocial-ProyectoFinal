@@ -16,6 +16,11 @@ public class Persistencia {
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
             return (Academix) ois.readObject();
+        } catch (InvalidClassException e) {
+            // Si hay incompatibilidad de clases, elimina el archivo y crea uno nuevo
+            System.err.println("¡Atención! El archivo de persistencia es incompatible con la versión actual del modelo. Se eliminará y se creará uno nuevo.");
+            archivo.delete();
+            return new Academix();
         } catch (Exception e) {
             e.printStackTrace();
             return new Academix();
