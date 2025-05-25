@@ -52,8 +52,8 @@ public class HelloApplication extends Application {
             ana.setUbicacion("Armenia");
             ana.agregarInteres("Matemáticas");
             ana.agregarInteres("Física");
-            ana.setFotoPerfil("src/main/resources/images/ana_perfil.jpg");
-            ana.setFotoPortada("src/main/resources/images/ana_portada.jpg");
+            ana.setFotoPerfil("data/perfiles/ana_perfil.jpg");
+            ana.setFotoPortada("data/perfiles/ana_portada.jpg");
             academix.agregarEstudiante(ana);
         }
 
@@ -76,7 +76,7 @@ public class HelloApplication extends Application {
                 if (!imagenPorDefecto.exists()) {
                     Files.copy(getClass().getResourceAsStream("/images/img_1.png"), imagenPorDefecto.toPath());
                 }
-                jean.setFotoPerfil(imagenPorDefecto.getAbsolutePath());
+                jean.setFotoPerfil("data/perfiles/img_1.png");
 
                 // Copiar foto de portada si existe en resources, si no, omitir
                 File portadaJean = new File("data/perfiles/jean_portada.jpg");

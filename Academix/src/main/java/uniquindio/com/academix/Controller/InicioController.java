@@ -357,7 +357,7 @@ public class InicioController {
                 String nombreArchivo = System.currentTimeMillis() + "_" + archivoSeleccionado.getName();
                 File destino = new File(carpetaDestino, nombreArchivo);
                 Files.copy(archivoSeleccionado.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                nuevaPublicacion.setRutaImagen(destino.getAbsolutePath());
+                nuevaPublicacion.setRutaImagen("data/archivos/" + nombreArchivo);
             } catch (Exception e) {
                 mostrarAlerta("Error", "No se pudo copiar el archivo adjunto.");
             }
