@@ -12,7 +12,7 @@ import uniquindio.com.academix.Model.ContenidoEducativo;
 import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.PublicacionItem;
 import uniquindio.com.academix.Utils.Persistencia;
-import uniquindio.com.academix.Estructuras.ListaSimple;
+import uniquindio.com.academix.Model.ListaSimple;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -26,16 +26,26 @@ public class InicioController {
     @FXML private TextField descripcionField;
     @FXML private ChoiceBox<String> tipoChoiceBox;
     @FXML private TextField urlField;
-    @FXML private VBox contenedorPublicaciones;
     @FXML private TextField busquedaField;
     @FXML private ChoiceBox<String> ordenChoiceBox;
-    @FXML private TextField publicacionTextField;
     @FXML private ListView<PublicacionItem> publicacionesListView;
-    @FXML private ImageView perfilMiniaturaImageView;
 
     private File archivoSeleccionado;
     private Academix academix;
     private Estudiante estudianteActual;
+
+    // Instancia estática para refresco desde PanelController
+    private static InicioController instanciaActual;
+
+    public InicioController() {
+        instanciaActual = this;
+    }
+
+    public static void refrescarPublicacionesDesdePanel() {
+        if (instanciaActual != null) {
+            instanciaActual.refrescarPublicaciones();
+        }
+    }
 
     @FXML
     public void initialize() {
@@ -97,7 +107,21 @@ public class InicioController {
                     nombreUsuario.setText(item.getAutorNombre());
                     tiempoPublicacion.setText(item.getTiempoTranscurrido());
                     texto.setText(item.getContenido());
-                    
+
+                    // Mostrar imagen si existe
+                    contenido.getChildren().removeIf(node -> node instanceof ImageView && node != fotoPerfil);
+                    if (item.getRutaImagen() != null) {
+                        try {
+                            ImageView imagenPublicacion = new ImageView(new Image(new File(item.getRutaImagen()).toURI().toString()));
+                            imagenPublicacion.setFitWidth(400);
+                            imagenPublicacion.setPreserveRatio(true);
+                            imagenPublicacion.setSmooth(true);
+                            contenido.getChildren().add(2, imagenPublicacion); // después del encabezado y texto
+                        } catch (Exception e) {
+                            // Si hay error, no mostrar imagen
+                        }
+                    }
+
                     // Cargar imagen de perfil
                     if (item.getImagenPerfil() != null) {
                         try {
@@ -123,22 +147,28 @@ public class InicioController {
         academix = Persistencia.cargarRecursoBancoBinario();
         buscarContenido();
         cargarPublicaciones();
-        
-        // Cargar imagen de perfil en miniatura
-        if (estudiante.getFotoPerfil() != null) {
-            try {
-                Image imagen = new Image(new File(estudiante.getFotoPerfil()).toURI().toString());
-                perfilMiniaturaImageView.setImage(imagen);
-            } catch (Exception e) {
-                // Mantener imagen por defecto
-            }
-        }
     }
 
     @FXML
     public void seleccionarArchivo() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar archivo");
+        String tipo = tipoChoiceBox.getValue();
+        if ("Imagen".equalsIgnoreCase(tipo)) {
+            fileChooser.getExtensionFilters().setAll(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+            );
+        } else if ("PDF".equalsIgnoreCase(tipo)) {
+            fileChooser.getExtensionFilters().setAll(
+                new FileChooser.ExtensionFilter("PDF", "*.pdf")
+            );
+        } else if ("Video".equalsIgnoreCase(tipo)) {
+            fileChooser.getExtensionFilters().setAll(
+                new FileChooser.ExtensionFilter("Videos", "*.mp4", "*.avi", "*.mov", "*.mkv")
+            );
+        } else {
+            fileChooser.getExtensionFilters().clear();
+        }
         archivoSeleccionado = fileChooser.showOpenDialog(null);
         if (archivoSeleccionado != null) {
             urlField.setText(archivoSeleccionado.getAbsolutePath());
@@ -162,45 +192,67 @@ public class InicioController {
             return;
         }
 
-        ContenidoEducativo contenido = new ContenidoEducativo(titulo, tipo, descripcion, url, estudianteActual.getUsuario());
-        academix.agregarContenido(contenido);
-        Persistencia.guardarRecursoBancoBinario(academix);
-        buscarContenido();
+        // Crear la publicación
+        PublicacionItem nuevaPublicacion = new PublicacionItem(
+            titulo + "\n" + descripcion, // Puedes ajustar el formato si lo deseas
+            estudianteActual.getUsuario(),
+            estudianteActual.getNombre(),
+            estudianteActual.getFotoPerfil()
+        );
+        // Si es imagen, video o PDF, guarda la ruta
+        if (archivoSeleccionado != null && archivoSeleccionado.exists()) {
+            if ("Imagen".equalsIgnoreCase(tipo)) {
+                nuevaPublicacion.setRutaImagen(archivoSeleccionado.getAbsolutePath());
+            } else if ("PDF".equalsIgnoreCase(tipo) || "Video".equalsIgnoreCase(tipo)) {
+                nuevaPublicacion.setRutaImagen(archivoSeleccionado.getAbsolutePath());
+            }
+        }
+        // Persistir en el estudiante y en la base
+        estudianteActual.agregarPublicacion(nuevaPublicacion);
+        Academix academix = Persistencia.cargarRecursoBancoBinario();
+        Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
+        if (estudiantePersistente != null) {
+            estudiantePersistente.agregarPublicacion(nuevaPublicacion);
+            Persistencia.guardarRecursoBancoBinario(academix);
+        }
 
-        // Limpiar formulario y seleccionar primer tipo por defecto
+        // Limpiar formulario y selección de imagen
         tituloField.clear();
         descripcionField.clear();
         tipoChoiceBox.getSelectionModel().selectFirst();
         urlField.clear();
         archivoSeleccionado = null;
+
+        // Refrescar publicaciones
+        buscarContenido();
     }
 
     public void buscarContenido() {
         String filtro = busquedaField != null ? busquedaField.getText().toLowerCase() : "";
         String criterioOrden = ordenChoiceBox != null ? ordenChoiceBox.getValue() : "Sin ordenar";
 
-        ListaSimple<ContenidoEducativo> contenidos = academix.getContenidoEducativo();
-        ListaSimple<ContenidoEducativo> filtrados = new ListaSimple<>();
-
-        // Filtrado manual
-        for (ContenidoEducativo c : contenidos) {
-            if (c.getTitulo().toLowerCase().contains(filtro) ||
-                    c.getAutor().toLowerCase().contains(filtro) ||
-                    c.getTipo().toLowerCase().contains(filtro)) {
-                filtrados.agregar(c);
+        publicacionesListView.getItems().clear();
+        if (academix != null) {
+            // Recorrer todas las publicaciones de todos los estudiantes
+            for (Estudiante est : academix.getListaEstudiantes()) {
+                if (est.getPublicaciones() != null) {
+                    for (PublicacionItem pub : est.getPublicaciones()) {
+                        // Filtrar por contenido, autor o tipo (tipo no está en PublicacionItem, así que solo por contenido y autor)
+                        if (
+                            pub.getContenido().toLowerCase().contains(filtro) ||
+                            pub.getAutorNombre().toLowerCase().contains(filtro)
+                        ) {
+                            publicacionesListView.getItems().add(pub);
+                        }
+                    }
+                }
             }
-        }
-
-        // Orden manual
-        if ("Tipo".equals(criterioOrden)) {
-            filtrados = ordenarPorTipo(filtrados);
-        } else if ("Fecha".equals(criterioOrden)) {
-            filtrados = ordenarPorFecha(filtrados);
-        }
-
-        contenedorPublicaciones.getChildren().clear();
-        for (ContenidoEducativo contenido : filtrados) {
-            agregarPublicacionVista(contenido);
+            // Ordenar si corresponde
+            if ("Fecha".equals(criterioOrden)) {
+                publicacionesListView.getItems().sort((p1, p2) -> 
+                    p2.getFechaPublicacion().compareTo(p1.getFechaPublicacion()));
+            }
+            // Si quieres ordenar por autor o contenido, puedes agregar más criterios aquí
         }
     }
 
@@ -278,7 +330,7 @@ public class InicioController {
                 Button eliminarBtn = new Button("Eliminar");
                 eliminarBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
                 eliminarBtn.setOnAction(e -> {
-                    contenedorPublicaciones.getChildren().remove(tarjeta);
+                    publicacionesListView.getItems().remove(contenido);
                     academix.eliminarContenido(contenido);
                     Persistencia.guardarRecursoBancoBinario(academix);
                     buscarContenido(); // actualizar vista tras eliminar
@@ -309,7 +361,6 @@ public class InicioController {
         }
 
         tarjeta.getChildren().addAll(botones, autor);
-        contenedorPublicaciones.getChildren().add(0, tarjeta);
     }
 
     private void abrirArchivo(String ruta) {
@@ -334,170 +385,17 @@ public class InicioController {
 
     private void cargarPublicaciones() {
         publicacionesListView.getItems().clear();
-        contenedorPublicaciones.getChildren().clear();
-        
         // Cargar todas las publicaciones de todos los estudiantes
         for (Estudiante est : academix.getListaEstudiantes()) {
             if (est.getPublicaciones() != null) {
                 for (PublicacionItem pub : est.getPublicaciones()) {
                     publicacionesListView.getItems().add(pub);
-                    mostrarPublicacionEnContenedor(pub);
                 }
             }
         }
-        
         // Ordenar por fecha más reciente
         publicacionesListView.getItems().sort((p1, p2) -> 
             p2.getFechaPublicacion().compareTo(p1.getFechaPublicacion()));
-    }
-
-    @FXML
-    private void onPublicar() {
-        String contenido = publicacionTextField.getText();
-        if (contenido.isEmpty()) {
-            mostrarAlerta("Error", "Por favor escribe algo para publicar.");
-            return;
-        }
-
-        PublicacionItem nuevaPublicacion = new PublicacionItem(
-            contenido,
-            estudianteActual.getUsuario(),
-            estudianteActual.getNombre(),
-            estudianteActual.getFotoPerfil()
-        );
-        
-        // Agregar la publicación al estudiante y persistir
-        estudianteActual.agregarPublicacion(nuevaPublicacion);
-        
-        // Guardar en persistencia
-        Academix academix = Persistencia.cargarRecursoBancoBinario();
-        Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
-        if (estudiantePersistente != null) {
-            estudiantePersistente.agregarPublicacion(nuevaPublicacion);
-            Persistencia.guardarRecursoBancoBinario(academix);
-        }
-        
-        // Limpiar el campo y actualizar la vista
-        publicacionTextField.clear();
-        publicacionesListView.getItems().add(0, nuevaPublicacion);
-        mostrarPublicacionEnContenedor(nuevaPublicacion);
-    }
-
-    private void mostrarPublicacionEnContenedor(PublicacionItem publicacion) {
-        VBox tarjeta = new VBox(10);
-        tarjeta.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #e4e6eb; -fx-border-radius: 10;");
-
-        // Encabezado con foto de perfil y nombre
-        HBox encabezado = new HBox(10);
-        ImageView fotoPerfil = new ImageView();
-        fotoPerfil.setFitHeight(40);
-        fotoPerfil.setFitWidth(40);
-        fotoPerfil.setStyle("-fx-background-radius: 20;");
-
-        if (publicacion.getImagenPerfil() != null) {
-            try {
-                Image imagen = new Image(new File(publicacion.getImagenPerfil()).toURI().toString());
-                fotoPerfil.setImage(imagen);
-            } catch (Exception e) {
-                // Usar imagen por defecto si hay error
-            }
-        }
-
-        VBox infoUsuario = new VBox(5);
-        Label nombreUsuario = new Label(publicacion.getAutorNombre());
-        nombreUsuario.setStyle("-fx-font-weight: bold;");
-        Label tiempoPublicacion = new Label(publicacion.getTiempoTranscurrido());
-        tiempoPublicacion.setStyle("-fx-text-fill: #65676b;");
-        infoUsuario.getChildren().addAll(nombreUsuario, tiempoPublicacion);
-
-        encabezado.getChildren().addAll(fotoPerfil, infoUsuario);
-
-        // Contenido de la publicación
-        Label contenido = new Label(publicacion.getContenido());
-        contenido.setWrapText(true);
-
-        // Sección de valoraciones e interacciones
-        VBox valoracionesBox = new VBox(5);
-        valoracionesBox.setStyle("-fx-padding: 10 0;");
-
-        // Mostrar valoraciones existentes con sus comentarios
-        for (PublicacionItem.Valoracion valoracion : publicacion.getValoraciones()) {
-            if (valoracion.getComentario() != null && !valoracion.getComentario().isEmpty()) {
-                HBox valoracionBox = new HBox(10);
-                valoracionBox.setStyle("-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-background-radius: 10;");
-                
-                VBox infoValoracion = new VBox(3);
-                Label autorValoracion = new Label(valoracion.getAutorNombre());
-                autorValoracion.setStyle("-fx-font-weight: bold;");
-                
-                Label estrellas = new Label("★".repeat(valoracion.getPuntuacion()) + 
-                                          "☆".repeat(5 - valoracion.getPuntuacion()));
-                estrellas.setStyle("-fx-text-fill: #FFD700;");
-                
-                Label comentarioValoracion = new Label(valoracion.getComentario());
-                comentarioValoracion.setWrapText(true);
-                
-                Label tiempoValoracion = new Label(valoracion.getTiempoTranscurrido());
-                tiempoValoracion.setStyle("-fx-text-fill: #65676b; -fx-font-size: 11;");
-                
-                infoValoracion.getChildren().addAll(
-                    autorValoracion,
-                    estrellas,
-                    comentarioValoracion,
-                    tiempoValoracion
-                );
-                valoracionBox.getChildren().add(infoValoracion);
-                valoracionesBox.getChildren().add(valoracionBox);
-            }
-        }
-
-        // Promedio de valoraciones y botones
-        HBox interacciones = new HBox(10);
-        interacciones.setAlignment(Pos.CENTER_LEFT);
-        
-        Label promedioEstrellas = new Label("★".repeat(publicacion.getPromedioValoraciones()) + 
-                                          "☆".repeat(5 - publicacion.getPromedioValoraciones()));
-        promedioEstrellas.setStyle("-fx-text-fill: #FFD700;");
-        
-        Button btnValorar = new Button("Valorar");
-        btnValorar.setStyle("-fx-background-color: #1e88e5; -fx-text-fill: white;");
-        btnValorar.setOnAction(e -> mostrarDialogoValoracion(publicacion));
-        
-        Button btnComentar = new Button("Comentar");
-        btnComentar.setStyle("-fx-background-color: #1e88e5; -fx-text-fill: white;");
-        btnComentar.setOnAction(e -> mostrarDialogoComentario(publicacion));
-        
-        interacciones.getChildren().addAll(promedioEstrellas, btnValorar, btnComentar);
-
-        // Sección de comentarios
-        VBox comentariosBox = new VBox(5);
-        comentariosBox.setStyle("-fx-padding: 10 0 0 0;");
-        
-        for (PublicacionItem.Comentario comentario : publicacion.getComentarios()) {
-            HBox comentarioBox = new HBox(10);
-            comentarioBox.setStyle("-fx-background-color: #f0f2f5; -fx-padding: 10; -fx-background-radius: 10;");
-            
-            VBox infoComentario = new VBox(3);
-            Label autorComentario = new Label(comentario.getAutorNombre());
-            autorComentario.setStyle("-fx-font-weight: bold;");
-            Label contenidoComentario = new Label(comentario.getContenido());
-            contenidoComentario.setWrapText(true);
-            Label tiempoComentario = new Label(comentario.getTiempoTranscurrido());
-            tiempoComentario.setStyle("-fx-text-fill: #65676b; -fx-font-size: 11;");
-            
-            infoComentario.getChildren().addAll(autorComentario, contenidoComentario, tiempoComentario);
-            comentarioBox.getChildren().add(infoComentario);
-            comentariosBox.getChildren().add(comentarioBox);
-        }
-
-        tarjeta.getChildren().addAll(
-            encabezado, 
-            contenido, 
-            interacciones,
-            valoracionesBox,
-            comentariosBox
-        );
-        contenedorPublicaciones.getChildren().add(0, tarjeta);
     }
 
     private void mostrarDialogoValoracion(PublicacionItem publicacion) {
@@ -586,35 +484,6 @@ public class InicioController {
         });
     }
 
-    @FXML
-    private void onAgregarFotoVideo() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccionar Foto o Video");
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.gif"),
-            new FileChooser.ExtensionFilter("Videos", "*.mp4", "*.avi", "*.mov")
-        );
-        
-        File archivo = fileChooser.showOpenDialog(null);
-        if (archivo != null) {
-            publicacionTextField.setText("Archivo seleccionado: " + archivo.getName());
-        }
-    }
-
-    @FXML
-    private void onAgregarMaterial() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccionar Material de Estudio");
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Documentos", "*.pdf", "*.doc", "*.docx", "*.ppt", "*.pptx")
-        );
-        
-        File archivo = fileChooser.showOpenDialog(null);
-        if (archivo != null) {
-            publicacionTextField.setText("Material seleccionado: " + archivo.getName());
-        }
-    }
-
     private void mostrarDialogoComentario(PublicacionItem publicacion) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Agregar Comentario");
@@ -666,5 +535,15 @@ public class InicioController {
                 cargarPublicaciones();
             }
         });
+    }
+
+    public void refrescarPublicaciones() {
+        academix = Persistencia.cargarRecursoBancoBinario();
+        publicacionesListView.getItems().clear();
+        for (Estudiante est : academix.getListaEstudiantes()) {
+            if (est.getPublicaciones() != null && !est.getPublicaciones().isEmpty()) {
+                publicacionesListView.getItems().addAll(est.getPublicaciones());
+            }
+        }
     }
 }

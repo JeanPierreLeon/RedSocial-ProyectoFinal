@@ -1,6 +1,6 @@
 package uniquindio.com.academix.Model;
 
-import uniquindio.com.academix.Estructuras.ListaSimple;
+import uniquindio.com.academix.Model.ListaSimple;
 import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;

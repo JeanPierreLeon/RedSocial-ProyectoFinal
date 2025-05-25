@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Utils.Persistencia;
-import uniquindio.com.academix.Estructuras.ListaSimple;
+import uniquindio.com.academix.Model.ListaSimple;
 
 public class RegistroController {
 

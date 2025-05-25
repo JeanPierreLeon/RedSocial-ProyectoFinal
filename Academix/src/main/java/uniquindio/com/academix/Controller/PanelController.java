@@ -4,11 +4,13 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.Estudiante;
@@ -69,9 +71,6 @@ public class PanelController {
 
     @FXML
     private FlowPane materiasInteresFlowPane;
-
-    @FXML
-    private Label ubicacionDetalleLabel;
 
     @FXML
     private Label estudiosDetalleLabel;
@@ -231,6 +230,9 @@ public class PanelController {
         publicacionTextField.clear();
         publicacionTextField.setUserData(null); // Limpiar la referencia a la imagen
         contenidosListView.getItems().add(0, nuevaPublicacion);
+
+        // Refrescar publicaciones en InicioController de forma inmediata
+        uniquindio.com.academix.Controller.InicioController.refrescarPublicacionesDesdePanel();
     }
 
     private void configurarListaPublicaciones() {
@@ -588,10 +590,14 @@ public class PanelController {
             
             // Actualizar ubicación y estudios
             ubicacionLabel.setText(estudianteActual.getUbicacion());
-            ubicacionDetalleLabel.setText(estudianteActual.getUbicacion());
-            
-            estudiosLabel.setText(estudianteActual.getUniversidad());
-            estudiosDetalleLabel.setText(estudianteActual.getUniversidad());
+
+            // Comprobación nula para evitar NullPointerException
+            if (estudiosLabel != null) {
+                estudiosLabel.setText(estudianteActual.getUniversidad());
+            }
+            if (estudiosDetalleLabel != null) {
+                estudiosDetalleLabel.setText(estudianteActual.getUniversidad());
+            }
             
             // Cargar foto de perfil si existe
             if (estudianteActual.getFotoPerfil() != null) {
@@ -720,4 +726,4 @@ public class PanelController {
             mostrarAlerta("Error", "No se pudo cargar la imagen de perfil.");
         }
     }
-} 
+}

@@ -1,4 +1,4 @@
-package uniquindio.com.academix.Estructuras;
+package uniquindio.com.academix.Model;
 
 import java.io.Serial;
 import java.io.Serializable;

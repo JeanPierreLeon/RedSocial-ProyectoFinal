@@ -1,6 +1,6 @@
 package uniquindio.com.academix.Model;
 
-import uniquindio.com.academix.Estructuras.ListaSimple;
+import uniquindio.com.academix.Model.ListaSimple;
 import uniquindio.com.academix.HelloApplication;
 
 import java.io.IOException;

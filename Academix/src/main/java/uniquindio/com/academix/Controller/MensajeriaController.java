@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.Mensaje;
-import uniquindio.com.academix.Estructuras.ListaSimple;
+import uniquindio.com.academix.Model.ListaSimple;
 import uniquindio.com.academix.Utils.Persistencia;
 
 public class MensajeriaController {

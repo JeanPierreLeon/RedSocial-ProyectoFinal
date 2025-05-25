@@ -42,33 +42,8 @@
                 <Button onAction="#buscarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" text="Buscar" />
             </HBox>
 
-            <!-- Sección de Publicación -->
-            <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <ImageView fx:id="perfilMiniaturaImageView" fitHeight="40" fitWidth="40" 
-                             style="-fx-background-color: #e4e6eb; -fx-background-radius: 100;"/>
-                    <TextField fx:id="publicacionTextField" promptText="¿Qué estás pensando?" 
-                             style="-fx-background-color: #f0f2f5; -fx-text-fill: #65676b;" 
-                             HBox.hgrow="ALWAYS"/>
-                </HBox>
-                <Separator/>
-                <HBox spacing="20" alignment="CENTER">
-                    <Button fx:id="fotoVideoBtn" text="📷 Foto/Video" 
-                            style="-fx-background-color: transparent;" onAction="#onAgregarFotoVideo"/>
-                    <Button fx:id="materialEstudioBtn" text="📚 Material de Estudio" 
-                            style="-fx-background-color: transparent;" onAction="#onAgregarMaterial"/>
-                    <Button fx:id="publicarBtn" text="Publicar" 
-                            style="-fx-background-color: #1e88e5; -fx-text-fill: white;" 
-                            onAction="#onPublicar"/>
-                </HBox>
-            </VBox>
-
-            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="480" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" VBox.vgrow="ALWAYS">
-                <VBox fx:id="contenedorPublicaciones" spacing="10" style="-fx-background-color: #f9fbff; -fx-padding: 15; -fx-border-radius: 15; -fx-background-radius: 15; -fx-border-color: #d2d8e7;" />
-            </ScrollPane>
-
             <!-- Lista de Publicaciones -->
-            <ListView fx:id="publicacionesListView" VBox.vgrow="ALWAYS" 
+            <ListView fx:id="publicacionesListView" VBox.vgrow="ALWAYS"
                       style="-fx-background-color: transparent; -fx-background: transparent;"/>
         </VBox>
 

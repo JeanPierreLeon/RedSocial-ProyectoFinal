@@ -39,7 +39,7 @@
             <!-- Detalles -->
             <VBox spacing="10" style="-fx-padding: 10;">
                 <Label text="Ubicación:" style="-fx-font-weight: bold;"/>
-                <Label fx:id="ubicacionDetalleLabel"/>
+                <Label fx:id="ubicacionLabel"/>
                 <Label text="Estudios:" style="-fx-font-weight: bold;"/>
                 <Label fx:id="estudiosDetalleLabel"/>
             </VBox>
