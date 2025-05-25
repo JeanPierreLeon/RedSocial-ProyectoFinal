@@ -194,19 +194,16 @@ public class InicioController {
 
         // Crear la publicación
         PublicacionItem nuevaPublicacion = new PublicacionItem(
-            titulo + "\n" + descripcion, // Puedes ajustar el formato si lo deseas
+            titulo + "\n" + descripcion,
             estudianteActual.getUsuario(),
             estudianteActual.getNombre(),
             estudianteActual.getFotoPerfil()
         );
-        // Si es imagen, video o PDF, guarda la ruta
+        // Guardar la ruta del archivo (imagen/pdf/video) en la publicación
         if (archivoSeleccionado != null && archivoSeleccionado.exists()) {
-            if ("Imagen".equalsIgnoreCase(tipo)) {
-                nuevaPublicacion.setRutaImagen(archivoSeleccionado.getAbsolutePath());
-            } else if ("PDF".equalsIgnoreCase(tipo) || "Video".equalsIgnoreCase(tipo)) {
-                nuevaPublicacion.setRutaImagen(archivoSeleccionado.getAbsolutePath());
-            }
+            nuevaPublicacion.setRutaImagen(archivoSeleccionado.getAbsolutePath());
         }
+
         // Persistir en el estudiante y en la base
         estudianteActual.agregarPublicacion(nuevaPublicacion);
         Academix academix = Persistencia.cargarRecursoBancoBinario();
