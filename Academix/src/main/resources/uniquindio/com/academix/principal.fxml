@@ -7,22 +7,23 @@
             fx:controller="uniquindio.com.academix.Controller.DashboardController"
             prefHeight="805.0" prefWidth="1274.0"
             minHeight="0.0" minWidth="0.0"
-            maxHeight="-1.0" maxWidth="-1.0">
+            maxHeight="-1.0" maxWidth="-1.0"
+            style="-fx-background-color: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);">
 
     <top>
-        <HBox spacing="40.0" style="-fx-background-color: white; -fx-padding: 20 40;" HBox.hgrow="ALWAYS">
+        <HBox spacing="40.0" style="-fx-background-color: white; -fx-padding: 20 40; -fx-background-radius: 0 0 24 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8,0,0,2);" HBox.hgrow="ALWAYS">
             <children>
-                <Label style="-fx-font-size: 24px; -fx-text-fill: #1d4ed8; -fx-font-weight: bold;" text="Académix" />
+                <Label style="-fx-font-size: 28px; -fx-text-fill: #1d4ed8; -fx-font-weight: bold; -fx-font-family: 'Segoe UI Semibold';" text="Académix" />
                 <Pane HBox.hgrow="ALWAYS" />
-                <Hyperlink fx:id="inicioLink" onAction="#goToInicio" text="Inicio" />
-                <Hyperlink fx:id="panelLink" onAction="#goToPanel" text="Panel del Estudiante" />
-                <Hyperlink fx:id="gruposLink" onAction="#goToGrupos" text="Grupos" />
-                <Hyperlink fx:id="sugerenciasLink" onAction="#goToSugerencias" text="Sugerencias" />
-                <Hyperlink fx:id="mensajeriaLink" onAction="#goToMensajeria" text="Mensajería" />
-                <Label fx:id="IDcorreoEst" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" />
+                <Hyperlink fx:id="inicioLink" onAction="#goToInicio" text="Inicio" style="-fx-font-size: 16px; -fx-text-fill: #1d4ed8; -fx-font-family: 'Segoe UI'; -fx-underline: false; -fx-padding: 8 18; -fx-background-radius: 12; -fx-cursor: hand;" />
+                <Hyperlink fx:id="panelLink" onAction="#goToPanel" text="Panel del Estudiante" style="-fx-font-size: 16px; -fx-text-fill: #1d4ed8; -fx-font-family: 'Segoe UI'; -fx-underline: false; -fx-padding: 8 18; -fx-background-radius: 12; -fx-cursor: hand;" />
+                <Hyperlink fx:id="gruposLink" onAction="#goToGrupos" text="Grupos" style="-fx-font-size: 16px; -fx-text-fill: #1d4ed8; -fx-font-family: 'Segoe UI'; -fx-underline: false; -fx-padding: 8 18; -fx-background-radius: 12; -fx-cursor: hand;" />
+                <Hyperlink fx:id="mensajeriaLink" onAction="#goToMensajeria" text="Mensajería" style="-fx-font-size: 16px; -fx-text-fill: #1d4ed8; -fx-font-family: 'Segoe UI'; -fx-underline: false; -fx-padding: 8 18; -fx-background-radius: 12; -fx-cursor: hand;" />
+                <Label fx:id="IDcorreoEst" style="-fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-family: 'Segoe UI'; -fx-padding: 0 0 0 16;" />
             </children>
         </HBox>
     </top>
 
-    <!-- Aquí no colocas nada en el center, queda vacío para cargar las vistas -->
+    <!-- El center queda vacío para cargar las vistas dinámicamente -->
+
 </BorderPane>

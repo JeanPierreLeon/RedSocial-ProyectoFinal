@@ -8,55 +8,41 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="734.0" prefWidth="1239.0" style="-fx-background-color: #f5f7fa;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController"
+<AnchorPane prefHeight="734.0" prefWidth="1239.0" style="-fx-background-color: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.InicioController"
     AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
-    <HBox layoutX="0" layoutY="0" prefHeight="740.0" prefWidth="1239.0" spacing="20" style="-fx-padding: 20;" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-        <!-- Panel Izquierdo: Publicar Contenido -->
-        <VBox maxWidth="350" prefWidth="350" spacing="18" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" VBox.vgrow="ALWAYS">
-            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Publicar Contenido" />
+    <HBox layoutX="0" layoutY="0" prefHeight="740.0" prefWidth="1239.0" spacing="40" style="-fx-padding: 40 60 40 60;" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <!-- Panel Publicar Contenido -->
+        <VBox maxWidth="350" prefWidth="350" spacing="18" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 12,0,0,4);" VBox.vgrow="ALWAYS">
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333; -fx-font-family: 'Segoe UI Semibold';" text="Publicar Contenido" />
 
-            <TextField fx:id="tituloField" promptText="Título" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-            <TextField fx:id="descripcionField" promptText="Descripción" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-            <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
+            <TextField fx:id="tituloField" promptText="Título" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-font-family: 'Segoe UI';" />
+            <TextField fx:id="descripcionField" promptText="Descripción" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-font-family: 'Segoe UI';" />
+            <ChoiceBox fx:id="tipoChoiceBox" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-font-family: 'Segoe UI';" />
 
             <HBox spacing="10">
-                <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS" />
-                <Button onAction="#seleccionarArchivo" style="-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-background-radius: 10;" text="Seleccionar" />
+                <TextField fx:id="urlField" promptText="URL o ruta del archivo" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-font-family: 'Segoe UI';" HBox.hgrow="ALWAYS" />
+                <Button onAction="#seleccionarArchivo" style="-fx-background-color: #e0e0e0; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-family: 'Segoe UI Semibold'; -fx-cursor: hand;" text="Seleccionar" />
             </HBox>
 
-            <Button onAction="#publicarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="Publicar" />
+            <Button onAction="#publicarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand; -fx-font-family: 'Segoe UI Semibold';" text="Publicar" />
         </VBox>
 
-        <!-- Panel Central: Publicaciones -->
-        <VBox maxWidth="550" prefWidth="550" spacing="18" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" HBox.hgrow="ALWAYS">
-            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Publicaciones" />
+        <!-- Panel Publicaciones -->
+        <VBox maxWidth="650" prefHeight="540.0" prefWidth="650.0" spacing="18" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 12,0,0,4);" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333; -fx-font-family: 'Segoe UI Semibold';" text="Publicaciones" />
 
             <HBox spacing="10">
-                <TextField fx:id="busquedaField" promptText="Buscar por título, autor o tipo" style="-fx-background-radius: 10; -fx-border-radius: 10;" HBox.hgrow="ALWAYS" />
-                <ChoiceBox fx:id="ordenChoiceBox" prefWidth="120" style="-fx-background-radius: 10; -fx-border-radius: 10;" />
-                <Button onAction="#buscarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" text="Buscar" />
+                <TextField fx:id="busquedaField" promptText="Buscar por título, autor o tipo" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-font-family: 'Segoe UI';" HBox.hgrow="ALWAYS" />
+                <ChoiceBox fx:id="ordenChoiceBox" prefWidth="120" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-font-family: 'Segoe UI';" />
+                <Button onAction="#buscarContenido" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-font-family: 'Segoe UI Semibold'; -fx-cursor: hand;" text="Buscar" />
             </HBox>
 
+            <!-- Lista de Publicaciones -->
             <ListView fx:id="publicacionesListView" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS" />
         </VBox>
 
-        <!-- Panel Derecho: Sugerencias y Amigos -->
-        <VBox maxWidth="300" prefWidth="300" spacing="15" style="-fx-padding: 0 10 0 0;" VBox.vgrow="ALWAYS">
-            <!-- Sección de Sugerencias -->
-            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);">
-                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Sugerencias de Amigos" />
-                <VBox fx:id="sugerenciasContainer" spacing="10" />
-            </VBox>
-
-            <!-- Sección de Amigos -->
-            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10,0,0,3);" VBox.vgrow="ALWAYS">
-                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;" text="Amigos" />
-                <VBox fx:id="solicitudesPendientesContainer" spacing="10" />
-            </VBox>
-        </VBox>
     </HBox>
 
 </AnchorPane>
