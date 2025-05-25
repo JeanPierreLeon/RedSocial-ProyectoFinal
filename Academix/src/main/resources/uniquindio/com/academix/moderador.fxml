@@ -1,14 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="uniquindio.com.academix.Controller.ModeradorController"
-            prefHeight="400.0" prefWidth="600.0">
+            style="-fx-background-color: #f5f7fa;">
 
-</AnchorPane>
+    <!-- Barra superior -->
+    <top>
+        <HBox style="-fx-background-color: white; -fx-padding: 15 30;" spacing="15" alignment="CENTER_LEFT">
+            <children>
+                <Label text="Académix" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Top Contenidos" onAction="#mostrarTopContenidos"
+                        style="-fx-background-radius: 20; -fx-background-color: #1e88e5; -fx-text-fill: white;"/>
+                <Button text="Top Estudiantes" onAction="#mostrarTopEstudiantes"
+                        style="-fx-background-radius: 20; -fx-background-color: #1e88e5; -fx-text-fill: white;"/>
+                <Button text="Ver Grafo" onAction="#verGrafo"
+                        style="-fx-background-radius: 20; -fx-background-color: #1e88e5; -fx-text-fill: white;"/>
+            </children>
+        </HBox>
+    </top>
+
+    <!-- Contenido principal -->
+    <center>
+        <HBox alignment="CENTER" spacing="30" style="-fx-padding: 30;">
+            <children>
+                <!-- Tarjeta: conexiones -->
+                <VBox spacing="15"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20;"
+                      prefWidth="450">
+                    <Label text="Conexiones entre Estudiantes"
+                           style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                    <TableView fx:id="tablaUsuarios" prefHeight="300">
+                        <columns>
+                            <TableColumn fx:id="columnaNombreUsuario" text="Usuario" prefWidth="200"/>
+                            <TableColumn fx:id="columnaConexionesUsuario" text="Conectado con" prefWidth="230"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <!-- Tarjeta: contenidos -->
+                <VBox spacing="15"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20;"
+                      prefWidth="450">
+                    <Label text="Contenidos Valorados"
+                           style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                    <TableView fx:id="tablaContenidos" prefHeight="300">
+                        <columns>
+                            <TableColumn fx:id="columnaTituloContenido" text="Título" prefWidth="200"/>
+                            <TableColumn fx:id="columnaAutorContenido" text="Autor" prefWidth="140"/>
+                            <TableColumn fx:id="columnaValoracionContenido" text="Valoración" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </children>
+        </HBox>
+    </center>
+</BorderPane>
