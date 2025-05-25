@@ -6,7 +6,7 @@ import uniquindio.com.academix.Model.Academix;
 
 public class Persistencia {
 
-    private static final String RUTA_ARCHIVO = "data/academix.dat";
+    private static final String RUTA_ARCHIVO = "model.dat";
 
     public static Academix cargarRecursoBancoBinario() {
         File archivo = new File(RUTA_ARCHIVO);
@@ -17,11 +17,13 @@ public class Persistencia {
             return academix;
         }
 
+        // Si el archivo existe pero no es válido, eliminarlo automáticamente
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
             return (Academix) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error al cargar los datos: " + e.getMessage());
-            // Si hay error al leer, crear nuevo archivo con datos por defecto
+            // Eliminar archivo corrupto y crear uno nuevo
+            archivo.delete();
             Academix academix = new Academix();
             guardarRecursoBancoBinario(academix);
             return academix;

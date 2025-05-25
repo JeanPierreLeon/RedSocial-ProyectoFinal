@@ -71,19 +71,22 @@ public class HelloApplication extends Application {
                 File carpetaPerfiles = new File("data/perfiles");
                 if (!carpetaPerfiles.exists()) carpetaPerfiles.mkdirs();
 
-                // Copiar foto de perfil
-                File perfilJean = new File("data/perfiles/jean_perfil.jpg");
-                if (!perfilJean.exists()) {
-                    Files.copy(getClass().getResourceAsStream("/images/jean_perfil.jpg"), perfilJean.toPath());
+                // Asignar imagen de perfil por defecto si no hay una personalizada
+                File imagenPorDefecto = new File("data/perfiles/img_1.png");
+                if (!imagenPorDefecto.exists()) {
+                    Files.copy(getClass().getResourceAsStream("/images/img_1.png"), imagenPorDefecto.toPath());
                 }
-                jean.setFotoPerfil(perfilJean.getAbsolutePath());
+                jean.setFotoPerfil(imagenPorDefecto.getAbsolutePath());
 
-                // Copiar foto de portada
+                // Copiar foto de portada si existe en resources, si no, omitir
                 File portadaJean = new File("data/perfiles/jean_portada.jpg");
                 if (!portadaJean.exists()) {
-                    Files.copy(getClass().getResourceAsStream("/images/jean_portada.jpg"), portadaJean.toPath());
+                    // Si no existe en resources, no hacer nada
+                    if (getClass().getResourceAsStream("/images/jean_portada.jpg") != null) {
+                        Files.copy(getClass().getResourceAsStream("/images/jean_portada.jpg"), portadaJean.toPath());
+                        jean.setFotoPortada(portadaJean.getAbsolutePath());
+                    }
                 }
-                jean.setFotoPortada(portadaJean.getAbsolutePath());
             } catch (Exception e) {
                 System.out.println("Error copiando imágenes de Jean: " + e.getMessage());
             }
@@ -125,3 +128,4 @@ public class HelloApplication extends Application {
         launch(args);
     }
 }
+

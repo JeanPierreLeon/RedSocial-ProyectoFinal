@@ -203,7 +203,12 @@ public class InicioController {
                                 Image imagen = new Image(archivoImagen.toURI().toString());
                                 imagenPublicacion.setImage(imagen);
                                 if (!contenido.getChildren().contains(imagenPublicacion)) {
-                                    contenido.getChildren().add(contenido.getChildren().indexOf(interacciones), imagenPublicacion);
+                                    int idx = contenido.getChildren().indexOf(interacciones);
+                                    if (idx >= 0) {
+                                        contenido.getChildren().add(idx, imagenPublicacion);
+                                    } else {
+                                        contenido.getChildren().add(imagenPublicacion); // lo agrega al final si no encuentra interacciones
+                                    }
                                 }
                             } else {
                                 System.out.println("Archivo de imagen de publicación no encontrado: " + item.getRutaImagen());

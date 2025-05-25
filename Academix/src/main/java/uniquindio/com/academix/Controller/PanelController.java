@@ -356,28 +356,46 @@ public void initialize() {
                     // Cargar imagen de perfil
                     if (item.getImagenPerfil() != null) {
                         try {
-                            Image imagen = new Image(new File(item.getImagenPerfil()).toURI().toString());
-                            fotoPerfil.setImage(imagen);
+                            File file = new File(item.getImagenPerfil());
+                            if (file.exists()) {
+                                Image imagen = new Image(file.toURI().toString());
+                                fotoPerfil.setImage(imagen);
+                            } else {
+                                // Imagen de perfil por defecto
+                                fotoPerfil.setImage(new Image(getClass().getResourceAsStream("/images/img_1.png")));
+                            }
                         } catch (Exception e) {
-                            // Usar imagen por defecto si hay error
+                            // Imagen de perfil por defecto en caso de error
+                            fotoPerfil.setImage(new Image(getClass().getResourceAsStream("/images/img_1.png")));
                         }
+                    } else {
+                        // Imagen de perfil por defecto si es null
+                        fotoPerfil.setImage(new Image(getClass().getResourceAsStream("/images/img_1.png")));
                     }
 
                     // Cargar imagen de la publicación si existe
                     if (item.getRutaImagen() != null) {
                         try {
-                            Image imagen = new Image(new File(item.getRutaImagen()).toURI().toString());
-                            imagenPublicacion.setImage(imagen);
-                            
-                            // Asegurarse de que la imagen esté en el contenido
-                            if (!contenido.getChildren().contains(imagenPublicacion)) {
-                                contenido.getChildren().add(contenido.getChildren().indexOf(interacciones), imagenPublicacion);
+                            File file = new File(item.getRutaImagen());
+                            if (file.exists()) {
+                                Image imagen = new Image(file.toURI().toString());
+                                imagenPublicacion.setImage(imagen);
+                                if (!contenido.getChildren().contains(imagenPublicacion)) {
+                                    contenido.getChildren().add(3, imagenPublicacion);
+                                }
+                            } else {
+                                // Si la imagen no existe, eliminar del contenido
+                                contenido.getChildren().remove(imagenPublicacion);
+                                imagenPublicacion.setImage(null);
                             }
                         } catch (Exception e) {
                             contenido.getChildren().remove(imagenPublicacion);
+                            imagenPublicacion.setImage(null);
                         }
                     } else {
+                        // Si no hay ruta de imagen, eliminar del contenido
                         contenido.getChildren().remove(imagenPublicacion);
+                        imagenPublicacion.setImage(null);
                     }
 
                     // Mostrar/ocultar botón eliminar según el autor
