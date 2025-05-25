@@ -21,13 +21,13 @@
         </ImageView>
 
         <!-- Contenedor principal -->
-        <VBox alignment="CENTER" layoutX="186.0" layoutY="60.0" prefWidth="328.0" spacing="15" style="-fx-background-color: #262525; -fx-background-radius: 25; -fx-padding: 30;">
+        <VBox alignment="CENTER" layoutX="186.0" layoutY="60.0" prefWidth="328.0" spacing="18" style="-fx-background-color: #262525; -fx-background-radius: 25; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 12,0,0,4);">
             <children>
 
                 <!-- Título -->
                 <Label text="AUTENTICACIÓN" textFill="WHITE">
                     <font>
-                        <Font name="Arial Black" size="24" />
+                        <Font name="Segoe UI Semibold" size="24" />
                     </font>
                 </Label>
 
@@ -41,7 +41,7 @@
                             <Image url="@../../../images/img_1.png" />
                         </image>
                     </ImageView>
-                    <TextField fx:id="campoUsuario" prefHeight="25.0" prefWidth="232.0" promptText="Usuario" />
+                    <TextField fx:id="campoUsuario" prefHeight="25.0" prefWidth="232.0" promptText="Usuario" style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-font-family: 'Segoe UI';" />
                 </HBox>
 
                 <!-- Contraseña -->
@@ -51,17 +51,17 @@
                             <Image url="@../../../images/img_2.png" />
                         </image>
                     </ImageView>
-                    <PasswordField fx:id="campoContrasena" prefHeight="25.0" prefWidth="231.0" promptText="Contraseña" />
+                    <PasswordField fx:id="campoContrasena" prefHeight="25.0" prefWidth="231.0" promptText="Contraseña" style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-font-family: 'Segoe UI';" />
                 </HBox>
 
                 <!-- Botón Iniciar -->
-                <Button fx:id="btnIniciar" onAction="#iniciarSesion" prefWidth="150" style="-fx-background-color: #002CB3; -fx-background-radius: 90; -fx-text-fill: white;" text="Iniciar Sesión" />
+                <Button fx:id="btnIniciar" onAction="#iniciarSesion" prefWidth="150" style="-fx-background-color: #002CB3; -fx-background-radius: 90; -fx-text-fill: white; -fx-font-family: 'Segoe UI Semibold'; -fx-effect: dropshadow(gaussian, rgba(0,44,179,0.18), 6,0,0,2);" text="Iniciar Sesión" />
 
                 <!-- Botón Registrar -->
-                <Button fx:id="btnRegistrar" onAction="#abrirVentanaRegistro" prefWidth="150" style="-fx-background-color: #28A745; -fx-background-radius: 90; -fx-text-fill: white;" text="Registrar" />
+                <Button fx:id="btnRegistrar" onAction="#abrirVentanaRegistro" prefWidth="150" style="-fx-background-color: #28A745; -fx-background-radius: 90; -fx-text-fill: white; -fx-font-family: 'Segoe UI Semibold'; -fx-effect: dropshadow(gaussian, rgba(40,167,69,0.18), 6,0,0,2);" text="Registrar" />
 
                 <!-- Mensaje de error -->
-                <Label fx:id="mensajeError" textFill="red" />
+                <Label fx:id="mensajeError" textFill="red" style="-fx-font-family: 'Segoe UI';" />
 
             </children>
         </VBox>
