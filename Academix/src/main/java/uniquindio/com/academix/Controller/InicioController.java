@@ -17,6 +17,9 @@ import uniquindio.com.academix.Model.ListaSimple;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import javafx.geometry.Pos;
 import javafx.util.Pair;
 
@@ -192,19 +195,29 @@ public class InicioController {
             return;
         }
 
-        // Crear la publicación
         PublicacionItem nuevaPublicacion = new PublicacionItem(
             titulo + "\n" + descripcion,
             estudianteActual.getUsuario(),
             estudianteActual.getNombre(),
             estudianteActual.getFotoPerfil()
         );
-        // Guardar la ruta del archivo (imagen/pdf/video) en la publicación
+
+        // Copiar archivo a carpeta interna y guardar ruta relativa
         if (archivoSeleccionado != null && archivoSeleccionado.exists()) {
-            nuevaPublicacion.setRutaImagen(archivoSeleccionado.getAbsolutePath());
+            try {
+                File carpetaDestino = new File("data/archivos");
+                if (!carpetaDestino.exists()) {
+                    carpetaDestino.mkdirs();
+                }
+                String nombreArchivo = System.currentTimeMillis() + "_" + archivoSeleccionado.getName();
+                File destino = new File(carpetaDestino, nombreArchivo);
+                Files.copy(archivoSeleccionado.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                nuevaPublicacion.setRutaImagen("data/archivos/" + nombreArchivo);
+            } catch (Exception e) {
+                mostrarAlerta("Error", "No se pudo copiar el archivo adjunto.");
+            }
         }
 
-        // Persistir en el estudiante y en la base
         estudianteActual.agregarPublicacion(nuevaPublicacion);
         Academix academix = Persistencia.cargarRecursoBancoBinario();
         Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
@@ -213,15 +226,14 @@ public class InicioController {
             Persistencia.guardarRecursoBancoBinario(academix);
         }
 
-        // Limpiar formulario y selección de imagen
         tituloField.clear();
         descripcionField.clear();
         tipoChoiceBox.getSelectionModel().selectFirst();
         urlField.clear();
         archivoSeleccionado = null;
 
-        // Refrescar publicaciones
-        buscarContenido();
+        // Refrescar publicaciones en la vista de inicio inmediatamente
+        refrescarPublicaciones();
     }
 
     public void buscarContenido() {

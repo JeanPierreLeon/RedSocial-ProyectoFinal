@@ -34,6 +34,7 @@ public class LoginController {
             academix.agregarEstudiante(new Estudiante("ana@academix.edu", "abcd"));
             Persistencia.guardarRecursoBancoBinario(academix);
         }
+        imprimirUsuariosEnConsola();
     }
 
     @FXML
@@ -44,6 +45,7 @@ public class LoginController {
         // Comprobación de moderador
         if ("admin".equalsIgnoreCase(usuario) && "12345".equals(contrasena)) {
             uniquindio.com.academix.HelloApplication.cambiarVista("moderador.fxml", "Panel del Moderador");
+            imprimirUsuariosEnConsola();
             return;
         }
 
@@ -70,18 +72,21 @@ public class LoginController {
                     mensajeError.setText("Error al cargar la vista principal");
                     e.printStackTrace();
                 }
+                imprimirUsuariosEnConsola();
                 return;
             }
         }
 
         mensajeError.setText("Usuario o contraseña incorrectos");
+        imprimirUsuariosEnConsola();
     }
 
-    // Método temporal para depuración
     public void imprimirUsuariosEnConsola() {
+        System.out.println("=== Lista de usuarios registrados ===");
         for (Estudiante est : academix.getListaEstudiantes()) {
             System.out.println("Usuario: " + est.getUsuario() + " | Contraseña: " + est.getContrasena());
         }
+        System.out.println("====================================");
     }
 
     public void abrirVentanaRegistro() {
@@ -91,6 +96,12 @@ public class LoginController {
 
             RegistroController registroController = loader.getController();
             registroController.setAcademix(academix); // Mejor pasar el objeto completo
+
+            // Asegura que al registrar un usuario se guarde en model.dat
+            registroController.setOnRegistroExitoso(() -> {
+                Persistencia.guardarRecursoBancoBinario(academix);
+                imprimirUsuariosEnConsola();
+            });
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));

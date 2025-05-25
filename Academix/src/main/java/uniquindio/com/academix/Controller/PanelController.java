@@ -19,6 +19,8 @@ import uniquindio.com.academix.Model.ValoracionItem;
 import uniquindio.com.academix.Utils.Persistencia;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class PanelController {
     @FXML
@@ -199,8 +201,28 @@ public class PanelController {
         }
 
         // Obtener la ruta de la imagen si existe
-        String rutaImagen = (String) publicacionTextField.getUserData();
-        
+        String rutaImagenOriginal = (String) publicacionTextField.getUserData();
+        String rutaImagenRelativa = null;
+
+        // Copiar archivo a carpeta interna y guardar ruta relativa
+        if (rutaImagenOriginal != null) {
+            try {
+                File archivoOriginal = new File(rutaImagenOriginal);
+                if (archivoOriginal.exists()) {
+                    File carpetaDestino = new File("data/archivos");
+                    if (!carpetaDestino.exists()) {
+                        carpetaDestino.mkdirs();
+                    }
+                    String nombreArchivo = System.currentTimeMillis() + "_" + archivoOriginal.getName();
+                    File destino = new File(carpetaDestino, nombreArchivo);
+                    Files.copy(archivoOriginal.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    rutaImagenRelativa = "data/archivos/" + nombreArchivo;
+                }
+            } catch (Exception e) {
+                mostrarAlerta("Error", "No se pudo copiar el archivo adjunto.");
+            }
+        }
+
         PublicacionItem nuevaPublicacion = new PublicacionItem(
             contenido,
             estudianteActual.getUsuario(),
@@ -208,16 +230,13 @@ public class PanelController {
             estudianteActual.getFotoPerfil()
         );
 
-        // Si hay una imagen, establecerla en la publicación
-        if (rutaImagen != null) {
-            nuevaPublicacion.setRutaImagen(rutaImagen);
+        if (rutaImagenRelativa != null) {
+            nuevaPublicacion.setRutaImagen(rutaImagenRelativa);
         }
-        
-        // Agregar la publicación al estudiante actual y persistir
+
         if (estudianteActual != null) {
             estudianteActual.agregarPublicacion(nuevaPublicacion);
-            
-            // Guardar en persistencia
+
             Academix academix = Persistencia.cargarRecursoBancoBinario();
             Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
             if (estudiantePersistente != null) {
@@ -225,13 +244,11 @@ public class PanelController {
                 Persistencia.guardarRecursoBancoBinario(academix);
             }
         }
-        
-        // Limpiar el campo y actualizar la vista
+
         publicacionTextField.clear();
-        publicacionTextField.setUserData(null); // Limpiar la referencia a la imagen
+        publicacionTextField.setUserData(null);
         contenidosListView.getItems().add(0, nuevaPublicacion);
 
-        // Refrescar publicaciones en InicioController de forma inmediata
         uniquindio.com.academix.Controller.InicioController.refrescarPublicacionesDesdePanel();
     }
 

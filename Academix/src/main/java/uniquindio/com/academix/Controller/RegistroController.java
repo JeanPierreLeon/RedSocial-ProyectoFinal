@@ -17,6 +17,7 @@ public class RegistroController {
     @FXML private Button btnRegistrar;
 
     private Academix academix;
+    private Runnable onRegistroExitoso;
 
     // Constructor sin parámetros, necesario para FXML
     public RegistroController() {
@@ -26,6 +27,11 @@ public class RegistroController {
     // Método para inyectar los parámetros después de la creación del controlador
     public void setAcademix(Academix academix) {
         this.academix = academix;
+    }
+
+    // Permite inyectar un callback para ejecutar tras el registro exitoso
+    public void setOnRegistroExitoso(Runnable onRegistroExitoso) {
+        this.onRegistroExitoso = onRegistroExitoso;
     }
 
     @FXML
@@ -63,6 +69,11 @@ public class RegistroController {
 
         academix.agregarEstudiante(nuevo);
         Persistencia.guardarRecursoBancoBinario(academix);
+
+        // Ejecutar callback si está definido
+        if (onRegistroExitoso != null) {
+            onRegistroExitoso.run();
+        }
 
         uniquindio.com.academix.HelloApplication.cambiarVista("login.fxml", "Iniciar sesión");
         cerrarVentana();
