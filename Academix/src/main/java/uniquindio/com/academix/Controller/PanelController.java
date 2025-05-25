@@ -1,16 +1,36 @@
 package uniquindio.com.academix.Controller;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
-import javafx.scene.layout.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.util.Pair;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.Estudiante;
@@ -18,14 +38,15 @@ import uniquindio.com.academix.Model.PublicacionItem;
 import uniquindio.com.academix.Model.ValoracionItem;
 import uniquindio.com.academix.Utils.Persistencia;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-
 public class PanelController {
     @FXML
     private ImageView portadaImageView;
     
+   
+
+    @FXML
+private ListView<String> conexionesListView;
+
     @FXML
     private ImageView perfilImageView;
     
@@ -80,18 +101,34 @@ public class PanelController {
     private Estudiante estudianteActual;
     private Academix academix;
 
-    @FXML
-    public void initialize() {
-        // Inicializar categorías de ayuda
-        categoriaAyudaComboBox.getItems().addAll(
-            "Matemáticas",
-            "Programación",
-            "Física",
-            "Química",
-            "Biología",
-            "Historia",
-            "Literatura"
-        );
+   @FXML
+private Spinner<Integer> spinnerUrgencia;
+
+
+
+@FXML
+public void initialize() {
+    // Spinner urgencia rango 1 a 10, editable
+    SpinnerValueFactory<Integer> valueFactory =
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1);
+    spinnerUrgencia.setValueFactory(valueFactory);
+    spinnerUrgencia.setEditable(true);
+
+    // Cargar materias en comboBox
+    categoriaAyudaComboBox.getItems().addAll(
+        "Matemáticas",
+        "Programación",
+        "Física",
+        "Química",
+        "Biología",
+        "Historia",
+        "Literatura"
+    );
+
+
+
+
+        ;
 
         // Configurar la lista de publicaciones
         configurarListaPublicaciones();
@@ -589,6 +626,26 @@ public class PanelController {
             }
         }
     }
+     private void actualizarConexionesGrafo() {
+        if (conexionesListView == null || estudianteActual == null) return;
+        conexionesListView.getItems().clear();
+        Academix academix = Persistencia.cargarRecursoBancoBinario();
+        if (academix != null && academix.getGrafoUsuarios() != null) {
+            String[] conexiones = academix.getGrafoUsuarios().getConexiones(estudianteActual.getUsuario());
+            if (conexiones.length == 0) {
+                conexionesListView.getItems().add("Sin conexiones aún.");
+            } else {
+                for (String usuario : conexiones) {
+                    Estudiante est = academix.buscarEstudiante(usuario);
+                    if (est != null) {
+                        conexionesListView.getItems().add(est.getNombre() + " (" + est.getUsuario() + ")");
+                    } else {
+                        conexionesListView.getItems().add(usuario);
+                    }
+                }
+            }
+        }
+    }
 
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -602,62 +659,117 @@ public class PanelController {
         this.estudianteActual = estudiante;
         cargarDatosEstudiante();
     }
+private void cargarSugerenciasPorGrafo() {
+    if (estudianteActual == null || sugerenciasListView == null) return;
 
-    private void cargarDatosEstudiante() {
-        if (estudianteActual != null) {
-            // Cargar información básica
-            nombreUsuarioLabel.setText(estudianteActual.getNombre());
-            correoLabel.setText(estudianteActual.getUsuario());
-            
-            // Actualizar ubicación y estudios
-            ubicacionLabel.setText(estudianteActual.getUbicacion());
+    Academix academix = Persistencia.cargarRecursoBancoBinario();
+    if (academix == null || academix.getGrafoUsuarios() == null) return;
 
-            // Comprobación nula para evitar NullPointerException
-            if (estudiosLabel != null) {
-                estudiosLabel.setText(estudianteActual.getUniversidad());
-            }
-            if (estudiosDetalleLabel != null) {
-                estudiosDetalleLabel.setText(estudianteActual.getUniversidad());
-            }
-            
-            // Cargar foto de perfil si existe
-            if (estudianteActual.getFotoPerfil() != null) {
-                actualizarFotoPerfil(estudianteActual.getFotoPerfil());
-            }
-            
-            // Cargar foto de portada si existe
-            if (estudianteActual.getFotoPortada() != null) {
-                try {
-                    Image imagen = new Image(new File(estudianteActual.getFotoPortada()).toURI().toString());
-                    portadaImageView.setImage(imagen);
-                } catch (Exception e) {
-                    // Si hay error al cargar la imagen, mantener el fondo por defecto
+    String usuarioActual = estudianteActual.getUsuario();
+    String[] conexionesDirectas = academix.getGrafoUsuarios().getConexiones(usuarioActual);
+    if (conexionesDirectas == null) return;
+
+    String[] sugerencias = new String[100];
+    int total = 0;
+
+    for (int i = 0; i < conexionesDirectas.length; i++) {
+        String amigo = conexionesDirectas[i];
+        String[] conexionesDelAmigo = academix.getGrafoUsuarios().getConexiones(amigo);
+
+        for (int j = 0; j < conexionesDelAmigo.length; j++) {
+            String candidato = conexionesDelAmigo[j];
+
+            if (!candidato.equals(usuarioActual)
+                && !estaEnArreglo(conexionesDirectas, candidato)
+                && !estaEnArreglo(sugerencias, candidato)) {
+
+                Estudiante e = academix.buscarEstudiante(candidato);
+                if (e != null) {
+                    sugerencias[total++] = "[Grafo] " + e.getNombre() + " (" + e.getUsuario() + ")";
+                    if (total >= sugerencias.length) break;
                 }
             }
-            
-            // Cargar publicaciones del estudiante
-            contenidosListView.getItems().clear();
-            if (estudianteActual.getPublicaciones() != null && !estudianteActual.getPublicaciones().isEmpty()) {
-                contenidosListView.getItems().addAll(estudianteActual.getPublicaciones());
-            }
-            
-            // Cargar valoraciones de manera segura
-            valoracionesListView.getItems().clear();
-            if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().isEmpty()) {
-                valoracionesListView.getItems().addAll(estudianteActual.getValoraciones());
-            }
-            
-            // Actualizar promedio de valoraciones
-            double promedio = estudianteActual.getPromedioValoraciones();
-            valoracionPromedioLabel.setText(String.format("%.1f", promedio));
+        }
+        if (total >= sugerencias.length) break;
+    }
 
-            // Cargar materias de interés
-            actualizarMateriasInteres();
-
-            // Cargar sugerencias basadas en intereses
-            cargarSugerencias();
+    if (total == 0) {
+        sugerenciasListView.getItems().add("Sin sugerencias por grafo.");
+    } else {
+        for (int i = 0; i < total; i++) {
+            sugerenciasListView.getItems().add(sugerencias[i]);
         }
     }
+}
+private boolean estaEnArreglo(String[] arreglo, String valor) {
+    for (int i = 0; i < arreglo.length; i++) {
+        if (arreglo[i] != null && arreglo[i].equals(valor)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+   private void cargarDatosEstudiante() {
+    if (estudianteActual != null) {
+        // Cargar información básica
+        nombreUsuarioLabel.setText(estudianteActual.getNombre());
+        correoLabel.setText(estudianteActual.getUsuario());
+
+        // Actualizar ubicación y estudios
+        ubicacionLabel.setText(estudianteActual.getUbicacion());
+
+        if (estudiosLabel != null) {
+            estudiosLabel.setText(estudianteActual.getUniversidad());
+        }
+        if (estudiosDetalleLabel != null) {
+            estudiosDetalleLabel.setText(estudianteActual.getUniversidad());
+        }
+
+        // Cargar foto de perfil si existe
+        if (estudianteActual.getFotoPerfil() != null) {
+            actualizarFotoPerfil(estudianteActual.getFotoPerfil());
+        }
+
+        // Cargar foto de portada si existe
+        if (estudianteActual.getFotoPortada() != null) {
+            try {
+                Image imagen = new Image(new File(estudianteActual.getFotoPortada()).toURI().toString());
+                portadaImageView.setImage(imagen);
+            } catch (Exception e) {
+                // Si hay error al cargar la imagen, mantener el fondo por defecto
+            }
+        }
+
+        // Cargar publicaciones del estudiante
+        contenidosListView.getItems().clear();
+        if (estudianteActual.getPublicaciones() != null && !estudianteActual.getPublicaciones().isEmpty()) {
+            contenidosListView.getItems().addAll(estudianteActual.getPublicaciones());
+        }
+
+        // Cargar valoraciones de manera segura
+        valoracionesListView.getItems().clear();
+        if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().isEmpty()) {
+            valoracionesListView.getItems().addAll(estudianteActual.getValoraciones());
+        }
+
+        // Actualizar promedio de valoraciones
+        double promedio = estudianteActual.getPromedioValoraciones();
+        valoracionPromedioLabel.setText(String.format("%.1f", promedio));
+
+        // Cargar materias de interés
+        actualizarMateriasInteres();
+
+        // Cargar sugerencias basadas en intereses
+        cargarSugerencias();
+
+        // Cargar conexiones directas del grafo
+        actualizarConexionesGrafo();
+
+        // Cargar sugerencias por grafo (amigos de amigos)
+        cargarSugerenciasPorGrafo();
+    }
+}
 
     private void cargarSugerencias() {
         sugerenciasListView.getItems().clear();

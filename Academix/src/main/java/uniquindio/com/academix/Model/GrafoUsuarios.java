@@ -1,22 +1,95 @@
 package uniquindio.com.academix.Model;
 
 import java.io.Serializable;
-import java.util.*;
 
 public class GrafoUsuarios implements Serializable {
-    private Map<String, Set<String>> conexiones = new HashMap<>();
+
+    private static final int MAX_USUARIOS = 100;
+
+    private String[] usuarios = new String[MAX_USUARIOS];
+    private String[][] conexiones = new String[MAX_USUARIOS][MAX_USUARIOS];
+    private int totalUsuarios = 0;
 
     public void conectar(String usuarioA, String usuarioB) {
         if (usuarioA.equals(usuarioB)) return;
-        conexiones.computeIfAbsent(usuarioA, k -> new HashSet<>()).add(usuarioB);
-        conexiones.computeIfAbsent(usuarioB, k -> new HashSet<>()).add(usuarioA);
+
+        int indexA = obtenerIndice(usuarioA);
+        int indexB = obtenerIndice(usuarioB);
+
+        if (indexA == -1) {
+            indexA = agregarUsuario(usuarioA);
+        }
+
+        if (indexB == -1) {
+            indexB = agregarUsuario(usuarioB);
+        }
+
+        agregarConexion(indexA, usuarioB);
+        agregarConexion(indexB, usuarioA);
     }
 
-    public Set<String> getConexiones(String usuario) {
-        return conexiones.getOrDefault(usuario, Collections.emptySet());
+    public String[] getConexiones(String usuario) {
+        int index = obtenerIndice(usuario);
+        if (index == -1) return new String[0];
+
+        // Contar cuántas conexiones hay
+        int count = 0;
+        while (count < MAX_USUARIOS && conexiones[index][count] != null) {
+            count++;
+        }
+
+        String[] resultado = new String[count];
+        for (int i = 0; i < count; i++) {
+            resultado[i] = conexiones[index][i];
+        }
+        return resultado;
     }
 
-    public Map<String, Set<String>> getTodasLasConexiones() {
-        return conexiones;
+    public UsuarioConexiones[] getTodasLasConexiones() {
+        UsuarioConexiones[] resultado = new UsuarioConexiones[totalUsuarios];
+        for (int i = 0; i < totalUsuarios; i++) {
+            resultado[i] = new UsuarioConexiones(usuarios[i], getConexiones(usuarios[i]));
+        }
+        return resultado;
+    }
+
+    // Utilidades internas
+
+    private int obtenerIndice(String usuario) {
+        for (int i = 0; i < totalUsuarios; i++) {
+            if (usuarios[i].equals(usuario)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int agregarUsuario(String usuario) {
+        if (totalUsuarios >= MAX_USUARIOS) return -1;
+        usuarios[totalUsuarios] = usuario;
+        return totalUsuarios++;
+    }
+
+    private void agregarConexion(int index, String otroUsuario) {
+        for (int i = 0; i < MAX_USUARIOS; i++) {
+            if (conexiones[index][i] == null) {
+                conexiones[index][i] = otroUsuario;
+                return;
+            }
+            if (conexiones[index][i].equals(otroUsuario)) {
+                return; // Ya está conectado
+            }
+        }
+    }
+
+    // Clase auxiliar para devolver todas las conexiones
+    public static class UsuarioConexiones {
+        public String usuario;
+        public String[] conexiones;
+
+        public UsuarioConexiones(String usuario, String[] conexiones) {
+            this.usuario = usuario;
+            this.conexiones = conexiones;
+        }
     }
 }

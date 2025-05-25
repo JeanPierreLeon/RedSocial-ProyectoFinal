@@ -3,7 +3,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -13,107 +12,90 @@
     <HBox spacing="20" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" 
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 
-        <!-- Columna Izquierda - Perfil -->
+        <!-- Columna Izquierda -->
         <VBox spacing="20" minWidth="300" style="-fx-background-color: white; -fx-padding: 20;">
-            <!-- Portada y Foto de Perfil -->
             <StackPane>
-                <ImageView fx:id="portadaImageView" fitWidth="300" fitHeight="150" 
-                          style="-fx-background-color: #e4e6eb;"/>
-                <Button text="Cambiar Portada" onAction="#onCambiarPortada"
-                        StackPane.alignment="BOTTOM_RIGHT" style="-fx-background-color: white;"/>
+                <ImageView fx:id="portadaImageView" fitWidth="300" fitHeight="150"/>
+                <Button text="Cambiar Portada" onAction="#onCambiarPortada" StackPane.alignment="BOTTOM_RIGHT"/>
             </StackPane>
 
             <StackPane>
-                <ImageView fx:id="perfilImageView" fitHeight="150" fitWidth="150" 
-                          style="-fx-background-color: #e4e6eb; -fx-background-radius: 75;"/>
-                <Button text="Cambiar Foto" onAction="#onCambiarFotoPerfil"
-                        StackPane.alignment="BOTTOM_RIGHT" style="-fx-background-color: white;"/>
+                <ImageView fx:id="perfilImageView" fitHeight="150" fitWidth="150"/>
+                <Button text="Cambiar Foto" onAction="#onCambiarFotoPerfil" StackPane.alignment="BOTTOM_RIGHT"/>
             </StackPane>
 
-            <!-- Información del Usuario -->
             <VBox spacing="5" alignment="CENTER">
                 <Label fx:id="nombreUsuarioLabel" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
                 <Label fx:id="correoLabel" style="-fx-text-fill: #65676b;"/>
             </VBox>
 
-            <!-- Detalles -->
-            <VBox spacing="10" style="-fx-padding: 10;">
+            <VBox spacing="10">
                 <Label text="Ubicación:" style="-fx-font-weight: bold;"/>
                 <Label fx:id="ubicacionLabel"/>
                 <Label text="Estudios:" style="-fx-font-weight: bold;"/>
-                <Label fx:id="estudiosDetalleLabel"/>
+                <Label fx:id="estudiosLabel"/>
             </VBox>
 
-            <!-- Materias de Interés -->
             <VBox spacing="10">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="Materias de Interés" style="-fx-font-weight: bold;"/>
-                    <Button text="+" onAction="#onAgregarMateria" 
-                            style="-fx-background-color: transparent;"/>
+                    <Button text="+" onAction="#onAgregarMateria"/>
                 </HBox>
                 <FlowPane fx:id="materiasInteresFlowPane" hgap="10" vgap="10"/>
             </VBox>
 
-            <!-- Valoración Promedio -->
             <VBox spacing="5" alignment="CENTER">
                 <Label text="Valoración Promedio" style="-fx-font-weight: bold;"/>
                 <Label fx:id="valoracionPromedioLabel" style="-fx-font-size: 24; -fx-text-fill: #FFD700;"/>
             </VBox>
         </VBox>
 
-        <!-- Columna Central - Publicaciones -->
+        <!-- Columna Central -->
         <VBox spacing="20" HBox.hgrow="ALWAYS">
-            <!-- Crear Publicación -->
-            <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20;">
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20;">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <ImageView fx:id="perfilMiniaturaImageView" fitHeight="40" fitWidth="40" 
-                             style="-fx-background-color: #e4e6eb; -fx-background-radius: 100;"/>
+                    <ImageView fx:id="perfilMiniaturaImageView" fitHeight="40" fitWidth="40"/>
                     <TextField fx:id="publicacionTextField" promptText="¿Qué estás pensando?" 
-                             style="-fx-background-color: #f0f2f5; -fx-text-fill: #65676b;" 
-                             HBox.hgrow="ALWAYS"/>
+                               HBox.hgrow="ALWAYS"/>
                 </HBox>
                 <Separator/>
                 <HBox spacing="20" alignment="CENTER">
-                    <Button fx:id="fotoVideoBtn" text="📷 Foto/Video" 
-                            style="-fx-background-color: transparent;" onAction="#onAgregarFotoVideo"/>
-                    <Button fx:id="materialEstudioBtn" text="📚 Material de Estudio" 
-                            style="-fx-background-color: transparent;" onAction="#onAgregarMaterial"/>
+                    <Button fx:id="fotoVideoBtn" text="📷 Foto/Video" onAction="#onAgregarFotoVideo"/>
+                    <Button fx:id="materialEstudioBtn" text="📚 Material de Estudio" onAction="#onAgregarMaterial"/>
                     <Button fx:id="publicarBtn" text="Publicar" 
                             style="-fx-background-color: #1e88e5; -fx-text-fill: white;" 
                             onAction="#onPublicar"/>
                 </HBox>
             </VBox>
 
-            <!-- Lista de Publicaciones -->
-            <ListView fx:id="contenidosListView" VBox.vgrow="ALWAYS" 
-                     style="-fx-background-color: transparent; -fx-background: transparent;"/>
+            <ListView fx:id="contenidosListView" VBox.vgrow="ALWAYS"/>
         </VBox>
 
-        <!-- Columna Derecha - Valoraciones y Sugerencias -->
+        <!-- Columna Derecha -->
         <VBox spacing="20" minWidth="300" style="-fx-background-color: white; -fx-padding: 20;">
-            <!-- Sección de Valoraciones -->
             <Label text="Valoraciones Recibidas" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
             <ListView fx:id="valoracionesListView" prefHeight="200"/>
 
-            <!-- Sección de Sugerencias -->
             <Label text="Sugerencias de Conexión" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ListView fx:id="sugerenciasListView" prefHeight="200"/>
+            <ListView fx:id="sugerenciasListView" prefHeight="150"/>
 
-            <!-- Sección de Solicitar Ayuda -->
-            <VBox spacing="10">
-                <Label text="Solicitar Ayuda" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-                <ComboBox fx:id="categoriaAyudaComboBox" promptText="Selecciona una materia"/>
-                <TextArea fx:id="descripcionAyudaTextArea" promptText="Describe tu solicitud..." 
-                         prefRowCount="3"/>
-                <Button text="Solicitar Ayuda" onAction="#onSolicitarAyuda" 
-                        style="-fx-background-color: #1e88e5; -fx-text-fill: white;"/>
-            </VBox>
+            <!-- 🚀 Aquí se integra conexiones del grafo -->
+            <Label text="Conexiones por Grupos" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+            <ListView fx:id="conexionesListView" prefHeight="150"/>
 
-            <!-- Lista de Solicitudes -->
+            <Label text="Solicitar Ayuda" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+            <ComboBox fx:id="categoriaAyudaComboBox" promptText="Selecciona una materia"/>
+            <TextArea fx:id="descripcionAyudaTextArea" promptText="Describe tu solicitud..." prefRowCount="3"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Urgencia (1-10):"/>
+                <Spinner fx:id="spinnerUrgencia" prefWidth="100"/>
+            </HBox>
+            <Button text="Solicitar Ayuda" onAction="#onSolicitarAyuda" 
+                    style="-fx-background-color: #1e88e5; -fx-text-fill: white;"/>
+
             <Label text="Mis Solicitudes" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-            <ListView fx:id="solicitudesListView" prefHeight="200"/>
+            <ListView fx:id="solicitudesListView" prefHeight="150"/>
         </VBox>
 
     </HBox>
-
 </AnchorPane>
