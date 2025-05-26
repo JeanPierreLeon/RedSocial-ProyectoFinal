@@ -1,11 +1,14 @@
 package uniquindio.com.academix.Controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import uniquindio.com.academix.AcademixApplication;
-import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.Academix;
+import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Utils.Persistencia;
 
 public class RegistroController {
@@ -45,6 +48,11 @@ public class RegistroController {
         String contrasena = campoContrasena.getText();
         String confirmarContrasena = campoConfirmarContrasena.getText();
 
+        if (academix == null) {
+            mensajeError.setText("Error interno: No se pudo acceder a la base de datos.");
+            return;
+        }
+
         if (!contrasena.equals(confirmarContrasena)) {
             mensajeError.setText("Las contraseñas no coinciden");
             return;
@@ -64,9 +72,7 @@ public class RegistroController {
         }
 
         Estudiante nuevo = new Estudiante(usuario, contrasena);
-
         inicializarEstudiantePorDefecto(nuevo);
-
         academix.agregarEstudiante(nuevo);
         Persistencia.guardarRecursoBancoBinario(academix);
 
@@ -75,7 +81,13 @@ public class RegistroController {
             onRegistroExitoso.run();
         }
 
-        AcademixApplication.cambiarVista("login.fxml", "Iniciar sesión");
+        // Cambiar vista solo si el primaryStage está inicializado
+        try {
+            AcademixApplication.cambiarVista("login.fxml", "Iniciar sesión");
+        } catch (Exception e) {
+            // Si falla, solo cerrar la ventana
+            System.out.println("No se pudo cambiar la vista principal: " + e.getMessage());
+        }
         cerrarVentana();
     }
 

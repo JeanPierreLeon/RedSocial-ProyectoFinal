@@ -32,4 +32,9 @@ public class Mensaje implements Serializable {
         String f = fecha.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         return "[" + f + "] " + remitente + " → " + destinatario + ": " + contenido;
     }
+    private boolean leido = false;
+
+    public boolean isLeido() { return leido; }
+    public void setLeido(boolean l) { leido = l; }
+
 }

@@ -5,10 +5,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.ContenidoEducativo;
+import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.GrafoUsuarios;
 import uniquindio.com.academix.Model.GrafoUsuarios.UsuarioConexiones;
 import uniquindio.com.academix.Model.ListaSimple;
+import uniquindio.com.academix.View.GrafoAfinidadView;
 
 public class ModeradorController {
 
@@ -35,11 +38,13 @@ public class ModeradorController {
 
     private GrafoUsuarios grafoUsuarios;
     private ListaSimple<ContenidoEducativo> listaContenidos;
+    private Academix academix;
 
     public void inicializarDatos(GrafoUsuarios grafoUsuarios, ListaSimple<ContenidoEducativo> listaContenidos) {
         this.grafoUsuarios = grafoUsuarios;
         this.listaContenidos = listaContenidos;
-
+        // Obtener instancia de Academix para grafo visual
+        this.academix = uniquindio.com.academix.Utils.Persistencia.cargarRecursoBancoBinario();
         cargarUsuarios();
         cargarContenidos();
     }
@@ -146,6 +151,11 @@ private void mostrarTopContenidos() {
     }
 
     @FXML private void verGrafo() {
-        System.out.println("📊 Mostrar grafo de afinidad (pendiente implementación visual)");
+        if (academix == null) {
+            System.out.println("No se pudo cargar la instancia de Academix para el grafo visual.");
+            return;
+        }
+        ListaSimple<Estudiante> estudiantes = academix.getListaEstudiantes();
+        GrafoAfinidadView.mostrarGrafo(estudiantes, academix);
     }
 }

@@ -36,6 +36,14 @@ public class Academix implements Serializable {
         receptorMensajes.agregarMensaje(mensaje);
     }
 
+    /**
+     * Crea y guarda un mensaje entre dos usuarios.
+     */
+    public void enviarMensaje(String remitente, String destinatario, String texto) {
+        Mensaje mensaje = new Mensaje(remitente, destinatario, texto);
+        agregarMensaje(mensaje);
+    }
+
     /** Devuelve todos los mensajes recibidos y enviados por un usuario. */
     public ListaSimple<Mensaje> getMensajes(String usuario) {
         MensajesPorUsuario mpu = buscarMensajesPorUsuario(usuario);
