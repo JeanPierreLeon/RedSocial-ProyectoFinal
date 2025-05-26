@@ -111,29 +111,29 @@ public void initialize() {
     // Spinner urgencia rango 1 a 10, editable
     SpinnerValueFactory<Integer> valueFactory =
         new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1);
-    spinnerUrgencia.setValueFactory(valueFactory);
-    spinnerUrgencia.setEditable(true);
+    if (spinnerUrgencia != null) {
+        spinnerUrgencia.setValueFactory(valueFactory);
+        spinnerUrgencia.setEditable(true);
+    }
 
     // Cargar materias en comboBox
-    categoriaAyudaComboBox.getItems().addAll(
-        "Matemáticas",
-        "Programación",
-        "Física",
-        "Química",
-        "Biología",
-        "Historia",
-        "Literatura"
-    );
+    if (categoriaAyudaComboBox != null) {
+        categoriaAyudaComboBox.getItems().addAll(
+            "Matemáticas",
+            "Programación",
+            "Física",
+            "Química",
+            "Biología",
+            "Historia",
+            "Literatura"
+        );
+    }
 
+    // Configurar la lista de publicaciones
+    configurarListaPublicaciones();
 
-
-
-        ;
-
-        // Configurar la lista de publicaciones
-        configurarListaPublicaciones();
-
-        // Configurar el cell factory para las valoraciones
+    // Configurar el cell factory para las valoraciones
+    if (valoracionesListView != null) {
         valoracionesListView.setCellFactory(lv -> new ListCell<ValoracionItem>() {
             private final HBox contenido = new HBox(10);
             private final Label estrellas = new Label();
@@ -161,8 +161,10 @@ public void initialize() {
                 }
             }
         });
+    }
 
-        // Configurar eventos de hover para los botones de foto
+    // Configurar eventos de hover para los botones de foto
+    if (perfilImageView != null && perfilImageView.getParent() instanceof StackPane) {
         StackPane fotoPerfilContainer = (StackPane) perfilImageView.getParent();
         Button btnCambiarFoto = (Button) fotoPerfilContainer.getChildren().stream()
             .filter(node -> node instanceof Button)
@@ -174,6 +176,7 @@ public void initialize() {
             fotoPerfilContainer.setOnMouseExited(e -> btnCambiarFoto.setVisible(false));
         }
     }
+}
 
     @FXML
     public void onSolicitarAyuda() {
@@ -187,7 +190,9 @@ public void initialize() {
 
         // Agregar la solicitud a la lista
         String solicitud = String.format("%s: %s", categoria, descripcion);
-        solicitudesListView.getItems().add(0, solicitud);
+        if (solicitudesListView != null) {
+            solicitudesListView.getItems().add(0, solicitud);
+        }
 
         // Limpiar campos
         categoriaAyudaComboBox.setValue(null);
@@ -209,8 +214,10 @@ public void initialize() {
         if (archivo != null) {
             String rutaArchivo = archivo.getAbsolutePath();
             // Guardar la ruta del archivo en el campo de texto
-            publicacionTextField.setUserData(rutaArchivo); // Guardamos la ruta completa
-            publicacionTextField.setText("Imagen seleccionada: " + archivo.getName());
+            if (publicacionTextField != null) {
+                publicacionTextField.setUserData(rutaArchivo); // Guardamos la ruta completa
+                publicacionTextField.setText("Imagen seleccionada: " + archivo.getName());
+            }
         }
     }
 
@@ -225,14 +232,17 @@ public void initialize() {
         File archivo = fileChooser.showOpenDialog(null);
         if (archivo != null) {
             // TODO: Implementar lógica para manejar el archivo seleccionado
-            publicacionTextField.setText("Material seleccionado: " + archivo.getName());
+            if (publicacionTextField != null) {
+                publicacionTextField.setText("Material seleccionado: " + archivo.getName());
+            }
         }
     }
 
     @FXML
     public void onPublicar() {
+        if (publicacionTextField == null) return;
         String contenido = publicacionTextField.getText();
-        if (contenido.isEmpty()) {
+        if (contenido == null || contenido.isEmpty()) {
             mostrarAlerta("Error", "Por favor escribe algo para publicar.");
             return;
         }
@@ -284,12 +294,19 @@ public void initialize() {
 
         publicacionTextField.clear();
         publicacionTextField.setUserData(null);
-        contenidosListView.getItems().add(0, nuevaPublicacion);
+        if (contenidosListView != null) {
+            contenidosListView.getItems().add(0, nuevaPublicacion);
+        }
 
-        uniquindio.com.academix.Controller.InicioController.refrescarPublicacionesDesdePanel();
+        try {
+            InicioController.refrescarPublicacionesDesdePanel();
+        } catch (Exception ex) {
+            // Silenciar si no está disponible
+        }
     }
 
     private void configurarListaPublicaciones() {
+        if (contenidosListView == null) return;
         contenidosListView.setCellFactory(lv -> new ListCell<PublicacionItem>() {
             private final VBox contenido = new VBox(10);
             private final HBox encabezado = new HBox(10);
@@ -399,7 +416,7 @@ public void initialize() {
                     }
 
                     // Mostrar/ocultar botón eliminar según el autor
-                    btnEliminar.setVisible(item.getAutorId().equals(estudianteActual.getUsuario()));
+                    btnEliminar.setVisible(estudianteActual != null && item.getAutorId().equals(estudianteActual.getUsuario()));
                     btnEliminar.setOnAction(e -> {
                         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION, 
                             "¿Seguro que deseas eliminar esta publicación?", 
@@ -407,20 +424,27 @@ public void initialize() {
                         confirmacion.setHeaderText("Eliminar publicación");
                         confirmacion.showAndWait().ifPresent(respuesta -> {
                             if (respuesta == ButtonType.YES) {
-                                estudianteActual.getPublicaciones().remove(item);
+                                estudianteActual.getPublicaciones().eliminar(item);
 
                                 Academix academix = Persistencia.cargarRecursoBancoBinario();
                                 Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
                                 if (estudiantePersistente != null) {
-                                    estudiantePersistente.getPublicaciones().removeIf(pub ->
-                                        pub.getContenido().equals(item.getContenido()) &&
-                                        pub.getAutorId().equals(item.getAutorId())
-                                    );
+                                    // Eliminar manualmente la publicación correspondiente
+                                    uniquindio.com.academix.Model.ListaSimple<PublicacionItem> publicaciones = estudiantePersistente.getPublicaciones();
+                                    for (int i = 0; i < publicaciones.tamano(); i++) {
+                                        PublicacionItem pub = publicaciones.get(i);
+                                        if (pub.getContenido().equals(item.getContenido()) && pub.getAutorId().equals(item.getAutorId())) {
+                                            publicaciones.eliminar(pub);
+                                            break;
+                                        }
+                                    }
                                     Persistencia.guardarRecursoBancoBinario(academix);
                                 }
 
                                 configurarListaPublicaciones();
-                                contenidosListView.getItems().remove(item);
+                                if (contenidosListView != null) {
+                                    contenidosListView.getItems().remove(item);
+                                }
                             }
                         });
                     });
@@ -635,8 +659,9 @@ public void initialize() {
     }
 
     private void actualizarMateriasInteres() {
+        if (materiasInteresFlowPane == null) return;
         materiasInteresFlowPane.getChildren().clear();
-        if (estudianteActual != null) {
+        if (estudianteActual != null && estudianteActual.getIntereses() != null) {
             for (String materia : estudianteActual.getIntereses()) {
                 Button materiaBtn = new Button(materia);
                 materiaBtn.setStyle("-fx-background-color: #e4e6eb; -fx-text-fill: #050505; -fx-background-radius: 15;");
@@ -650,7 +675,7 @@ public void initialize() {
         Academix academix = Persistencia.cargarRecursoBancoBinario();
         if (academix != null && academix.getGrafoUsuarios() != null) {
             String[] conexiones = academix.getGrafoUsuarios().getConexiones(estudianteActual.getUsuario());
-            if (conexiones.length == 0) {
+            if (conexiones == null || conexiones.length == 0) {
                 conexionesListView.getItems().add("Sin conexiones aún.");
             } else {
                 for (String usuario : conexiones) {
@@ -679,6 +704,7 @@ public void initialize() {
     }
 private void cargarSugerenciasPorGrafo() {
     if (estudianteActual == null || sugerenciasListView == null) return;
+    sugerenciasListView.getItems().removeIf(item -> item.startsWith("[Grafo]") || item.equals("Sin sugerencias por grafo."));
 
     Academix academix = Persistencia.cargarRecursoBancoBinario();
     if (academix == null || academix.getGrafoUsuarios() == null) return;
@@ -693,6 +719,7 @@ private void cargarSugerenciasPorGrafo() {
     for (int i = 0; i < conexionesDirectas.length; i++) {
         String amigo = conexionesDirectas[i];
         String[] conexionesDelAmigo = academix.getGrafoUsuarios().getConexiones(amigo);
+        if (conexionesDelAmigo == null) continue;
 
         for (int j = 0; j < conexionesDelAmigo.length; j++) {
             String candidato = conexionesDelAmigo[j];
@@ -760,20 +787,30 @@ private boolean estaEnArreglo(String[] arreglo, String valor) {
         }
 
         // Cargar publicaciones del estudiante
-        contenidosListView.getItems().clear();
-        if (estudianteActual.getPublicaciones() != null && !estudianteActual.getPublicaciones().isEmpty()) {
-            contenidosListView.getItems().addAll(estudianteActual.getPublicaciones());
+        if (contenidosListView != null) {
+            contenidosListView.getItems().clear();
+            if (estudianteActual.getPublicaciones() != null && !estudianteActual.getPublicaciones().estaVacia()) {
+                for (PublicacionItem pub : estudianteActual.getPublicaciones()) {
+                    contenidosListView.getItems().add(pub);
+                }
+            }
         }
 
         // Cargar valoraciones de manera segura
-        valoracionesListView.getItems().clear();
-        if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().isEmpty()) {
-            valoracionesListView.getItems().addAll(estudianteActual.getValoraciones());
+        if (valoracionesListView != null) {
+            valoracionesListView.getItems().clear();
+            if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().estaVacia()) {
+                for (ValoracionItem val : estudianteActual.getValoraciones()) {
+                    valoracionesListView.getItems().add(val);
+                }
+            }
         }
 
         // Actualizar promedio de valoraciones
-        double promedio = estudianteActual.getPromedioValoraciones();
-        valoracionPromedioLabel.setText(String.format("%.1f", promedio));
+        if (valoracionPromedioLabel != null) {
+            double promedio = estudianteActual.getPromedioValoraciones();
+            valoracionPromedioLabel.setText(String.format("%.1f", promedio));
+        }
 
         // Cargar materias de interés
         actualizarMateriasInteres();
@@ -790,8 +827,9 @@ private boolean estaEnArreglo(String[] arreglo, String valor) {
 }
 
     private void cargarSugerencias() {
-        sugerenciasListView.getItems().clear();
-        if (estudianteActual != null && !estudianteActual.getIntereses().isEmpty()) {
+        if (sugerenciasListView == null) return;
+        sugerenciasListView.getItems().removeIf(item -> !item.startsWith("[Grafo]") && !item.equals("Sin sugerencias por grafo."));
+        if (estudianteActual != null && estudianteActual.getIntereses() != null && !estudianteActual.getIntereses().estaVacia()) {
             // Cargar estudiantes del sistema
             Academix academix = Persistencia.cargarRecursoBancoBinario();
             for (Estudiante est : academix.getListaEstudiantes()) {
@@ -799,7 +837,7 @@ private boolean estaEnArreglo(String[] arreglo, String valor) {
                 if (!est.getUsuario().equals(estudianteActual.getUsuario())) {
                     // Buscar intereses en común
                     for (String interes : est.getIntereses()) {
-                        if (estudianteActual.getIntereses().contains(interes)) {
+                        if (listaSimpleContiene(estudianteActual.getIntereses(), interes)) {
                             sugerenciasListView.getItems().add(
                                 est.getNombre() + " - " + interes
                             );
@@ -809,6 +847,18 @@ private boolean estaEnArreglo(String[] arreglo, String valor) {
                 }
             }
         }
+    }
+
+    // Método auxiliar para verificar si una ListaSimple<String> contiene un valor
+    private boolean listaSimpleContiene(uniquindio.com.academix.Model.ListaSimple<String> lista, String valor) {
+        if (lista == null) return false;
+        for (int i = 0; i < lista.tamano(); i++) {
+            String elemento = lista.get(i);
+            if (elemento != null && elemento.equals(valor)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @FXML

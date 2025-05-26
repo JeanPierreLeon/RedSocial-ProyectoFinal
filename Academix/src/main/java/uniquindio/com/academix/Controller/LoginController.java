@@ -168,4 +168,6 @@ public class LoginController {
         } catch (Exception e) {
             mensajeError.setText("Error al abrir el registro");
             e.printStackTrace();
-
+        }
+    }
+}

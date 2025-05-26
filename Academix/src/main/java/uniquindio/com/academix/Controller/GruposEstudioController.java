@@ -49,7 +49,7 @@ public class GruposEstudioController {
             return;
         }
         Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
-        if (estudiantePersistente != null && !estudiantePersistente.getIntereses().contains(interes)) {
+        if (estudiantePersistente != null && !contieneInteres(estudiantePersistente.getIntereses(), interes)) {
             estudiantePersistente.agregarInteres(interes);
             Persistencia.guardarRecursoBancoBinario(academix);
             cargarInteresesEstudiante();
@@ -58,13 +58,28 @@ public class GruposEstudioController {
         }
     }
 
+    /**
+     * Verifica si la ListaSimple de intereses contiene el interés dado.
+     */
+    private boolean contieneInteres(uniquindio.com.academix.Model.ListaSimple<String> intereses, String interes) {
+        for (int i = 0; i < intereses.tamano(); i++) {
+            String actual = intereses.get(i);
+            if (actual != null && actual.equalsIgnoreCase(interes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void cargarInteresesEstudiante() {
         if (listaIntereses == null) return;
         listaIntereses.getItems().clear();
         if (estudianteActual != null && academix != null) {
             Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
             if (estudiantePersistente != null) {
-                listaIntereses.getItems().addAll(estudiantePersistente.getIntereses());
+                for (String interes : estudiantePersistente.getIntereses()) {
+                    listaIntereses.getItems().add(interes);
+                }
             }
         }
     }

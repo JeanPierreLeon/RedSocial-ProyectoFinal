@@ -1,7 +1,5 @@
 package uniquindio.com.academix.Controller;
 
-import java.util.List;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -70,13 +68,15 @@ public class ModeradorController {
     private void cargarContenidos() {
         if (listaContenidos != null) {
             tablaContenidos.getItems().clear();
-            tablaContenidos.getItems().addAll(listaContenidos);
+            for (ContenidoEducativo contenido : listaContenidos) {
+                tablaContenidos.getItems().add(contenido);
+            }
         }
     }
 
    @FXML
 private void mostrarTopContenidos() {
-    if (listaContenidos == null || listaContenidos.isEmpty()) {
+    if (listaContenidos == null || listaContenidos.estaVacia()) {
         System.out.println("No hay contenidos cargados.");
         return;
     }

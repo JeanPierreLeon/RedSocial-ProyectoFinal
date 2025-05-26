@@ -695,8 +695,10 @@ public class InicioController {
         academix = Persistencia.cargarRecursoBancoBinario();
         publicacionesListView.getItems().clear();
         for (Estudiante est : academix.getListaEstudiantes()) {
-            if (est.getPublicaciones() != null && !est.getPublicaciones().isEmpty()) {
-                publicacionesListView.getItems().addAll(est.getPublicaciones());
+            if (est.getPublicaciones() != null && !est.getPublicaciones().estaVacia()) {
+                for (PublicacionItem pub : est.getPublicaciones()) {
+                    publicacionesListView.getItems().add(pub);
+                }
             }
         }
     }
@@ -715,11 +717,16 @@ public class InicioController {
 
         if (estudianteActual != null) {
             // Solo mostrar amigos cuando la solicitud ha sido aceptada
-            List<SolicitudAmistad> solicitudesAceptadas = academix.obtenerTodasLasSolicitudes().stream()
-                .filter(s -> (s.getRemitente().equals(estudianteActual.getUsuario()) || 
-                            s.getDestinatario().equals(estudianteActual.getUsuario())) &&
-                            s.getEstado() == SolicitudAmistad.EstadoSolicitud.ACEPTADA)
-                .toList();
+            java.util.List<SolicitudAmistad> solicitudesAceptadas = new java.util.ArrayList<>();
+            ListaSimple<SolicitudAmistad> todas = academix.obtenerTodasLasSolicitudes();
+            for (int i = 0; i < todas.size(); i++) {
+                SolicitudAmistad s = todas.get(i);
+                if ((s.getRemitente().equals(estudianteActual.getUsuario()) ||
+                     s.getDestinatario().equals(estudianteActual.getUsuario())) &&
+                    s.getEstado() == SolicitudAmistad.EstadoSolicitud.ACEPTADA) {
+                    solicitudesAceptadas.add(s);
+                }
+            }
 
             if (solicitudesAceptadas.isEmpty()) {
                 Label noAmigosLabel = new Label("No tienes amigos agregados");
@@ -828,7 +835,7 @@ public class InicioController {
 
     private void eliminarAmigo(Estudiante amigo) {
         // Buscar y eliminar la solicitud de amistad correspondiente
-        List<SolicitudAmistad> solicitudes = academix.obtenerTodasLasSolicitudes();
+        ListaSimple<SolicitudAmistad> solicitudes = academix.obtenerTodasLasSolicitudes();
         for (SolicitudAmistad solicitud : solicitudes) {
             if ((solicitud.getRemitente().equals(estudianteActual.getUsuario()) && 
                  solicitud.getDestinatario().equals(amigo.getUsuario())) ||
@@ -859,10 +866,10 @@ public class InicioController {
         sugerenciasContainer.getChildren().add(tituloSugerencias);
         
         if (estudianteActual != null) {
-            List<SugerenciasEstudio.SugerenciaCompañero> sugerencias = 
+            ListaSimple<SugerenciasEstudio.SugerenciaCompañero> sugerencias =
                 SugerenciasEstudio.obtenerSugerencias(estudianteActual, academix);
             
-            if (sugerencias.isEmpty()) {
+            if (sugerencias.estaVacia()) {
                 Label noSugerenciasLabel = new Label("No hay sugerencias disponibles");
                 noSugerenciasLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
                 sugerenciasContainer.getChildren().add(noSugerenciasLabel);
@@ -907,7 +914,7 @@ public class InicioController {
         universidadLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
         
         // Agregar intereses en común si existen
-        if (!sugerencia.getInteresesComunes().isEmpty()) {
+        if (!sugerencia.getInteresesComunes().estaVacia()) {
             Label interesesLabel = new Label("Intereses en común: " + String.join(", ", sugerencia.getInteresesComunes()));
             interesesLabel.setStyle("-fx-text-fill: #1a73e8; -fx-font-size: 12px; -fx-font-family: 'Segoe UI';");
             interesesLabel.setWrapText(true);
@@ -935,10 +942,15 @@ public class InicioController {
         
         if (estudianteActual != null) {
             // Obtener solo las solicitudes pendientes donde el usuario actual es el destinatario
-            List<SolicitudAmistad> solicitudes = academix.obtenerTodasLasSolicitudes().stream()
-                .filter(s -> s.getDestinatario().equals(estudianteActual.getUsuario()) &&
-                           s.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE)
-                .toList();
+            java.util.List<SolicitudAmistad> solicitudes = new java.util.ArrayList<>();
+            ListaSimple<SolicitudAmistad> todas = academix.obtenerTodasLasSolicitudes();
+            for (int i = 0; i < todas.size(); i++) {
+                SolicitudAmistad s = todas.get(i);
+                if (s.getDestinatario().equals(estudianteActual.getUsuario()) &&
+                    s.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
+                    solicitudes.add(s);
+                }
+            }
             
             if (solicitudes.isEmpty()) {
                 Label noSolicitudesLabel = new Label("No tienes solicitudes pendientes");
