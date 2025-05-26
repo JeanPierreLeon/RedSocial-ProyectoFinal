@@ -572,13 +572,17 @@ public class InicioController {
     private void abrirArchivo(String ruta) {
         try {
             File archivo = new File(ruta);
+            if (!archivo.isAbsolute()) {
+                // Si la ruta es relativa, la buscamos respecto al directorio del proyecto
+                archivo = new File(System.getProperty("user.dir"), ruta);
+            }
             if (archivo.exists()) {
                 Desktop.getDesktop().open(archivo);
             } else {
-                mostrarAlerta("Archivo no encontrado", "La ruta no es válida.");
+                mostrarAlerta("Archivo no encontrado", "La ruta no es válida o el archivo no existe: " + archivo.getAbsolutePath());
             }
         } catch (IOException e) {
-            mostrarAlerta("Error al abrir", "No se pudo abrir el archivo.");
+            mostrarAlerta("Error al abrir", "No se pudo abrir el archivo.\n" + e.getMessage());
         }
     }
 
