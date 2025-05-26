@@ -48,7 +48,7 @@ public class SugerenciasEstudio {
             
             // No sugerir al mismo estudiante ni a sus amigos actuales
             if (otroEstudiante.getUsuario().equals(estudiante.getUsuario()) || 
-                estudiante.getAmigos().contiene(otroEstudiante)) {
+                estudiante.getAmigos().contiene(otroEstudiante.getUsuario())) {
                 continue;
             }
             
@@ -69,8 +69,17 @@ public class SugerenciasEstudio {
             }
             
             // Verificar amigos en común (5 puntos por ser amigo de amigo)
-            for (Estudiante amigo : estudiante.getAmigos()) {
-                if (amigo.getAmigos().contiene(otroEstudiante)) {
+            for (String amigoUsuario : estudiante.getAmigos()) {
+                // Buscar el objeto Estudiante correspondiente al usuario
+                Estudiante amigo = null;
+                for (int j = 0; j < academix.getListaEstudiantes().size(); j++) {
+                    Estudiante posible = academix.getListaEstudiantes().get(j);
+                    if (posible.getUsuario().equals(amigoUsuario)) {
+                        amigo = posible;
+                        break;
+                    }
+                }
+                if (amigo != null && amigo.getAmigos().contiene(otroEstudiante.getUsuario())) {
                     sugerencia.puntajeAfinidad += 5;
                     sugerencia.amigoDeAmigo = true;
                     break;

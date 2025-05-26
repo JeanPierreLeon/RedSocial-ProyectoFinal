@@ -110,11 +110,11 @@ public class AcademixApplication extends Application {
             if (!portadaJean.exists() && getClass().getResourceAsStream("/images/jean_portada.jpg") != null) {
                 try {
                     Files.copy(getClass().getResourceAsStream("/images/jean_portada.jpg"), portadaJean.toPath());
-                    jean.setFotoPortada(portadaJean.getPath());
                 } catch (Exception ex) {
                     System.out.println("No se pudo copiar jean_portada.jpg: " + ex.getMessage());
                 }
             }
+            jean.setFotoPortada(portadaJean.getPath());
             academix.agregarEstudiante(jean);
         }
 

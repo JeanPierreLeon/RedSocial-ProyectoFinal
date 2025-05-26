@@ -50,7 +50,7 @@ public class GrafoAfinidadView {
             for (int j = i + 1; j < n; j++) { // Evitar duplicados y auto-conexión
                 Estudiante e2 = estudiantes.get(j);
                 // Validar si son amigos reales
-                if (e1.getAmigos() != null && e1.getAmigos().contiene(e2)) {
+                if (e1.getAmigos() != null && e1.getAmigos().contiene(e2.getUsuario())) {
                     Double[] pos1 = posiciones.get(e1.getUsuario());
                     Double[] pos2 = posiciones.get(e2.getUsuario());
                     Line line = new Line(pos1[0], pos1[1], pos2[0], pos2[1]);

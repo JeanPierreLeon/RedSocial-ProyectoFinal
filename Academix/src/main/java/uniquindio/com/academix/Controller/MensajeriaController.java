@@ -33,6 +33,19 @@ public class MensajeriaController {
     @FXML private Label estadoContacto;
 
     /* -------- Datos -------- */
+
+    /** Carga SIEMPRE la instancia desde persistencia. */
+    public static Academix getAcademixInstance() {
+        return Persistencia.cargarRecursoBancoBinario();
+    }
+
+    /** Guarda la instancia actual de Academix. */
+    public static void guardarAcademixInstance(Academix academix) {
+        if (academix != null) {
+            Persistencia.guardarRecursoBancoBinario(academix);
+        }
+    }
+
     private Academix academix;
     private Estudiante estudianteActual;
     /** Conversación mostrada actualmente */
@@ -50,7 +63,8 @@ public class MensajeriaController {
     @FXML
     public void setEstudianteActual(Estudiante estudiante) {
         this.estudianteActual = estudiante;
-        academix = Persistencia.cargarRecursoBancoBinario();
+        // Carga SIEMPRE la instancia más reciente
+        this.academix = getAcademixInstance();
         cargarListaConversaciones();
         limpiarChat();
     }
@@ -94,6 +108,9 @@ public class MensajeriaController {
         // Ordena por fecha del último mensaje (más reciente primero)
         usuarios.sort(Comparator.comparing(usuario -> obtenerFechaUltimoMensaje((String) usuario)).reversed());
 
+        // Evita recursión infinita: NO guardar academix aquí ni en métodos llamados por listeners
+        // Si necesitas persistir, hazlo solo en acciones explícitas del usuario (ej: enviar mensaje)
+
         // Calcula no-leídos
         noLeidos.clear();
         for (String user : usuarios) {
@@ -128,13 +145,12 @@ public class MensajeriaController {
      * Cuenta la cantidad de mensajes no leídos del usuario dado hacia el usuario actual.
      */
     private int contarNoLeidos(String usuarioRemitente) {
-        // Cambia obtenerConversacion por getConversacion
         ListaSimple<Mensaje> mensajes = academix.getConversacion(usuarioRemitente, estudianteActual.getUsuario());
         int contador = 0;
         if (mensajes != null) {
             for (int i = 0; i < mensajes.size(); i++) {
                 Mensaje m = mensajes.get(i);
-                if (!m.isLeido() && m.getDestinatario().equals(estudianteActual.getUsuario())) {
+                if (m != null && !m.isLeido() && m.getDestinatario().equals(estudianteActual.getUsuario())) {
                     contador++;
                 }
             }
@@ -166,16 +182,14 @@ public class MensajeriaController {
      * Si no hay mensajes, retorna Long.MIN_VALUE para que quede al final.
      */
     private long obtenerFechaUltimoMensaje(String usuario) {
-        // Cambia obtenerConversacion por getConversacion
         ListaSimple<Mensaje> mensajes = academix.getConversacion(estudianteActual.getUsuario(), usuario);
         if (mensajes == null || mensajes.size() == 0) {
             return Long.MIN_VALUE;
         }
-        // Buscar el mensaje más reciente
         long max = Long.MIN_VALUE;
         for (int i = 0; i < mensajes.size(); i++) {
             Mensaje m = mensajes.get(i);
-            if (m.getFecha() != null) {
+            if (m != null && m.getFecha() != null) {
                 long epoch = m.getFecha().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
                 if (epoch > max) max = epoch;
             }
@@ -208,10 +222,32 @@ public class MensajeriaController {
         if (texto == null || texto.trim().isEmpty() || usuarioDestinatarioActual == null) {
             return;
         }
+        // Carga la instancia más reciente antes de enviar
+        this.academix = getAcademixInstance();
         academix.enviarMensaje(estudianteActual.getUsuario(), usuarioDestinatarioActual, texto);
-        Persistencia.guardarRecursoBancoBinario(academix);
+        guardarAcademixInstance(academix);
         mensajeField.clear();
+        // Marcar como leídos los mensajes recibidos del destinatario actual
+        marcarMensajesComoLeidos(usuarioDestinatarioActual);
         cargarMensajesPrevios();
+        cargarListaConversaciones(); // Refresca la lista y el contador de no leídos
+    }
+
+    /**
+     * Marca como leídos todos los mensajes recibidos del usuario dado.
+     */
+    private void marcarMensajesComoLeidos(String usuarioRemitente) {
+        ListaSimple<Mensaje> mensajes = academix.getConversacion(usuarioRemitente, estudianteActual.getUsuario());
+        if (mensajes != null) {
+            for (int i = 0; i < mensajes.size(); i++) {
+                Mensaje m = mensajes.get(i);
+                if (m != null && !m.isLeido() && m.getDestinatario().equals(estudianteActual.getUsuario())) {
+                    m.setLeido(true);
+                }
+            }
+        }
+        // Eliminar persistencia aquí para evitar escrituras excesivas
+        //guardarAcademixInstance();
     }
 
     /**
@@ -222,12 +258,25 @@ public class MensajeriaController {
             limpiarChat();
             return;
         }
+        // Carga la instancia más reciente antes de mostrar mensajes
+        this.academix = getAcademixInstance();
+        marcarMensajesComoLeidos(usuarioDestinatarioActual);
         contenedorMensajes.getChildren().clear();
-        // Cambia getConversacion para asegurar que usuarioDestinatarioActual es String
+        // Obtener todos los mensajes entre ambos usuarios (solo una vez, ya que getConversacion los incluye todos)
         ListaSimple<Mensaje> mensajes = academix.getConversacion(estudianteActual.getUsuario(), usuarioDestinatarioActual);
+        java.util.List<Mensaje> todosMensajes = new java.util.ArrayList<>();
+        if (mensajes != null) {
+            for (int i = 0; i < mensajes.size(); i++) {
+                Mensaje m = mensajes.get(i);
+                if (m != null) {
+                    todosMensajes.add(m);
+                }
+            }
+        }
+        // Ordenar por fecha
+        todosMensajes.sort(Comparator.comparing(Mensaje::getFecha));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
-        for (int i = 0; i < mensajes.size(); i++) {
-            Mensaje msg = mensajes.get(i);
+        for (Mensaje msg : todosMensajes) {
             HBox mensajeBox = new HBox();
             mensajeBox.setAlignment(msg.getRemitente().equals(estudianteActual.getUsuario()) ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
             TextFlow textFlow = new TextFlow(new Text(msg.getContenido() + "\n" + msg.getFecha().format(formatter)));
@@ -236,7 +285,6 @@ public class MensajeriaController {
             contenedorMensajes.getChildren().add(mensajeBox);
         }
         Platform.runLater(() -> scrollMensajes.setVvalue(1.0));
-        // Actualizar nombre y estado del contacto
         String usuarioContacto = usuarioDestinatarioActual != null ? usuarioDestinatarioActual : "";
         if (usuarioContacto.isEmpty()) {
             nombreContacto.setText("");

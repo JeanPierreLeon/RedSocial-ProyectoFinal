@@ -16,13 +16,13 @@ public class Estudiante implements Serializable {
     private String fotoPortada;
 
     // Lista para guardar mensajes recibidos
-    private ListaSimple<Mensaje> mensajesRecibidos;
+    private transient ListaSimple<Mensaje> mensajesRecibidos;
 
     // Lista de intereses del estudiante
     private ListaSimple<String> intereses = new ListaSimple<>();
 
     // Lista de amigos
-    private ListaSimple<Estudiante> amigos = new ListaSimple<>();
+    private ListaSimple<String> amigos = new ListaSimple<>();
 
     // Lista de publicaciones
     private ListaSimple<PublicacionItem> publicaciones = new ListaSimple<>();
@@ -102,13 +102,13 @@ public class Estudiante implements Serializable {
         this.intereses = intereses;
     }
 
-    public ListaSimple<Estudiante> getAmigos() {
+    public ListaSimple<String> getAmigos() {
         return amigos;
     }
 
     public void agregarAmigo(Estudiante amigo) {
-        if (amigo != null && !amigos.contiene(amigo)) {
-            amigos.agregar(amigo);
+        if (amigo != null && !amigos.contiene(amigo.getUsuario())) {
+            amigos.agregar(amigo.getUsuario());
         }
     }
 

@@ -14,6 +14,7 @@ public class Academix implements Serializable {
     private static final long serialVersionUID = 2802726078832968396L;
 
     /* ─────────── Chat ─────────── */
+    // Eliminar 'transient' para que los mensajes se serialicen y persistan
     private ListaSimple<MensajesPorUsuario> mensajesPorUsuario = new ListaSimple<>();
 
     /** Guarda el mensaje tanto en el emisor como en el receptor. */
@@ -112,40 +113,30 @@ public class Academix implements Serializable {
     }
 
     /* ─────────── Serialización ─────────── */
+    @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
-        try {
-            // Escribir todos los campos no transient
-            oos.defaultWriteObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
-        }
+        oos.defaultWriteObject();
+        // Ya no es necesario omitir mensajesPorUsuario
     }
 
+    @Serial
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-        try {
-            // Leer todos los campos no transient
-            ois.defaultReadObject();
-            
-            // Inicializar campos si son null
-            if (mensajesPorUsuario == null) {
-                mensajesPorUsuario = new ListaSimple<>();
-            }
-            if (contenidoEducativo == null) {
-                contenidoEducativo = new ListaSimple<>();
-            }
-            if (listaEstudiantes == null) {
-                listaEstudiantes = new ListaSimple<>();
-            }
-            if (grafoUsuarios == null) {
-                grafoUsuarios = new GrafoUsuarios();
-            }
-            if (solicitudesAmistad == null) {
-                solicitudesAmistad = new ListaSimple<>();
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            throw e;
+        ois.defaultReadObject();
+        // Ya no reinicializar mensajesPorUsuario aquí
+        if (contenidoEducativo == null) {
+            contenidoEducativo = new ListaSimple<>();
+        }
+        if (listaEstudiantes == null) {
+            listaEstudiantes = new ListaSimple<>();
+        }
+        if (grafoUsuarios == null) {
+            grafoUsuarios = new GrafoUsuarios();
+        }
+        if (solicitudesAmistad == null) {
+            solicitudesAmistad = new ListaSimple<>();
+        }
+        if (mensajesPorUsuario == null) {
+            mensajesPorUsuario = new ListaSimple<>();
         }
     }
 
@@ -260,8 +251,8 @@ public class Academix implements Serializable {
             Estudiante remitente = buscarEstudiante(solicitud.getRemitente());
             Estudiante destinatario = buscarEstudiante(solicitud.getDestinatario());
             if (remitente != null && destinatario != null) {
-                remitente.getAmigos().eliminar(destinatario);
-                destinatario.getAmigos().eliminar(remitente);
+                remitente.getAmigos().eliminar(destinatario.getUsuario());
+                destinatario.getAmigos().eliminar(remitente.getUsuario());
             }
         }
     }

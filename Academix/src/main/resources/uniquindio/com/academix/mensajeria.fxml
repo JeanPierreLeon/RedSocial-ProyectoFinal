@@ -42,16 +42,7 @@
                 <content>
                     <VBox fx:id="contenedorMensajes" spacing="12"
                           style="-fx-padding: 12; -fx-background-color: #f7f9fa; -fx-background-radius: 18;">
-                        <!-- Ejemplo de burbuja de mensaje enviado -->
-                        <HBox alignment="CENTER_RIGHT">
-                            <Label text="Mensaje enviado"
-                                   style="-fx-background-color: #4f8cff; -fx-text-fill: white; -fx-background-radius: 16; -fx-padding: 8 16; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, #b3c6ff, 4, 0, 0, 2);" />
-                        </HBox>
-                        <!-- Ejemplo de burbuja de mensaje recibido -->
-                        <HBox alignment="CENTER_LEFT">
-                            <Label text="Mensaje recibido"
-                                   style="-fx-background-color: #e5e7eb; -fx-text-fill: #222; -fx-background-radius: 16; -fx-padding: 8 16; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, #d1d5db, 4, 0, 0, 2);" />
-                        </HBox>
+                        <!-- Eliminar ejemplos de burbujas de mensaje para evitar ciclos o duplicidad -->
                     </VBox>
                 </content>
             </ScrollPane>

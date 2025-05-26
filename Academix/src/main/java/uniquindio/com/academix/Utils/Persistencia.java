@@ -10,20 +10,29 @@ public class Persistencia {
 
     public static Academix cargarRecursoBancoBinario() {
         File archivo = new File(RUTA_ARCHIVO);
-        if (!archivo.exists()) {
-            // Si el archivo no existe, crear uno nuevo con datos por defecto
+        // Si el archivo no existe o está vacío, crear uno nuevo con datos por defecto
+        if (!archivo.exists() || archivo.length() == 0) {
+            if (archivo.exists()) {
+                archivo.delete();
+            }
             Academix academix = new Academix();
             guardarRecursoBancoBinario(academix);
             return academix;
         }
-
-        // Si el archivo existe pero no es válido, eliminarlo automáticamente
+        // Verificar de nuevo el tamaño antes de leer
+        if (archivo.length() == 0) {
+            archivo.delete();
+            Academix academix = new Academix();
+            guardarRecursoBancoBinario(academix);
+            return academix;
+        }
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo))) {
             return (Academix) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error al cargar los datos: " + e.getMessage());
-            // Eliminar archivo corrupto y crear uno nuevo
-            archivo.delete();
+            System.err.println("Error al cargar los datos: " + e);
+            if (archivo.exists()) {
+                archivo.delete();
+            }
             Academix academix = new Academix();
             guardarRecursoBancoBinario(academix);
             return academix;
