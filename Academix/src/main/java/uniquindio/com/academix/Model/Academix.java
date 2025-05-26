@@ -210,10 +210,11 @@ public class Academix implements Serializable {
                     // 3. Actualizar las listas de amigos de ambos estudiantes
                     estudianteRemitente.agregarAmigo(estudianteDestinatario);
                     estudianteDestinatario.agregarAmigo(estudianteRemitente);
-                    
-                    // 4. Actualizar el grafo de usuarios
-                    grafoUsuarios.conectar(remitente, destinatario);
+                    // Limpiar posibles objetos Estudiante en la lista de amigos
+                    // (esto ya se maneja en agregarAmigo, pero se refuerza aquí)
                 }
+                // 4. Actualizar el grafo de usuarios
+                grafoUsuarios.conectar(remitente, destinatario);
                 break;
             }
         }

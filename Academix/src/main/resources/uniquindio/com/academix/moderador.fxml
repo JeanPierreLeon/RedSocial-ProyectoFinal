@@ -51,9 +51,9 @@
                            style="-fx-font-size: 16; -fx-font-weight: bold;"/>
                     <TableView fx:id="tablaContenidos" prefHeight="300">
                         <columns>
-                            <TableColumn fx:id="columnaTituloContenido" text="Título" prefWidth="200"/>
-                            <TableColumn fx:id="columnaAutorContenido" text="Autor" prefWidth="140"/>
-                            <TableColumn fx:id="columnaValoracionContenido" text="Valoración" prefWidth="100"/>
+                            <TableColumn fx:id="columnaTituloPublicacion" text="Título" prefWidth="200" />
+                            <TableColumn fx:id="columnaAutorPublicacion" text="Autor" prefWidth="140" />
+                            <TableColumn fx:id="columnaValoracionPublicacion" text="Valoración" prefWidth="100" />
                         </columns>
                     </TableView>
                 </VBox>

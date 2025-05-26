@@ -108,6 +108,14 @@ public class Estudiante implements Serializable {
 
     public void agregarAmigo(Estudiante amigo) {
         if (amigo != null && !amigos.contiene(amigo.getUsuario())) {
+            // Validar que no haya objetos Estudiante en la lista de amigos
+            ListaSimple<String> amigosLimpios = new ListaSimple<>();
+            for (String usuario : amigos) {
+                if (usuario instanceof String) {
+                    amigosLimpios.agregar(usuario);
+                }
+            }
+            amigos = amigosLimpios;
             amigos.agregar(amigo.getUsuario());
         }
     }

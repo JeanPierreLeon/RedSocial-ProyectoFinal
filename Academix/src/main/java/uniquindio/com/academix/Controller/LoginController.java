@@ -86,14 +86,7 @@ public class LoginController {
                 Parent root = loader.load();
 
                 ModeradorController controller = loader.getController();
-
-                // Convertir ListaSimple a List para contenidos
-                // List<ContenidoEducativo> listaContenidos = new ArrayList<>();
-                // for (ContenidoEducativo c : academix.getContenidoEducativo()) {
-                //     listaContenidos.add(c);
-                // }
-                // controller.inicializarDatos(academix.getGrafoUsuarios(), listaContenidos);
-                controller.inicializarDatos(academix.getGrafoUsuarios(), academix.getContenidoEducativo());
+                controller.inicializarDatos(academix.getGrafoUsuarios());
 
                 Stage stage = new Stage();
                 stage.setTitle("Panel del Moderador");

@@ -134,18 +134,18 @@ public class SugerenciasController {
     }
     
     private void agregarAmigo(Estudiante nuevoAmigo) {
-        estudianteActual.agregarAmigo(nuevoAmigo);
-        nuevoAmigo.agregarAmigo(estudianteActual);
-        
+        // Siempre agregar solo el usuario
+        if (estudianteActual != null && nuevoAmigo != null) {
+            estudianteActual.agregarAmigo(nuevoAmigo);
+            nuevoAmigo.agregarAmigo(estudianteActual);
+        }
         // Actualizar el grafo de usuarios
         academix.getGrafoUsuarios().conectar(
             estudianteActual.getUsuario(),
             nuevoAmigo.getUsuario()
         );
-        
         // Guardar cambios
         Persistencia.guardarRecursoBancoBinario(academix);
-        
         // Recargar sugerencias
         cargarSugerencias();
     }
