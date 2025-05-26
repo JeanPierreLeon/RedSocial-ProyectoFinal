@@ -82,7 +82,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <mainClass>uniquindio.com.academix.HelloApplication</mainClass>
+                            <mainClass>uniquindio.com.academix.AcademixApplication</mainClass>
 
                         </configuration>
                     </execution>

@@ -3,10 +3,10 @@ package uniquindio.com.academix.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import uniquindio.com.academix.AcademixApplication;
 import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Utils.Persistencia;
-import uniquindio.com.academix.Model.ListaSimple;
 
 public class RegistroController {
 
@@ -75,7 +75,7 @@ public class RegistroController {
             onRegistroExitoso.run();
         }
 
-        uniquindio.com.academix.HelloApplication.cambiarVista("login.fxml", "Iniciar sesión");
+        AcademixApplication.cambiarVista("login.fxml", "Iniciar sesión");
         cerrarVentana();
     }
 

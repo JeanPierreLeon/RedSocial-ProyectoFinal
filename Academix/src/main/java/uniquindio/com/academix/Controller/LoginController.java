@@ -2,8 +2,6 @@ package uniquindio.com.academix.Controller;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,8 +11,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import uniquindio.com.academix.AcademixApplication;
 import uniquindio.com.academix.Model.Academix;
-import uniquindio.com.academix.Model.ContenidoEducativo;
 import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Utils.Persistencia;
 
@@ -90,12 +88,12 @@ public class LoginController {
                 ModeradorController controller = loader.getController();
 
                 // Convertir ListaSimple a List para contenidos
-                List<ContenidoEducativo> listaContenidos = new ArrayList<>();
-                for (ContenidoEducativo c : academix.getContenidoEducativo()) {
-                    listaContenidos.add(c);
-                }
-
-                controller.inicializarDatos(academix.getGrafoUsuarios(), listaContenidos);
+                // List<ContenidoEducativo> listaContenidos = new ArrayList<>();
+                // for (ContenidoEducativo c : academix.getContenidoEducativo()) {
+                //     listaContenidos.add(c);
+                // }
+                // controller.inicializarDatos(academix.getGrafoUsuarios(), listaContenidos);
+                controller.inicializarDatos(academix.getGrafoUsuarios(), academix.getContenidoEducativo());
 
                 Stage stage = new Stage();
                 stage.setTitle("Panel del Moderador");
@@ -115,7 +113,7 @@ public class LoginController {
         for (Estudiante est : academix.getListaEstudiantes()) {
             if (est.getUsuario().equalsIgnoreCase(usuario) && est.getContrasena().equals(contrasena)) {
                 try {
-                    uniquindio.com.academix.HelloApplication.setEstudianteActual(est);
+                    AcademixApplication.setEstudianteActual(est);
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniquindio/com/academix/principal.fxml"));
                     Parent root = loader.load();
@@ -170,6 +168,4 @@ public class LoginController {
         } catch (Exception e) {
             mensajeError.setText("Error al abrir el registro");
             e.printStackTrace();
-        }
-    }
-}
+

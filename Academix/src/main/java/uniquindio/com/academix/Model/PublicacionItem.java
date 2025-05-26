@@ -2,17 +2,16 @@ package uniquindio.com.academix.Model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import uniquindio.com.academix.Model.ListaSimple;
 
 public class PublicacionItem implements Serializable {
     private String contenido;
     private String autorId; // ID/correo del autor
     private String autorNombre; // Nombre del autor
     private LocalDateTime fechaPublicacion;
-    private List<Valoracion> valoraciones;
+    private ListaSimple<Valoracion> valoraciones;
     private String imagenPerfil; // Ruta de la imagen de perfil del autor
-    private List<Comentario> comentarios; // Lista de comentarios
+    private ListaSimple<Comentario> comentarios; // Lista de comentarios
     private String rutaImagen; // Ruta de la imagen de la publicación
 
     public PublicacionItem(String contenido, String autorId, String autorNombre, String imagenPerfil) {
@@ -21,8 +20,8 @@ public class PublicacionItem implements Serializable {
         this.autorNombre = autorNombre;
         this.imagenPerfil = imagenPerfil;
         this.fechaPublicacion = LocalDateTime.now();
-        this.valoraciones = new ArrayList<>();
-        this.comentarios = new ArrayList<>();
+        this.valoraciones = new ListaSimple<>();
+        this.comentarios = new ListaSimple<>();
     }
 
     @Override
@@ -81,20 +80,21 @@ public class PublicacionItem implements Serializable {
 
     public void agregarValoracion(String autorId, String autorNombre, int puntuacion, String comentario) {
         Valoracion nuevaValoracion = new Valoracion(autorId, autorNombre, puntuacion, comentario);
-        valoraciones.add(nuevaValoracion);
+        valoraciones.agregar(nuevaValoracion);
     }
 
     public int getPromedioValoraciones() {
-        if (valoraciones.isEmpty()) {
+        if (valoraciones.estaVacia()) {
             return 0;
         }
-        return (int) valoraciones.stream()
-                .mapToInt(Valoracion::getPuntuacion)
-                .average()
-                .orElse(0);
+        int suma = 0;
+        for (Valoracion v : valoraciones) {
+            suma += v.getPuntuacion();
+        }
+        return suma / valoraciones.tamano();
     }
 
-    public List<Valoracion> getValoraciones() {
+    public ListaSimple<Valoracion> getValoraciones() {
         return valoraciones;
     }
 
@@ -117,10 +117,10 @@ public class PublicacionItem implements Serializable {
 
     public void agregarComentario(String autorId, String autorNombre, String contenido) {
         Comentario nuevoComentario = new Comentario(autorId, autorNombre, contenido);
-        comentarios.add(nuevoComentario);
+        comentarios.agregar(nuevoComentario);
     }
 
-    public List<Comentario> getComentarios() {
+    public ListaSimple<Comentario> getComentarios() {
         return comentarios;
     }
 

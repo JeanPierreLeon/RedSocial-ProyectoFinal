@@ -17,7 +17,6 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
         tamaño = 0;
     }
 
-
     public static class Nodo<T> implements Serializable {
 
         @Serial
@@ -34,7 +33,6 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
         return cabeza == null;
         // o también se podría usar: return tamaño == 0;
     }
-
 
     public void agregar(T dato) {
         Nodo<T> nuevoNodo = new Nodo<>(dato);
@@ -104,6 +102,28 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
 
     public int size() {
         return tamaño;
+    }
+
+    public int tamano() {
+        return tamaño;
+    }
+
+    public boolean contiene(T dato) {
+        Nodo<T> actual = cabeza;
+        while (actual != null) {
+            if ((dato == null && actual.dato == null) || (dato != null && dato.equals(actual.dato))) {
+                return true;
+            }
+            actual = actual.siguiente;
+        }
+        return false;
+    }
+
+    public void agregarAlInicio(T dato) {
+        Nodo<T> nuevoNodo = new Nodo<>(dato);
+        nuevoNodo.siguiente = cabeza;
+        cabeza = nuevoNodo;
+        tamaño++;
     }
 
     @Override

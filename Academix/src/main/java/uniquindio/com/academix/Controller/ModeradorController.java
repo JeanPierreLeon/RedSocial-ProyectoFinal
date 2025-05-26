@@ -10,6 +10,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import uniquindio.com.academix.Model.ContenidoEducativo;
 import uniquindio.com.academix.Model.GrafoUsuarios;
 import uniquindio.com.academix.Model.GrafoUsuarios.UsuarioConexiones;
+import uniquindio.com.academix.Model.ListaSimple;
 
 public class ModeradorController {
 
@@ -35,9 +36,9 @@ public class ModeradorController {
     private TableColumn<ContenidoEducativo, String> columnaValoracionContenido;
 
     private GrafoUsuarios grafoUsuarios;
-    private List<ContenidoEducativo> listaContenidos;
+    private ListaSimple<ContenidoEducativo> listaContenidos;
 
-    public void inicializarDatos(GrafoUsuarios grafoUsuarios, List<ContenidoEducativo> listaContenidos) {
+    public void inicializarDatos(GrafoUsuarios grafoUsuarios, ListaSimple<ContenidoEducativo> listaContenidos) {
         this.grafoUsuarios = grafoUsuarios;
         this.listaContenidos = listaContenidos;
 

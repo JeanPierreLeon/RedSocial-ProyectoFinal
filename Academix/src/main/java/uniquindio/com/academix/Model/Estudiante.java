@@ -2,8 +2,6 @@ package uniquindio.com.academix.Model;
 
 import uniquindio.com.academix.Model.ListaSimple;
 import java.io.Serializable;
-import java.util.List;
-import java.util.ArrayList;
 
 public class Estudiante implements Serializable {
 
@@ -21,16 +19,16 @@ public class Estudiante implements Serializable {
     private ListaSimple<Mensaje> mensajesRecibidos;
 
     // Lista de intereses del estudiante
-    private List<String> intereses = new ArrayList<>();
-    
+    private ListaSimple<String> intereses = new ListaSimple<>();
+
     // Lista de amigos
-    private List<Estudiante> amigos = new ArrayList<>();
-    
+    private ListaSimple<Estudiante> amigos = new ListaSimple<>();
+
     // Lista de publicaciones
-    private List<PublicacionItem> publicaciones = new ArrayList<>();
-    
+    private ListaSimple<PublicacionItem> publicaciones = new ListaSimple<>();
+
     // Lista de valoraciones recibidas
-    private List<ValoracionItem> valoraciones = new ArrayList<>();
+    private ListaSimple<ValoracionItem> valoraciones = new ListaSimple<>();
 
     public Estudiante(String usuario, String contrasena) {
         this.usuario = usuario;
@@ -93,56 +91,56 @@ public class Estudiante implements Serializable {
         return mensajesRecibidos;
     }
 
-    public List<String> getIntereses() {
+    public ListaSimple<String> getIntereses() {
         if (intereses == null) {
-            intereses = new ArrayList<>();
+            intereses = new ListaSimple<>();
         }
         return intereses;
     }
 
-    public void setIntereses(List<String> intereses) {
+    public void setIntereses(ListaSimple<String> intereses) {
         this.intereses = intereses;
     }
 
-    public List<Estudiante> getAmigos() {
+    public ListaSimple<Estudiante> getAmigos() {
         return amigos;
     }
 
     public void agregarAmigo(Estudiante amigo) {
-        if (amigo != null && !amigos.contains(amigo)) {
-            amigos.add(amigo);
+        if (amigo != null && !amigos.contiene(amigo)) {
+            amigos.agregar(amigo);
         }
     }
 
-    public List<PublicacionItem> getPublicaciones() {
+    public ListaSimple<PublicacionItem> getPublicaciones() {
         if (publicaciones == null) {
-            publicaciones = new ArrayList<>();
+            publicaciones = new ListaSimple<>();
         }
         return publicaciones;
     }
 
     public void agregarPublicacion(PublicacionItem publicacion) {
         if (publicacion != null) {
-            publicaciones.add(0, publicacion); // Agregar al inicio de la lista
+            publicaciones.agregarAlInicio(publicacion); // Agregar al inicio de la lista
         }
     }
 
-    public List<ValoracionItem> getValoraciones() {
+    public ListaSimple<ValoracionItem> getValoraciones() {
         if (valoraciones == null) {
-            valoraciones = new ArrayList<>();
+            valoraciones = new ListaSimple<>();
         }
         return valoraciones;
     }
 
     public void agregarValoracion(ValoracionItem valoracion) {
         if (valoracion != null) {
-            valoraciones.add(valoracion);
+            valoraciones.agregar(valoracion);
         }
     }
 
     public void agregarInteres(String interes) {
-        if (interes != null && !interes.trim().isEmpty() && !intereses.contains(interes.trim())) {
-            intereses.add(interes.trim());
+        if (interes != null && !interes.trim().isEmpty() && !intereses.contiene(interes.trim())) {
+            intereses.agregar(interes.trim());
         }
     }
 
@@ -151,13 +149,13 @@ public class Estudiante implements Serializable {
     }
 
     public double getPromedioValoraciones() {
-        if (valoraciones.isEmpty()) {
+        if (valoraciones.estaVacia()) {
             return 0.0;
         }
         int total = 0;
         for (ValoracionItem valoracion : valoraciones) {
             total += valoracion.getEstrellas(); // Ahora estrellas es un int, no necesitamos length()
         }
-        return (double) total / valoraciones.size();
+        return (double) total / valoraciones.tamano();
     }
 }

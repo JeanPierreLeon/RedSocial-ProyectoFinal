@@ -3,8 +3,6 @@ package uniquindio.com.academix;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -12,12 +10,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import uniquindio.com.academix.Model.Academix;
 import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Model.ListaSimple;
 import uniquindio.com.academix.Utils.Persistencia;
 
-public class HelloApplication extends Application {
+public class AcademixApplication extends Application {
 
     private static Stage primaryStage;
-    private static List<Estudiante> estudiantes = new ArrayList<>();
+    private static ListaSimple<Estudiante> estudiantes = new ListaSimple<>();
     private static Estudiante estudianteActual; // <-- Sesión activa
 
     @Override
@@ -102,7 +101,7 @@ public class HelloApplication extends Application {
 
     public static void cambiarVista(String fxml, String titulo) {
         try {
-            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("/uniquindio/com/academix/" + fxml));
+            FXMLLoader loader = new FXMLLoader(AcademixApplication.class.getResource("/uniquindio/com/academix/" + fxml));
             Scene scene = new Scene(loader.load());
             primaryStage.setTitle(titulo);
             primaryStage.setScene(scene);
@@ -112,7 +111,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    public static List<Estudiante> getEstudiantes() {
+    public static ListaSimple<Estudiante> getEstudiantes() {
         return estudiantes;
     }
 

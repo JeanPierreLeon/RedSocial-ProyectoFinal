@@ -1,19 +1,12 @@
 package uniquindio.com.academix.Model;
 
-import uniquindio.com.academix.Model.ListaSimple;
-import uniquindio.com.academix.HelloApplication;
+import uniquindio.com.academix.AcademixApplication;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class Academix implements Serializable {
 
@@ -151,7 +144,7 @@ public class Academix implements Serializable {
     public void sincronizarEstudiantesConGlobal() {
         listaEstudiantes.limpiar();  // método que vacía la lista
 
-        for (Estudiante est : HelloApplication.getEstudiantes()) {
+        for (Estudiante est : AcademixApplication.getEstudiantes()) {
             listaEstudiantes.agregar(est);
         }
     }
@@ -183,20 +176,17 @@ public class Academix implements Serializable {
         solicitudesAmistad.agregar(new SolicitudAmistad(remitente, destinatario));
     }
 
-    public List<SolicitudAmistad> obtenerSolicitudesPendientes(String usuario) {
-        List<SolicitudAmistad> pendientes = new ArrayList<>();
-        
-        // Verificar que la lista no sea null
+    public ListaSimple<SolicitudAmistad> obtenerSolicitudesPendientes(String usuario) {
+        ListaSimple<SolicitudAmistad> pendientes = new ListaSimple<>();
         if (solicitudesAmistad == null) {
             solicitudesAmistad = new ListaSimple<>();
             return pendientes;
         }
-        
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
             SolicitudAmistad solicitud = solicitudesAmistad.get(i);
             if (solicitud.getDestinatario().equals(usuario) && 
                 solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
-                pendientes.add(solicitud);
+                pendientes.agregar(solicitud);
             }
         }
         return pendientes;
@@ -243,10 +233,10 @@ public class Academix implements Serializable {
         }
     }
 
-    public List<SolicitudAmistad> obtenerTodasLasSolicitudes() {
-        List<SolicitudAmistad> todas = new ArrayList<>();
+    public ListaSimple<SolicitudAmistad> obtenerTodasLasSolicitudes() {
+        ListaSimple<SolicitudAmistad> todas = new ListaSimple<>();
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
-            todas.add(solicitudesAmistad.get(i));
+            todas.agregar(solicitudesAmistad.get(i));
         }
         return todas;
     }
@@ -254,19 +244,16 @@ public class Academix implements Serializable {
     public void eliminarSolicitudAmistad(SolicitudAmistad solicitud) {
         // Eliminar la solicitud de la lista
         solicitudesAmistad.eliminar(solicitud);
-        
         // Si la solicitud estaba aceptada, también eliminar la conexión en el grafo
         if (solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.ACEPTADA) {
             // Eliminar la conexión del grafo
             grafoUsuarios.desconectar(solicitud.getRemitente(), solicitud.getDestinatario());
-            
             // Eliminar la relación de amigos entre los estudiantes
             Estudiante remitente = buscarEstudiante(solicitud.getRemitente());
             Estudiante destinatario = buscarEstudiante(solicitud.getDestinatario());
-            
             if (remitente != null && destinatario != null) {
-                remitente.getAmigos().remove(destinatario);
-                destinatario.getAmigos().remove(remitente);
+                remitente.getAmigos().eliminar(destinatario);
+                destinatario.getAmigos().eliminar(remitente);
             }
         }
     }

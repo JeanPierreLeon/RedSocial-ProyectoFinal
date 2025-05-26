@@ -2,12 +2,9 @@ package uniquindio.com.academix.Controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import uniquindio.com.academix.HelloApplication;
+import uniquindio.com.academix.AcademixApplication;
 
 import java.io.IOException;
 
@@ -68,7 +65,7 @@ public class PrincipalController {
     @FXML
     public void cerrarSesion() {
         // Regresar a la vista de login
-        HelloApplication.cambiarVista("login.fxml", "Iniciar sesión");
+        AcademixApplication.cambiarVista("login.fxml", "Iniciar sesión");
     }
 
 

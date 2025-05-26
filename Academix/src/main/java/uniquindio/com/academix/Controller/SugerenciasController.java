@@ -42,10 +42,8 @@ public class SugerenciasController {
     
     private void cargarSugerencias() {
         contenedorSugerencias.getChildren().clear();
-        
-        List<SugerenciasEstudio.SugerenciaCompañero> sugerencias = 
+        ListaSimple<SugerenciasEstudio.SugerenciaCompañero> sugerencias =
             SugerenciasEstudio.obtenerSugerencias(estudianteActual, academix);
-        
         for (SugerenciasEstudio.SugerenciaCompañero sugerencia : sugerencias) {
             VBox tarjetaSugerencia = crearTarjetaSugerencia(sugerencia);
             contenedorSugerencias.getChildren().add(tarjetaSugerencia);

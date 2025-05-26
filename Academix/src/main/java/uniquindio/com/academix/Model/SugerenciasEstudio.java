@@ -1,20 +1,21 @@
 package uniquindio.com.academix.Model;
 
 import java.util.*;
+import uniquindio.com.academix.Model.ListaSimple;
 
 public class SugerenciasEstudio {
     
     public static class SugerenciaCompañero {
         private Estudiante estudiante;
         private int puntajeAfinidad;
-        private List<String> interesesComunes;
+        private ListaSimple<String> interesesComunes;
         private boolean mismaUniversidad;
         private boolean amigoDeAmigo;
         
         public SugerenciaCompañero(Estudiante estudiante) {
             this.estudiante = estudiante;
             this.puntajeAfinidad = 0;
-            this.interesesComunes = new ArrayList<>();
+            this.interesesComunes = new ListaSimple<>();
         }
         
         public Estudiante getEstudiante() {
@@ -25,7 +26,7 @@ public class SugerenciasEstudio {
             return puntajeAfinidad;
         }
         
-        public List<String> getInteresesComunes() {
+        public ListaSimple<String> getInteresesComunes() {
             return interesesComunes;
         }
         
@@ -38,7 +39,7 @@ public class SugerenciasEstudio {
         }
     }
     
-    public static List<SugerenciaCompañero> obtenerSugerencias(Estudiante estudiante, Academix academix) {
+    public static ListaSimple<SugerenciaCompañero> obtenerSugerencias(Estudiante estudiante, Academix academix) {
         Map<String, SugerenciaCompañero> sugerencias = new HashMap<>();
         
         // Obtener todos los estudiantes excepto el actual
@@ -47,7 +48,7 @@ public class SugerenciasEstudio {
             
             // No sugerir al mismo estudiante ni a sus amigos actuales
             if (otroEstudiante.getUsuario().equals(estudiante.getUsuario()) || 
-                estudiante.getAmigos().contains(otroEstudiante)) {
+                estudiante.getAmigos().contiene(otroEstudiante)) {
                 continue;
             }
             
@@ -61,15 +62,15 @@ public class SugerenciasEstudio {
             
             // Verificar intereses en común (2 puntos por cada interés)
             for (String interes : otroEstudiante.getIntereses()) {
-                if (estudiante.getIntereses().contains(interes)) {
+                if (estudiante.getIntereses().contiene(interes)) {
                     sugerencia.puntajeAfinidad += 2;
-                    sugerencia.interesesComunes.add(interes);
+                    sugerencia.interesesComunes.agregar(interes);
                 }
             }
             
             // Verificar amigos en común (5 puntos por ser amigo de amigo)
             for (Estudiante amigo : estudiante.getAmigos()) {
-                if (amigo.getAmigos().contains(otroEstudiante)) {
+                if (amigo.getAmigos().contiene(otroEstudiante)) {
                     sugerencia.puntajeAfinidad += 5;
                     sugerencia.amigoDeAmigo = true;
                     break;
@@ -83,9 +84,13 @@ public class SugerenciasEstudio {
         }
         
         // Convertir el mapa a lista y ordenar por puntaje de afinidad
-        List<SugerenciaCompañero> sugerenciasOrdenadas = new ArrayList<>(sugerencias.values());
-        sugerenciasOrdenadas.sort((s1, s2) -> Integer.compare(s2.puntajeAfinidad, s1.puntajeAfinidad));
-        
+        ListaSimple<SugerenciaCompañero> sugerenciasOrdenadas = new ListaSimple<>();
+        List<SugerenciaCompañero> temp = new ArrayList<>(sugerencias.values());
+        temp.sort((s1, s2) -> Integer.compare(s2.puntajeAfinidad, s1.puntajeAfinidad));
+        for (SugerenciaCompañero s : temp) {
+            sugerenciasOrdenadas.agregar(s);
+        }
         return sugerenciasOrdenadas;
     }
-} 
+}
+
