@@ -340,7 +340,10 @@ public void initialize() {
             private final Button btnValorar = new Button("Valorar");
             private final Button btnComentar = new Button("Comentar");
             private final Button btnEliminar = new Button("Eliminar");
-            
+            // NUEVO: para abrir archivos adjuntos
+            private final HBox archivoBox = new HBox();
+            private final Button btnAbrirArchivo = new Button();
+
             {
                 // Configurar foto de perfil
                 fotoPerfil.setFitHeight(40);
@@ -370,6 +373,9 @@ public void initialize() {
                 
                 contenido.getChildren().addAll(encabezado, texto, interacciones, valoracionesBox);
                 contenido.setStyle("-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e4e6eb; -fx-border-radius: 10;");
+                archivoBox.setId("archivoBox");
+                archivoBox.setAlignment(Pos.CENTER_LEFT);
+                archivoBox.setSpacing(10);
             }
 
             @Override
@@ -409,28 +415,59 @@ public void initialize() {
                     }
 
                     // Cargar imagen de la publicación si existe
+                    boolean archivoMostrado = false;
                     if (item.getRutaImagen() != null) {
-                        try {
-                            File file = new File(item.getRutaImagen());
-                            if (file.exists()) {
-                                Image imagen = new Image(file.toURI().toString());
-                                imagenPublicacion.setImage(imagen);
-                                if (!contenido.getChildren().contains(imagenPublicacion)) {
-                                    contenido.getChildren().add(3, imagenPublicacion);
+                        String ruta = item.getRutaImagen();
+                        String rutaLower = ruta.toLowerCase();
+                        if (rutaLower.endsWith(".png") || rutaLower.endsWith(".jpg") || rutaLower.endsWith(".jpeg") || rutaLower.endsWith(".gif") || rutaLower.endsWith(".bmp")) {
+                            try {
+                                File archivoImagen = new File(ruta);
+                                if (archivoImagen.exists()) {
+                                    Image imagen = new Image(archivoImagen.toURI().toString());
+                                    imagenPublicacion.setImage(imagen);
+                                    if (!contenido.getChildren().contains(imagenPublicacion)) {
+                                        contenido.getChildren().add(3, imagenPublicacion);
+                                    }
+                                    archivoMostrado = true;
                                 }
-                            } else {
-                                // Si la imagen no existe, eliminar del contenido
+                            } catch (Exception e) {
                                 contenido.getChildren().remove(imagenPublicacion);
                                 imagenPublicacion.setImage(null);
                             }
-                        } catch (Exception e) {
-                            contenido.getChildren().remove(imagenPublicacion);
-                            imagenPublicacion.setImage(null);
+                        } else {
+                            // Mostrar botón con ícono para abrir PDF, video u otro archivo
+                            String tipoBoton = "Abrir Archivo";
+                            String iconPath = null;
+                            if (rutaLower.endsWith(".pdf")) {
+                                tipoBoton = "Abrir PDF";
+                                iconPath = getClass().getResource("/images/icon_pdf.png") != null ? getClass().getResource("/images/icon_pdf.png").toExternalForm() : null;
+                            } else if (rutaLower.endsWith(".mp4") || rutaLower.endsWith(".avi") || rutaLower.endsWith(".mov") || rutaLower.endsWith(".mkv")) {
+                                tipoBoton = "Abrir Video";
+                                iconPath = getClass().getResource("/images/icon_video.png") != null ? getClass().getResource("/images/icon_video.png").toExternalForm() : null;
+                            } else {
+                                iconPath = getClass().getResource("/images/icon_file.png") != null ? getClass().getResource("/images/icon_file.png").toExternalForm() : null;
+                            }
+                            btnAbrirArchivo.setText(tipoBoton);
+                            if (iconPath != null) {
+                                ImageView icono = new ImageView(new Image(iconPath));
+                                icono.setFitWidth(20);
+                                icono.setFitHeight(20);
+                                btnAbrirArchivo.setGraphic(icono);
+                            } else {
+                                btnAbrirArchivo.setGraphic(null);
+                            }
+                            btnAbrirArchivo.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-family: 'Segoe UI'; -fx-cursor: hand;");
+                            btnAbrirArchivo.setOnAction(e -> abrirArchivo(item.getRutaImagen()));
+                            archivoBox.getChildren().setAll(btnAbrirArchivo);
+                            if (!contenido.getChildren().contains(archivoBox)) {
+                                contenido.getChildren().add(3, archivoBox);
+                            }
+                            archivoMostrado = true;
                         }
-                    } else {
-                        // Si no hay ruta de imagen, eliminar del contenido
+                    }
+                    if (!archivoMostrado) {
                         contenido.getChildren().remove(imagenPublicacion);
-                        imagenPublicacion.setImage(null);
+                        contenido.getChildren().remove(archivoBox);
                     }
 
                     // Mostrar/ocultar botón eliminar según el autor
@@ -542,6 +579,43 @@ public void initialize() {
                 }
             }
         });
+    }
+
+    // Método para abrir archivos igual que en InicioController
+    private void abrirArchivo(String ruta) {
+        try {
+            File archivo = new File(ruta);
+            if (!archivo.isAbsolute()) {
+                archivo = new File(System.getProperty("user.dir"), ruta);
+            }
+            archivo = archivo.getCanonicalFile();
+            if (archivo.exists()) {
+                boolean abierto = false;
+                try {
+                    if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.OPEN)) {
+                        java.awt.Desktop.getDesktop().open(archivo);
+                        abierto = true;
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Desktop.open falló: " + ex.getMessage());
+                }
+                if (!abierto && System.getProperty("os.name").toLowerCase().contains("win")) {
+                    try {
+                        new ProcessBuilder("cmd", "/c", "start", "", archivo.getAbsolutePath()).start();
+                        abierto = true;
+                    } catch (Exception ex2) {
+                        System.err.println("cmd /c start falló: " + ex2.getMessage());
+                    }
+                }
+                if (!abierto) {
+                    mostrarAlerta("No soportado", "No se pudo abrir el archivo automáticamente.\nRuta: " + archivo.getAbsolutePath());
+                }
+            } else {
+                mostrarAlerta("Archivo no encontrado", "La ruta no es válida o el archivo no existe: " + archivo.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            mostrarAlerta("Error al abrir", "No se pudo abrir el archivo.\n" + e.getMessage());
+        }
     }
 
     private void agregarValoracionAEstudianteActual(int estrellas, String comentario, String publicacion) {
