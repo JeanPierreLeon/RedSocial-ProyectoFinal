@@ -239,6 +239,7 @@ public class InicioController {
                                 abrirArchivoBtn.setGraphic(icono);
                             }
                             abrirArchivoBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-family: 'Segoe UI'; -fx-cursor: hand;");
+                            abrirArchivoBtn.setOnAction(e -> abrirArchivo(ruta)); // <--- CORREGIDO: ahora abre el archivo
                             HBox archivoBox = new HBox(abrirArchivoBtn);
                             archivoBox.setId("archivoBox");
                             archivoBox.setAlignment(Pos.CENTER_LEFT);
@@ -573,16 +574,40 @@ public class InicioController {
         try {
             File archivo = new File(ruta);
             if (!archivo.isAbsolute()) {
-                // Si la ruta es relativa, la buscamos respecto al directorio del proyecto
                 archivo = new File(System.getProperty("user.dir"), ruta);
             }
+            archivo = archivo.getCanonicalFile();
+            System.out.println("Intentando abrir archivo: " + archivo.getAbsolutePath());
             if (archivo.exists()) {
-                Desktop.getDesktop().open(archivo);
+                boolean abierto = false;
+                // Intentar con Desktop
+                try {
+                    if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                        Desktop.getDesktop().open(archivo);
+                        abierto = true;
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Desktop.open falló: " + ex.getMessage());
+                }
+                // Si no se pudo abrir con Desktop, intentar con comando start de Windows
+                if (!abierto && System.getProperty("os.name").toLowerCase().contains("win")) {
+                    try {
+                        new ProcessBuilder("cmd", "/c", "start", "", archivo.getAbsolutePath()).start();
+                        abierto = true;
+                    } catch (Exception ex2) {
+                        System.err.println("cmd /c start falló: " + ex2.getMessage());
+                    }
+                }
+                if (!abierto) {
+                    mostrarAlerta("No soportado", "No se pudo abrir el archivo automáticamente.\nRuta: " + archivo.getAbsolutePath());
+                }
             } else {
                 mostrarAlerta("Archivo no encontrado", "La ruta no es válida o el archivo no existe: " + archivo.getAbsolutePath());
             }
         } catch (IOException e) {
             mostrarAlerta("Error al abrir", "No se pudo abrir el archivo.\n" + e.getMessage());
+        } catch (Exception e) {
+            mostrarAlerta("Error inesperado", "Ocurrió un error inesperado al intentar abrir el archivo.\n" + e.getMessage());
         }
     }
 
