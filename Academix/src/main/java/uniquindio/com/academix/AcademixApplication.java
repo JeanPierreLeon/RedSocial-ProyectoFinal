@@ -23,18 +23,20 @@ public class AcademixApplication extends Application {
     public void start(Stage stage) throws IOException {
         // Inicializar usuarios por defecto si no existen
         inicializarUsuariosPorDefecto();
-        
         primaryStage = stage;
         cambiarVista("login.fxml", "Login");
     }
 
+    /**
+     * Inicializa los usuarios por defecto y asegura que las imágenes necesarias estén en la carpeta data/perfiles.
+     * Si el proyecto se comparte, asegúrate de incluir la carpeta resources con las imágenes necesarias.
+     */
     private void inicializarUsuariosPorDefecto() {
         Academix academix = Persistencia.cargarRecursoBancoBinario();
         if (academix == null) {
             academix = new Academix();
         }
 
-        // Verificar si los usuarios por defecto ya existen
         boolean existeAna = false;
         boolean existeJean = false;
 
@@ -51,8 +53,31 @@ public class AcademixApplication extends Application {
             ana.setUbicacion("Armenia");
             ana.agregarInteres("Matemáticas");
             ana.agregarInteres("Física");
-            ana.setFotoPerfil("data/perfiles/ana_perfil.jpg");
-            ana.setFotoPortada("data/perfiles/ana_portada.jpg");
+
+            // Asegurar carpeta y foto de perfil/portada
+            File carpetaPerfiles = new File("data/perfiles");
+            if (!carpetaPerfiles.exists()) carpetaPerfiles.mkdirs();
+
+            File perfilAna = new File("data/perfiles/ana_perfil.jpg");
+            if (!perfilAna.exists() && getClass().getResourceAsStream("/images/ana_perfil.jpg") != null) {
+                try {
+                    Files.copy(getClass().getResourceAsStream("/images/ana_perfil.jpg"), perfilAna.toPath());
+                } catch (Exception ex) {
+                    System.out.println("No se pudo copiar ana_perfil.jpg: " + ex.getMessage());
+                }
+            }
+            ana.setFotoPerfil(perfilAna.exists() ? perfilAna.getPath() : "data/perfiles/img_1.png");
+
+            File portadaAna = new File("data/perfiles/ana_portada.jpg");
+            if (!portadaAna.exists() && getClass().getResourceAsStream("/images/ana_portada.jpg") != null) {
+                try {
+                    Files.copy(getClass().getResourceAsStream("/images/ana_portada.jpg"), portadaAna.toPath());
+                } catch (Exception ex) {
+                    System.out.println("No se pudo copiar ana_portada.jpg: " + ex.getMessage());
+                }
+            }
+            ana.setFotoPortada(portadaAna.exists() ? portadaAna.getPath() : null);
+
             academix.agregarEstudiante(ana);
         }
 
@@ -64,36 +89,36 @@ public class AcademixApplication extends Application {
             jean.setUbicacion("Armenia");
             jean.agregarInteres("Programación");
             jean.agregarInteres("Matemáticas");
-            
-            // Copiar las imágenes a la carpeta de perfiles
-            try {
-                File carpetaPerfiles = new File("data/perfiles");
-                if (!carpetaPerfiles.exists()) carpetaPerfiles.mkdirs();
 
-                // Asignar imagen de perfil por defecto si no hay una personalizada
-                File imagenPorDefecto = new File("data/perfiles/img_1.png");
-                if (!imagenPorDefecto.exists()) {
+            // Asegurar carpeta y foto de perfil/portada
+            File carpetaPerfiles = new File("data/perfiles");
+            if (!carpetaPerfiles.exists()) carpetaPerfiles.mkdirs();
+
+            // Imagen de perfil por defecto
+            File imagenPorDefecto = new File("data/perfiles/img_1.png");
+            if (!imagenPorDefecto.exists() && getClass().getResourceAsStream("/images/img_1.png") != null) {
+                try {
                     Files.copy(getClass().getResourceAsStream("/images/img_1.png"), imagenPorDefecto.toPath());
+                } catch (Exception ex) {
+                    System.out.println("No se pudo copiar img_1.png: " + ex.getMessage());
                 }
-                jean.setFotoPerfil("data/perfiles/img_1.png");
-
-                // Copiar foto de portada si existe en resources, si no, omitir
-                File portadaJean = new File("data/perfiles/jean_portada.jpg");
-                if (!portadaJean.exists()) {
-                    // Si no existe en resources, no hacer nada
-                    if (getClass().getResourceAsStream("/images/jean_portada.jpg") != null) {
-                        Files.copy(getClass().getResourceAsStream("/images/jean_portada.jpg"), portadaJean.toPath());
-                        jean.setFotoPortada(portadaJean.getAbsolutePath());
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("Error copiando imágenes de Jean: " + e.getMessage());
             }
-            
+            jean.setFotoPerfil(imagenPorDefecto.getPath());
+
+            // Copiar foto de portada si existe en resources
+            File portadaJean = new File("data/perfiles/jean_portada.jpg");
+            if (!portadaJean.exists() && getClass().getResourceAsStream("/images/jean_portada.jpg") != null) {
+                try {
+                    Files.copy(getClass().getResourceAsStream("/images/jean_portada.jpg"), portadaJean.toPath());
+                    jean.setFotoPortada(portadaJean.getPath());
+                } catch (Exception ex) {
+                    System.out.println("No se pudo copiar jean_portada.jpg: " + ex.getMessage());
+                }
+            }
             academix.agregarEstudiante(jean);
         }
 
-        // Si se creó algún usuario nuevo, guardar los cambios
+        // Guardar cambios si se creó algún usuario nuevo
         if (!existeAna || !existeJean) {
             Persistencia.guardarRecursoBancoBinario(academix);
         }
@@ -127,4 +152,3 @@ public class AcademixApplication extends Application {
         launch(args);
     }
 }
-
