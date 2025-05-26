@@ -128,22 +128,24 @@ public class ListaSimple<T> implements Iterable<T>, Serializable {
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            private Nodo<T> actual = cabeza;
+        return new ListaSimpleIterator();
+    }
 
-            @Override
-            public boolean hasNext() {
-                return actual != null;
-            }
+    private class ListaSimpleIterator implements Iterator<T> {
+        private Nodo<T> actual = cabeza;
 
-            @Override
-            public T next() {
-                if (!hasNext()) throw new NoSuchElementException();
-                T dato = actual.dato;
-                actual = actual.siguiente;
-                return dato;
-            }
-        };
+        @Override
+        public boolean hasNext() {
+            return actual != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            T dato = actual.dato;
+            actual = actual.siguiente;
+            return dato;
+        }
     }
 
     public void imprimir() {

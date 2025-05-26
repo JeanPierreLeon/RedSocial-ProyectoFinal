@@ -1,12 +1,11 @@
 package uniquindio.com.academix.Controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import uniquindio.com.academix.Model.Estudiante;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import uniquindio.com.academix.Model.Academix;
+import uniquindio.com.academix.Model.Estudiante;
 import uniquindio.com.academix.Utils.Persistencia;
-
-import java.util.*;
 
 public class GruposEstudioController {
 
@@ -84,37 +83,65 @@ public class GruposEstudioController {
         }
     }
 
+    // Clase auxiliar para agrupar interés y miembros
+    private static class GrupoInteres {
+        String interes;
+        uniquindio.com.academix.Model.ListaSimple<String> miembros;
+        GrupoInteres(String interes) {
+            this.interes = interes;
+            this.miembros = new uniquindio.com.academix.Model.ListaSimple<>();
+        }
+    }
+
     private void formarGruposAutomaticos() {
         if (listaGrupos == null) return;
         listaGrupos.getItems().clear();
         if (academix == null) return;
 
-        Map<String, List<String>> gruposPorInteres = new HashMap<>();
+        uniquindio.com.academix.Model.ListaSimple<GrupoInteres> gruposPorInteres = new uniquindio.com.academix.Model.ListaSimple<>();
 
         for (Estudiante est : academix.getListaEstudiantes()) {
             for (String interes : est.getIntereses()) {
-                gruposPorInteres.putIfAbsent(interes, new ArrayList<>());
-                gruposPorInteres.get(interes).add(est.getUsuario());
+                GrupoInteres grupo = null;
+                for (int i = 0; i < gruposPorInteres.tamano(); i++) {
+                    if (gruposPorInteres.get(i).interes.equals(interes)) {
+                        grupo = gruposPorInteres.get(i);
+                        break;
+                    }
+                }
+                if (grupo == null) {
+                    grupo = new GrupoInteres(interes);
+                    gruposPorInteres.agregar(grupo);
+                }
+                if (!grupo.miembros.contiene(est.getUsuario())) {
+                    grupo.miembros.agregar(est.getUsuario());
+                }
             }
         }
 
         // Conectar usuarios en el grafo por grupo de estudio
-        for (List<String> miembros : gruposPorInteres.values()) {
-            if (miembros.size() > 1) {
-                for (int i = 0; i < miembros.size(); i++) {
-                    for (int j = i + 1; j < miembros.size(); j++) {
-                        academix.getGrafoUsuarios().conectar(miembros.get(i), miembros.get(j));
+        for (int g = 0; g < gruposPorInteres.tamano(); g++) {
+            GrupoInteres grupo = gruposPorInteres.get(g);
+            if (grupo.miembros.tamano() > 1) {
+                for (int i = 0; i < grupo.miembros.tamano(); i++) {
+                    for (int j = i + 1; j < grupo.miembros.tamano(); j++) {
+                        academix.getGrafoUsuarios().conectar(grupo.miembros.get(i), grupo.miembros.get(j));
                     }
                 }
             }
         }
 
         boolean hayGrupos = false;
-        for (Map.Entry<String, List<String>> entry : gruposPorInteres.entrySet()) {
-            String interes = entry.getKey();
-            List<String> miembros = entry.getValue();
-            if (miembros.size() > 1) {
-                listaGrupos.getItems().add("Interés: " + interes + " | Miembros: " + String.join(", ", miembros));
+        for (int g = 0; g < gruposPorInteres.tamano(); g++) {
+            GrupoInteres grupo = gruposPorInteres.get(g);
+            if (grupo.miembros.tamano() > 1) {
+                // Unir miembros en string
+                StringBuilder miembrosStr = new StringBuilder();
+                for (int m = 0; m < grupo.miembros.tamano(); m++) {
+                    miembrosStr.append(grupo.miembros.get(m));
+                    if (m < grupo.miembros.tamano() - 1) miembrosStr.append(", ");
+                }
+                listaGrupos.getItems().add("Interés: " + grupo.interes + " | Miembros: " + miembrosStr);
                 hayGrupos = true;
             }
         }

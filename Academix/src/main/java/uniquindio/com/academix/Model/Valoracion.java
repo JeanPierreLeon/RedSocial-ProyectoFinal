@@ -14,5 +14,8 @@ public class Valoracion {
     public String getEstudiante() { return estudiante; }
     public String getContenido() { return contenido; }
     public int getPuntuacion() { return puntuacion; }
+    public void setPuntuacion(int puntuacion) {
+        this.puntuacion = puntuacion;
+    }
 }
 

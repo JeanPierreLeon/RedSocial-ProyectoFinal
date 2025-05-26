@@ -1,11 +1,9 @@
 package uniquindio.com.academix.Model;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 public class ContenidoEducativo implements Serializable {
 
@@ -22,11 +20,12 @@ public class ContenidoEducativo implements Serializable {
     private LocalDateTime fechaPublicacion;
 
     // Valoraciones: usuario -> puntuación (1-5)
-    private Map<String, Integer> valoraciones = new HashMap<>();
+    private ListaSimple<Valoracion> valoraciones = new ListaSimple<>();
 
     public ContenidoEducativo() {
         this.id = ++contadorId;
         this.fechaPublicacion = LocalDateTime.now();
+        this.valoraciones = new ListaSimple<>();
     }
 
     public ContenidoEducativo(String titulo, String tipo, String descripcion, String url, String autor) {
@@ -37,6 +36,7 @@ public class ContenidoEducativo implements Serializable {
         this.url = url;
         this.autor = autor;
         this.fechaPublicacion = LocalDateTime.now();
+        this.valoraciones = new ListaSimple<>();
     }
 
     public int getId() {
@@ -98,19 +98,34 @@ public class ContenidoEducativo implements Serializable {
 
     public void valorar(String usuario, int puntuacion) {
         if (usuario != null && puntuacion >= 1 && puntuacion <= 5) {
-            valoraciones.put(usuario, puntuacion);
+            for (int i = 0; i < valoraciones.size(); i++) {
+                Valoracion v = valoraciones.get(i);
+                if (v.getEstudiante().equals(usuario)) {
+                    v.setPuntuacion(puntuacion);
+                    return;
+                }
+            }
+            valoraciones.agregar(new Valoracion(usuario, this.titulo, puntuacion));
         }
     }
 
     public double getPromedioValoracion() {
-        if (valoraciones.isEmpty()) return 0;
+        if (valoraciones.size() == 0) return 0;
         int suma = 0;
-        for (int v : valoraciones.values()) suma += v;
+        for (int i = 0; i < valoraciones.size(); i++) {
+            suma += valoraciones.get(i).getPuntuacion();
+        }
         return (double) suma / valoraciones.size();
     }
 
     public int getValoracionDe(String usuario) {
-        return valoraciones.getOrDefault(usuario, 0);
+        for (int i = 0; i < valoraciones.size(); i++) {
+            Valoracion v = valoraciones.get(i);
+            if (v.getEstudiante().equals(usuario)) {
+                return v.getPuntuacion();
+            }
+        }
+        return 0;
     }
 
     public int getCantidadValoraciones() {
@@ -121,7 +136,7 @@ public class ContenidoEducativo implements Serializable {
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         if (valoraciones == null) {
-            valoraciones = new HashMap<>();
+            valoraciones = new ListaSimple<>();
         }
     }
 }

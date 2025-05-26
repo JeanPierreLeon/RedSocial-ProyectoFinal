@@ -1,24 +1,26 @@
 package uniquindio.com.academix.Controller;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import uniquindio.com.academix.Model.*;
-
-import uniquindio.com.academix.Utils.Persistencia;
-
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import uniquindio.com.academix.Model.Academix;
+import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Model.ListaSimple;
+import uniquindio.com.academix.Model.Mensaje;
+import uniquindio.com.academix.Utils.Persistencia;
 
 public class MensajeriaController {
 
@@ -50,8 +52,9 @@ public class MensajeriaController {
     private Estudiante estudianteActual;
     /** Conversación mostrada actualmente */
     private String usuarioDestinatarioActual = null;
-    /** Mapa rápido para saber cuántos no leídos hay por usuario */
-    private final Map<String, Integer> noLeidos = new HashMap<>();
+    // Elimina el Map noLeidos y usa arreglos paralelos
+    private String[] usuariosNoLeidos = new String[0];
+    private int[] noLeidos = new int[0];
 
     /* =============================== */
     /* === MÉTODOS PÚBLICOS / INIT === */
@@ -90,34 +93,56 @@ public class MensajeriaController {
     /* === MANEJO DE CONVERSACIONES === */
     /* ============================= */
 
+    // Método auxiliar para intercambiar dos elementos en una ListaSimple
+    private void intercambiar(ListaSimple<String> lista, int i, int j) {
+        String temp = lista.get(i);
+        // No hay set, así que eliminamos y reinsertamos
+        lista.eliminar(lista.get(i));
+        lista.insertarEn(i, lista.get(j - 1)); // j-1 porque al eliminar i, los índices bajan
+        lista.eliminar(lista.get(j));
+        lista.insertarEn(j, temp);
+    }
+
     /** Crea la lista de conversaciones ordenadas por último mensaje. */
     private void cargarListaConversaciones() {
         if (academix == null || estudianteActual == null) return;
 
         // Obtiene usuarios que tengan al menos un mensaje
-        ObservableList<String> usuarios = FXCollections.observableArrayList();
+        ListaSimple<String> usuarios = new ListaSimple<>();
         ListaSimple<Estudiante> listaEstudiantes = academix.getListaEstudiantes();
         for (int i = 0; i < listaEstudiantes.size(); i++) {
             Estudiante est = listaEstudiantes.get(i);
             String usuario = est.getUsuario();
             if (!usuario.equals(estudianteActual.getUsuario())) {
-                usuarios.add(usuario);
+                usuarios.agregar(usuario);
             }
         }
 
-        // Ordena por fecha del último mensaje (más reciente primero)
-        usuarios.sort(Comparator.comparing(usuario -> obtenerFechaUltimoMensaje((String) usuario)).reversed());
-
-        // Evita recursión infinita: NO guardar academix aquí ni en métodos llamados por listeners
-        // Si necesitas persistir, hazlo solo en acciones explícitas del usuario (ej: enviar mensaje)
-
-        // Calcula no-leídos
-        noLeidos.clear();
-        for (String user : usuarios) {
-            noLeidos.put(user, contarNoLeidos(user));
+        // Ordena por fecha del último mensaje (burbuja sin set)
+        for (int i = 0; i < usuarios.tamano() - 1; i++) {
+            for (int j = 0; j < usuarios.tamano() - i - 1; j++) {
+                long fecha1 = obtenerFechaUltimoMensaje(usuarios.get(j));
+                long fecha2 = obtenerFechaUltimoMensaje(usuarios.get(j+1));
+                if (fecha1 < fecha2) {
+                    intercambiar(usuarios, j, j+1);
+                }
+            }
         }
 
-        listaConversaciones.setItems(usuarios);
+        // Calcula no-leídos usando arreglos paralelos
+        usuariosNoLeidos = new String[usuarios.tamano()];
+        noLeidos = new int[usuarios.tamano()];
+        for (int i = 0; i < usuarios.tamano(); i++) {
+            String user = usuarios.get(i);
+            usuariosNoLeidos[i] = user;
+            noLeidos[i] = contarNoLeidos(user);
+        }
+
+        // Actualiza la ListView
+        listaConversaciones.getItems().clear();
+        for (int i = 0; i < usuarios.tamano(); i++) {
+            listaConversaciones.getItems().add(usuarios.get(i));
+        }
         listaConversaciones.setCellFactory(lv -> new ListCell<String>() {
             @Override
             protected void updateItem(String usuario, boolean empty) {
@@ -127,7 +152,13 @@ public class MensajeriaController {
                     setGraphic(null);
                 } else {
                     Estudiante est = academix.buscarEstudiante(usuario);
-                    int noLeido = noLeidos.getOrDefault(usuario, 0);
+                    int noLeido = 0;
+                    for (int i = 0; i < usuariosNoLeidos.length; i++) {
+                        if (usuariosNoLeidos[i].equals(usuario)) {
+                            noLeido = noLeidos[i];
+                            break;
+                        }
+                    }
                     String texto = (est != null ? est.getNombre() : usuario);
                     if (noLeido > 0) {
                         texto += " (" + noLeido + ")";
@@ -163,17 +194,28 @@ public class MensajeriaController {
         if (filtro == null) filtro = "";
         final String f = filtro.toLowerCase();
 
-        ObservableList<String> filtrados = FXCollections.observableArrayList();
+        ListaSimple<String> filtrados = new ListaSimple<>();
         ListaSimple<Estudiante> listaEstudiantes = academix.getListaEstudiantes();
         for (int i = 0; i < listaEstudiantes.size(); i++) {
             Estudiante est = listaEstudiantes.get(i);
             String usuario = est.getUsuario();
             if (!usuario.equals(estudianteActual.getUsuario()) && usuario.toLowerCase().contains(f)) {
-                filtrados.add(usuario);
+                filtrados.agregar(usuario);
             }
         }
-        filtrados.sort(Comparator.comparing((String usuario) -> obtenerFechaUltimoMensaje(usuario)).reversed());
-        listaConversaciones.getItems().setAll(filtrados);
+        for (int i = 0; i < filtrados.tamano() - 1; i++) {
+            for (int j = 0; j < filtrados.tamano() - i - 1; j++) {
+                long fecha1 = obtenerFechaUltimoMensaje(filtrados.get(j));
+                long fecha2 = obtenerFechaUltimoMensaje(filtrados.get(j+1));
+                if (fecha1 < fecha2) {
+                    intercambiar(filtrados, j, j+1);
+                }
+            }
+        }
+        listaConversaciones.getItems().clear();
+        for (int i = 0; i < filtrados.tamano(); i++) {
+            listaConversaciones.getItems().add(filtrados.get(i));
+        }
         listaConversaciones.refresh();
     }
 
@@ -230,7 +272,7 @@ public class MensajeriaController {
         // Marcar como leídos los mensajes recibidos del destinatario actual
         marcarMensajesComoLeidos(usuarioDestinatarioActual);
         cargarMensajesPrevios();
-        cargarListaConversaciones(); // Refresca la lista y el contador de no leídos
+        // cargarListaConversaciones(); // Eliminar esta línea para evitar recarga/cierre inesperado
     }
 
     /**

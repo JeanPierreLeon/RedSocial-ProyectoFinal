@@ -1,8 +1,5 @@
 package uniquindio.com.academix.View;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -24,8 +21,10 @@ public class GrafoAfinidadView {
         double radio = 220;
         double centerX = 400;
         double centerY = 300;
-        Map<String, Circle> nodos = new HashMap<>();
-        Map<String, Double[]> posiciones = new HashMap<>();
+        // Reemplazo de Map<String, Circle> y Map<String, Double[]>
+        ListaSimple<String> usuarios = new ListaSimple<>();
+        ListaSimple<Circle> nodos = new ListaSimple<>();
+        ListaSimple<Double[]> posiciones = new ListaSimple<>();
 
         // Posicionar nodos en círculo
         for (int i = 0; i < n; i++) {
@@ -40,23 +39,31 @@ public class GrafoAfinidadView {
             label.setLayoutX(x - 25);
             label.setLayoutY(y - 10);
             pane.getChildren().add(label);
-            nodos.put(est.getUsuario(), circle);
-            posiciones.put(est.getUsuario(), new Double[]{x, y});
+            usuarios.agregar(est.getUsuario());
+            nodos.agregar(circle);
+            posiciones.agregar(new Double[]{x, y});
         }
 
         // Dibujar solo aristas de amistad real
         for (int i = 0; i < n; i++) {
             Estudiante e1 = estudiantes.get(i);
-            for (int j = i + 1; j < n; j++) { // Evitar duplicados y auto-conexión
+            for (int j = i + 1; j < n; j++) {
                 Estudiante e2 = estudiantes.get(j);
-                // Validar si son amigos reales
                 if (e1.getAmigos() != null && e1.getAmigos().contiene(e2.getUsuario())) {
-                    Double[] pos1 = posiciones.get(e1.getUsuario());
-                    Double[] pos2 = posiciones.get(e2.getUsuario());
-                    Line line = new Line(pos1[0], pos1[1], pos2[0], pos2[1]);
-                    line.setStrokeWidth(2);
-                    line.setStroke(Color.GREEN);
-                    pane.getChildren().add(0, line); // Detrás de los nodos
+                    // Buscar posiciones por usuario
+                    int idx1 = -1, idx2 = -1;
+                    for (int k = 0; k < usuarios.tamano(); k++) {
+                        if (usuarios.get(k).equals(e1.getUsuario())) idx1 = k;
+                        if (usuarios.get(k).equals(e2.getUsuario())) idx2 = k;
+                    }
+                    if (idx1 != -1 && idx2 != -1) {
+                        Double[] pos1 = posiciones.get(idx1);
+                        Double[] pos2 = posiciones.get(idx2);
+                        Line line = new Line(pos1[0], pos1[1], pos2[0], pos2[1]);
+                        line.setStrokeWidth(2);
+                        line.setStroke(Color.GREEN);
+                        pane.getChildren().add(0, line);
+                    }
                 }
             }
         }

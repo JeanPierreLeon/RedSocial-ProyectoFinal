@@ -1,8 +1,5 @@
 package uniquindio.com.academix.Model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ABB<T> {
     private NodoABB<T> raiz;
     private Comparador<T> comparador;
@@ -28,31 +25,31 @@ public class ABB<T> {
         return nodo;
     }
 
-    public List<T> buscar(String filtro) {
-        List<T> resultado = new ArrayList<>();
+    public ListaSimple<T> buscar(String filtro) {
+        ListaSimple<T> resultado = new ListaSimple<>();
         buscarRec(raiz, filtro.toLowerCase(), resultado);
         return resultado;
     }
 
-    private void buscarRec(NodoABB<T> nodo, String filtro, List<T> resultado) {
+    private void buscarRec(NodoABB<T> nodo, String filtro, ListaSimple<T> resultado) {
         if (nodo == null) return;
         if (comparador.cumpleFiltro(nodo.dato, filtro)) {
-            resultado.add(nodo.dato);
+            resultado.agregar(nodo.dato);
         }
         buscarRec(nodo.izq, filtro, resultado);
         buscarRec(nodo.der, filtro, resultado);
     }
 
-    public List<T> inOrden() {
-        List<T> lista = new ArrayList<>();
+    public ListaSimple<T> inOrden() {
+        ListaSimple<T> lista = new ListaSimple<>();
         inOrdenRec(raiz, lista);
         return lista;
     }
 
-    private void inOrdenRec(NodoABB<T> nodo, List<T> lista) {
+    private void inOrdenRec(NodoABB<T> nodo, ListaSimple<T> lista) {
         if (nodo == null) return;
         inOrdenRec(nodo.izq, lista);
-        lista.add(nodo.dato);
+        lista.agregar(nodo.dato);
         inOrdenRec(nodo.der, lista);
     }
 

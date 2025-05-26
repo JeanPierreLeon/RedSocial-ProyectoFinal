@@ -1,17 +1,22 @@
 package uniquindio.com.academix.Controller;
 
+import java.io.File;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.Image;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import uniquindio.com.academix.Model.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import uniquindio.com.academix.Model.Academix;
+import uniquindio.com.academix.Model.Estudiante;
+import uniquindio.com.academix.Model.ListaSimple;
+import uniquindio.com.academix.Model.SugerenciasEstudio;
 import uniquindio.com.academix.Utils.Persistencia;
 
-import java.io.File;
-import java.util.List;
 
 public class SugerenciasController {
 
