@@ -7,14 +7,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import uniquindio.com.academix.Model.Academix;
-import uniquindio.com.academix.Model.ContenidoEducativo;
-import uniquindio.com.academix.Model.Estudiante;
-import uniquindio.com.academix.Model.PublicacionItem;
+import uniquindio.com.academix.Model.*;
 import uniquindio.com.academix.Utils.Persistencia;
-import uniquindio.com.academix.Model.ListaSimple;
-import uniquindio.com.academix.Model.SugerenciasEstudio;
-import uniquindio.com.academix.Model.SolicitudAmistad;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -40,6 +34,7 @@ public class InicioController {
     @FXML private VBox amigosContainer;
     @FXML private ImageView perfilImageView;
     @FXML private Label nombreUsuarioLabel;
+    @FXML private ChoiceBox<String> criterioBusquedaChoiceBox;
 
     private File archivoSeleccionado;
     private Academix academix;
@@ -62,6 +57,13 @@ public class InicioController {
     public void initialize() {
         tipoChoiceBox.getItems().addAll("Imagen", "PDF", "Video", "Otro");
         tipoChoiceBox.getSelectionModel().selectFirst();
+
+        // Agregar ChoiceBox para criterio de búsqueda
+        if (criterioBusquedaChoiceBox != null) {
+            criterioBusquedaChoiceBox.getItems().addAll("Tema", "Autor");
+            criterioBusquedaChoiceBox.getSelectionModel().selectFirst();
+            criterioBusquedaChoiceBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> buscarContenido());
+        }
 
         if (ordenChoiceBox != null) {
             ordenChoiceBox.getItems().addAll("Sin ordenar", "Tipo", "Fecha");
@@ -163,15 +165,13 @@ public class InicioController {
                 } else {
                     nombreUsuario.setText(item.getAutorNombre());
                     tiempoPublicacion.setText(item.getTiempoTranscurrido());
-                    
-                    // Mostrar el contenido sin la parte de "Imagen seleccionada: "
                     String contenidoTexto = item.getContenido();
                     if (contenidoTexto.startsWith("Imagen seleccionada: ")) {
                         contenidoTexto = contenidoTexto.substring("Imagen seleccionada: ".length());
                     }
                     texto.setText(contenidoTexto);
-                    
-                    // Cargar imagen de perfil con manejo de errores mejorado
+
+                    // Imagen de perfil
                     try {
                         if (item.getImagenPerfil() != null) {
                             File archivoFoto = new File(item.getImagenPerfil());
@@ -179,60 +179,92 @@ public class InicioController {
                                 Image imagen = new Image(archivoFoto.toURI().toString());
                                 fotoPerfil.setImage(imagen);
                             } else {
-                                System.out.println("Archivo de foto de perfil no encontrado: " + item.getImagenPerfil());
-                                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                                fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
                             }
                         } else {
-                            System.out.println("Ruta de foto de perfil es null para: " + item.getAutorNombre());
-                            fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                            fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
                         }
                     } catch (Exception e) {
-                        System.err.println("Error cargando foto de perfil para " + item.getAutorNombre() + ": " + e.getMessage());
                         try {
-                            fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
-                        } catch (Exception ex) {
-                            System.err.println("Error al cargar la imagen por defecto: " + ex.getMessage());
-                        }
+                            fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
+                        } catch (Exception ex) {}
                     }
 
-                    // Cargar imagen de la publicación si existe
+                    // Limpiar posibles previos
+                    contenido.getChildren().remove(imagenPublicacion);
+                    contenido.getChildren().removeIf(node -> node instanceof HBox && "archivoBox".equals(node.getId()));
+
+                    // Mostrar imagen, PDF, video o archivo con ícono
+                    boolean archivoMostrado = false;
                     if (item.getRutaImagen() != null) {
-                        try {
-                            File archivoImagen = new File(item.getRutaImagen());
-                            if (archivoImagen.exists()) {
-                                Image imagen = new Image(archivoImagen.toURI().toString());
-                                imagenPublicacion.setImage(imagen);
-                                if (!contenido.getChildren().contains(imagenPublicacion)) {
-                                    int idx = contenido.getChildren().indexOf(interacciones);
-                                    if (idx >= 0) {
-                                        contenido.getChildren().add(idx, imagenPublicacion);
-                                    } else {
-                                        contenido.getChildren().add(imagenPublicacion); // lo agrega al final si no encuentra interacciones
+                        String ruta = item.getRutaImagen();
+                        String rutaLower = ruta.toLowerCase();
+                        if (rutaLower.endsWith(".png") || rutaLower.endsWith(".jpg") || rutaLower.endsWith(".jpeg") || rutaLower.endsWith(".gif") || rutaLower.endsWith(".bmp")) {
+                            try {
+                                File archivoImagen = new File(ruta);
+                                if (archivoImagen.exists()) {
+                                    Image imagen = new Image(archivoImagen.toURI().toString());
+                                    imagenPublicacion.setImage(imagen);
+                                    if (!contenido.getChildren().contains(imagenPublicacion)) {
+                                        int idx = contenido.getChildren().indexOf(interacciones);
+                                        if (idx >= 0) {
+                                            contenido.getChildren().add(idx, imagenPublicacion);
+                                        } else {
+                                            contenido.getChildren().add(imagenPublicacion);
+                                        }
                                     }
+                                    archivoMostrado = true;
                                 }
-                            } else {
-                                System.out.println("Archivo de imagen de publicación no encontrado: " + item.getRutaImagen());
+                            } catch (Exception e) {
                                 contenido.getChildren().remove(imagenPublicacion);
                             }
-                        } catch (Exception e) {
-                            System.err.println("Error cargando imagen de publicación: " + e.getMessage());
-                            contenido.getChildren().remove(imagenPublicacion);
+                        } else {
+                            // Mostrar botón con ícono para abrir PDF, video u otro archivo
+                            String tipoBoton = "Abrir Archivo";
+                            String iconPath = null;
+                            if (rutaLower.endsWith(".pdf")) {
+                                tipoBoton = "Abrir PDF";
+                                iconPath = getClass().getResource("/images/icon_pdf.png") != null ? getClass().getResource("/images/icon_pdf.png").toExternalForm() : null;
+                            } else if (rutaLower.endsWith(".mp4") || rutaLower.endsWith(".avi") || rutaLower.endsWith(".mov") || rutaLower.endsWith(".mkv")) {
+                                tipoBoton = "Abrir Video";
+                                iconPath = getClass().getResource("/images/icon_video.png") != null ? getClass().getResource("/images/icon_video.png").toExternalForm() : null;
+                            } else {
+                                iconPath = getClass().getResource("/images/icon_file.png") != null ? getClass().getResource("/images/icon_file.png").toExternalForm() : null;
+                            }
+                            Button abrirArchivoBtn = new Button(tipoBoton);
+                            if (iconPath != null) {
+                                ImageView icono = new ImageView(new Image(iconPath));
+                                icono.setFitWidth(20);
+                                icono.setFitHeight(20);
+                                abrirArchivoBtn.setGraphic(icono);
+                            }
+                            abrirArchivoBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-family: 'Segoe UI'; -fx-cursor: hand;");
+                            HBox archivoBox = new HBox(abrirArchivoBtn);
+                            archivoBox.setId("archivoBox");
+                            archivoBox.setAlignment(Pos.CENTER_LEFT);
+                            archivoBox.setSpacing(10);
+                            int idx = contenido.getChildren().indexOf(interacciones);
+                            if (idx >= 0) {
+                                contenido.getChildren().add(idx, archivoBox);
+                            } else {
+                                contenido.getChildren().add(archivoBox);
+                            }
+                            archivoMostrado = true;
                         }
-                    } else {
+                    }
+                    if (!archivoMostrado) {
                         contenido.getChildren().remove(imagenPublicacion);
                     }
 
-                    // Asegurarse de que las interacciones estén al final
                     if (!contenido.getChildren().contains(interacciones)) {
                         contenido.getChildren().add(interacciones);
                     }
 
                     int promedio = item.getPromedioValoraciones();
                     estrellas.setText("★".repeat(promedio) + "☆".repeat(5 - promedio));
-                    
+                    btnValorar.setDisable(estudianteActual != null && item.getAutorId().equals(estudianteActual.getUsuario()));
                     btnValorar.setOnAction(e -> mostrarDialogoValoracion(item));
                     btnComentar.setOnAction(e -> mostrarDialogoComentario(item));
-                    
                     setGraphic(contenido);
                 }
             }
@@ -266,10 +298,10 @@ public class InicioController {
                     Image imagen = new Image(archivoFoto.toURI().toString());
                     perfilImageView.setImage(imagen);
                 } else {
-                    perfilImageView.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                    perfilImageView.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
                 }
             } else {
-                perfilImageView.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                perfilImageView.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
             }
 
             // Aplicar estilo circular
@@ -289,7 +321,7 @@ public class InicioController {
         } catch (Exception e) {
             System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
             try {
-                perfilImageView.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                perfilImageView.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
             } catch (Exception ex) {
                 System.err.println("Error al cargar la imagen por defecto: " + ex.getMessage());
             }
@@ -384,29 +416,48 @@ public class InicioController {
     public void buscarContenido() {
         String filtro = busquedaField != null ? busquedaField.getText().toLowerCase() : "";
         String criterioOrden = ordenChoiceBox != null ? ordenChoiceBox.getValue() : "Sin ordenar";
+        String criterioBusqueda = criterioBusquedaChoiceBox != null ? criterioBusquedaChoiceBox.getValue() : "Tema";
 
         publicacionesListView.getItems().clear();
         if (academix != null) {
-            // Recorrer todas las publicaciones de todos los estudiantes
+            ABB<PublicacionItem> abb;
+            if ("Autor".equals(criterioBusqueda)) {
+                abb = new ABB<>(new ABB.Comparador<PublicacionItem>() {
+                    @Override
+                    public int comparar(PublicacionItem a, PublicacionItem b) {
+                        return a.getAutorNombre().compareToIgnoreCase(b.getAutorNombre());
+                    }
+                    @Override
+                    public boolean cumpleFiltro(PublicacionItem dato, String filtro) {
+                        return dato.getAutorNombre().toLowerCase().contains(filtro);
+                    }
+                });
+            } else {
+                abb = new ABB<>(new ABB.Comparador<PublicacionItem>() {
+                    @Override
+                    public int comparar(PublicacionItem a, PublicacionItem b) {
+                        return a.getContenido().compareToIgnoreCase(b.getContenido());
+                    }
+                    @Override
+                    public boolean cumpleFiltro(PublicacionItem dato, String filtro) {
+                        return dato.getContenido().toLowerCase().contains(filtro);
+                    }
+                });
+            }
             for (Estudiante est : academix.getListaEstudiantes()) {
                 if (est.getPublicaciones() != null) {
                     for (PublicacionItem pub : est.getPublicaciones()) {
-                        // Filtrar por contenido, autor o tipo (tipo no está en PublicacionItem, así que solo por contenido y autor)
-                        if (
-                            pub.getContenido().toLowerCase().contains(filtro) ||
-                            pub.getAutorNombre().toLowerCase().contains(filtro)
-                        ) {
-                            publicacionesListView.getItems().add(pub);
-                        }
+                        abb.insertar(pub);
                     }
                 }
             }
+            List<PublicacionItem> resultado = abb.buscar(filtro);
+            publicacionesListView.getItems().addAll(resultado);
             // Ordenar si corresponde
             if ("Fecha".equals(criterioOrden)) {
                 publicacionesListView.getItems().sort((p1, p2) -> 
                     p2.getFechaPublicacion().compareTo(p1.getFechaPublicacion()));
             }
-            // Si quieres ordenar por autor o contenido, puedes agregar más criterios aquí
         }
     }
 
@@ -474,7 +525,7 @@ public class InicioController {
         HBox botones = new HBox(10);
         botones.setAlignment(Pos.CENTER_LEFT);
         Button abrirBtn = new Button("Abrir");
-        abrirBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
+        abrirBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white;");
         abrirBtn.setOnAction(e -> abrirArchivo(contenido.getUrl()));
         botones.getChildren().add(abrirBtn);
 
@@ -482,7 +533,7 @@ public class InicioController {
         if (estudianteActual != null) {
             if (contenido.getAutor().equals(estudianteActual.getUsuario())) {
                 Button eliminarBtn = new Button("Eliminar");
-                eliminarBtn.setStyle("-fx-background-color: #007bff; -fx-text-fill: white;");
+                eliminarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white;");
                 eliminarBtn.setOnAction(e -> {
                     publicacionesListView.getItems().remove(contenido);
                     academix.eliminarContenido(contenido);
@@ -500,6 +551,7 @@ public class InicioController {
                 valoracionCombo.setDisable(valoracionActual > 0); // No permitir valorar dos veces
 
                 Button valorarBtn = new Button("Enviar");
+                valorarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white;");
                 valorarBtn.setDisable(valoracionActual > 0);
                 valorarBtn.setOnAction(e -> {
                     int val = valoracionCombo.getValue();
@@ -550,6 +602,17 @@ public class InicioController {
         // Ordenar por fecha más reciente
         publicacionesListView.getItems().sort((p1, p2) -> 
             p2.getFechaPublicacion().compareTo(p1.getFechaPublicacion()));
+    }
+
+    private void agregarValoracionAEstudiante(PublicacionItem publicacion, int estrellas, String comentario) {
+        // Buscar el estudiante autor de la publicación
+        Academix academix = Persistencia.cargarRecursoBancoBinario();
+        Estudiante autor = academix.buscarEstudiante(publicacion.getAutorId());
+        if (autor != null) {
+            ValoracionItem valoracion = new ValoracionItem(estudianteActual.getNombre(), estrellas, comentario, publicacion.getContenido());
+            autor.agregarValoracion(valoracion);
+            Persistencia.guardarRecursoBancoBinario(academix);
+        }
     }
 
     private void mostrarDialogoValoracion(PublicacionItem publicacion) {
@@ -614,7 +677,8 @@ public class InicioController {
                 resultado.getKey(),
                 resultado.getValue()
             );
-            
+            // Agregar la valoración al estudiante autor de la publicación
+            agregarValoracionAEstudiante(publicacion, resultado.getKey(), resultado.getValue());
             // Guardar en persistencia
             Academix academix = Persistencia.cargarRecursoBancoBinario();
             for (Estudiante est : academix.getListaEstudiantes()) {
@@ -632,8 +696,6 @@ public class InicioController {
                 }
             }
             Persistencia.guardarRecursoBancoBinario(academix);
-            
-            // Actualizar ambas vistas
             cargarPublicaciones();
         });
     }
@@ -753,27 +815,26 @@ public class InicioController {
         ImageView fotoPerfil = new ImageView();
         fotoPerfil.setFitHeight(size);
         fotoPerfil.setFitWidth(size);
-        
         try {
             if (rutaFoto != null) {
                 File archivoFoto = new File(rutaFoto);
                 if (archivoFoto.exists()) {
                     fotoPerfil.setImage(new Image(archivoFoto.toURI().toString()));
                 } else {
-                    fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                    // Usar recurso del classpath para la imagen por defecto
+                    fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
                 }
             } else {
-                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
             }
         } catch (Exception e) {
             System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
             try {
-                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
             } catch (Exception ex) {
                 System.err.println("Error al cargar la imagen por defecto: " + ex.getMessage());
             }
         }
-
         // Aplicar estilo circular
         fotoPerfil.setStyle(
             "-fx-background-radius: " + (size/2) + "; " +
@@ -783,13 +844,11 @@ public class InicioController {
             "-fx-border-color: #e0e0e0; " +
             "-fx-border-width: 1;"
         );
-
         // Crear y aplicar el recorte circular
         javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(size/2);
         clip.setCenterX(size/2);
         clip.setCenterY(size/2);
         fotoPerfil.setClip(clip);
-
         return fotoPerfil;
     }
 
@@ -815,7 +874,7 @@ public class InicioController {
 
         // Botón de eliminar amigo
         Button eliminarAmigoBtn = new Button("Eliminar amigo");
-        eliminarAmigoBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI';");
+        eliminarAmigoBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand; -fx-font-family: 'Segoe UI';");
         eliminarAmigoBtn.setOnAction(e -> {
             Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
             confirmacion.setTitle("Confirmar eliminación");
@@ -986,10 +1045,10 @@ public class InicioController {
                 if (archivoFoto.exists()) {
                     fotoPerfil.setImage(new Image(archivoFoto.toURI().toString()));
                 } else {
-                    fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                    fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
                 }
             } else {
-                fotoPerfil.setImage(new Image(new File("src/main/resources/images/img_1.png").toURI().toString()));
+                fotoPerfil.setImage(new Image(getClass().getResource("/images/img_1.png").toExternalForm()));
             }
         } catch (Exception e) {
             System.err.println("Error al cargar la foto de perfil: " + e.getMessage());
@@ -1017,7 +1076,7 @@ public class InicioController {
         });
         
         Button rechazarBtn = new Button("Eliminar");
-        rechazarBtn.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand;");
+        rechazarBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-cursor: hand;");
         rechazarBtn.setOnAction(e -> {
             rechazarSolicitud(solicitud);
             mostrarAlerta("Solicitud eliminada", "Has eliminado la solicitud de " + remitente.getNombre());

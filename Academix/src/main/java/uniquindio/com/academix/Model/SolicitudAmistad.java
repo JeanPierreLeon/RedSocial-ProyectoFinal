@@ -51,9 +51,11 @@ public class SolicitudAmistad implements Serializable {
         SolicitudAmistad that = (SolicitudAmistad) o;
         return remitente.equals(that.remitente) && destinatario.equals(that.destinatario);
     }
-    
-    @Override
-    public int hashCode() {
-        return 31 * remitente.hashCode() + destinatario.hashCode();
+
+    // Eliminar hashCode y agregar método propio para comparar
+    public boolean esIgual(SolicitudAmistad otra) {
+        if (otra == null) return false;
+        return remitente.equals(otra.remitente) && destinatario.equals(otra.destinatario);
     }
-} 
+}
+

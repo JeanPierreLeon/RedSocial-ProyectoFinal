@@ -104,7 +104,18 @@ private ListView<String> conexionesListView;
    @FXML
 private Spinner<Integer> spinnerUrgencia;
 
+    // --- REFRESCO AUTOMÁTICO DEL PANEL DEL ESTUDIANTE DESDE OTRAS VISTAS ---
+    private static PanelController instanciaActual;
 
+    public PanelController() {
+        instanciaActual = this;
+    }
+
+    public static void refrescarPanelEstudiante() {
+        if (instanciaActual != null) {
+            instanciaActual.cargarDatosEstudiante();
+        }
+    }
 
 @FXML
 public void initialize() {
@@ -140,12 +151,14 @@ public void initialize() {
             private final VBox detalles = new VBox(5);
             private final Label comentario = new Label();
             private final Label evaluador = new Label();
+            private final Label publicacion = new Label(); // NUEVO
 
             {
-                detalles.getChildren().addAll(comentario, evaluador);
+                detalles.getChildren().addAll(comentario, evaluador, publicacion); // Agregar publicacion
                 contenido.getChildren().addAll(estrellas, detalles);
                 estrellas.setStyle("-fx-font-size: 16px; -fx-text-fill: #FFD700;");
                 evaluador.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+                publicacion.setStyle("-fx-font-size: 12px; -fx-text-fill: #1a73e8;");
             }
 
             @Override
@@ -157,6 +170,11 @@ public void initialize() {
                     estrellas.setText("★".repeat(item.getEstrellas()) + "☆".repeat(5 - item.getEstrellas()));
                     comentario.setText(item.getComentario());
                     evaluador.setText("Por: " + item.getEvaluador());
+                    if (item.getPublicacion() != null && !item.getPublicacion().isEmpty()) {
+                        publicacion.setText("Publicación: " + item.getPublicacion());
+                    } else {
+                        publicacion.setText("");
+                    }
                     setGraphic(contenido);
                 }
             }
@@ -424,7 +442,19 @@ public void initialize() {
                         confirmacion.setHeaderText("Eliminar publicación");
                         confirmacion.showAndWait().ifPresent(respuesta -> {
                             if (respuesta == ButtonType.YES) {
+                                // Eliminar la publicación
                                 estudianteActual.getPublicaciones().eliminar(item);
+
+                                // Eliminar valoraciones asociadas a esta publicación
+                                if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().estaVacia()) {
+                                    String contenidoPublicacion = item.getContenido();
+                                    for (int i = estudianteActual.getValoraciones().tamano() - 1; i >= 0; i--) {
+                                        ValoracionItem val = estudianteActual.getValoraciones().get(i);
+                                        if (val.getPublicacion() != null && val.getPublicacion().equals(contenidoPublicacion)) {
+                                            estudianteActual.getValoraciones().eliminar(val);
+                                        }
+                                    }
+                                }
 
                                 Academix academix = Persistencia.cargarRecursoBancoBinario();
                                 Estudiante estudiantePersistente = academix.buscarEstudiante(estudianteActual.getUsuario());
@@ -438,12 +468,31 @@ public void initialize() {
                                             break;
                                         }
                                     }
+                                    // Eliminar valoraciones asociadas en persistencia
+                                    if (estudiantePersistente.getValoraciones() != null && !estudiantePersistente.getValoraciones().estaVacia()) {
+                                        String contenidoPublicacion = item.getContenido();
+                                        for (int i = estudiantePersistente.getValoraciones().tamano() - 1; i >= 0; i--) {
+                                            ValoracionItem val = estudiantePersistente.getValoraciones().get(i);
+                                            if (val.getPublicacion() != null && val.getPublicacion().equals(contenidoPublicacion)) {
+                                                estudiantePersistente.getValoraciones().eliminar(val);
+                                            }
+                                        }
+                                    }
                                     Persistencia.guardarRecursoBancoBinario(academix);
                                 }
 
                                 configurarListaPublicaciones();
                                 if (contenidosListView != null) {
                                     contenidosListView.getItems().remove(item);
+                                }
+                                // Refrescar valoraciones en la vista
+                                if (valoracionesListView != null) {
+                                    valoracionesListView.getItems().clear();
+                                    if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().estaVacia()) {
+                                        for (ValoracionItem val : estudianteActual.getValoraciones()) {
+                                            valoracionesListView.getItems().add(val);
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -484,6 +533,8 @@ public void initialize() {
                     int promedio = item.getPromedioValoraciones();
                     estrellas.setText("★".repeat(promedio) + "☆".repeat(5 - promedio));
                     
+                    // Deshabilitar el botón de valorar si el usuario es el autor
+                    btnValorar.setDisable(estudianteActual != null && item.getAutorId().equals(estudianteActual.getUsuario()));
                     btnValorar.setOnAction(e -> mostrarDialogoValoracion(item));
                     btnComentar.setOnAction(e -> mostrarDialogoComentario(item));
                     
@@ -491,6 +542,27 @@ public void initialize() {
                 }
             }
         });
+    }
+
+    private void agregarValoracionAEstudianteActual(int estrellas, String comentario, String publicacion) {
+        if (estudianteActual != null) {
+            ValoracionItem valoracion = new ValoracionItem(estudianteActual.getNombre(), estrellas, comentario, publicacion);
+            estudianteActual.agregarValoracion(valoracion);
+            // Actualizar promedio en la vista
+            if (valoracionPromedioLabel != null) {
+                double promedio = estudianteActual.getPromedioValoraciones();
+                valoracionPromedioLabel.setText(String.format("%.1f", promedio));
+            }
+            // Refrescar lista de valoraciones
+            if (valoracionesListView != null) {
+                valoracionesListView.getItems().clear();
+                if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().estaVacia()) {
+                    for (ValoracionItem val : estudianteActual.getValoraciones()) {
+                        valoracionesListView.getItems().add(val);
+                    }
+                }
+            }
+        }
     }
 
     private void mostrarDialogoValoracion(PublicacionItem publicacion) {
@@ -555,7 +627,9 @@ public void initialize() {
                 resultado.getKey(),
                 resultado.getValue()
             );
-            
+            // Agregar la valoración al estudiante actual con referencia a la publicación
+            String nombrePublicacion = publicacion.getContenido();
+            agregarValoracionAEstudianteActual(resultado.getKey(), resultado.getValue(), nombrePublicacion);
             // Guardar en persistencia y conectar usuarios por valoraciones similares
             Academix academix = Persistencia.cargarRecursoBancoBinario();
             for (Estudiante est : academix.getListaEstudiantes()) {
@@ -792,6 +866,25 @@ private boolean estaEnArreglo(String[] arreglo, String valor) {
             if (estudianteActual.getPublicaciones() != null && !estudianteActual.getPublicaciones().estaVacia()) {
                 for (PublicacionItem pub : estudianteActual.getPublicaciones()) {
                     contenidosListView.getItems().add(pub);
+                }
+            }
+        }
+
+        // LIMPIAR valoraciones recibidas que hagan referencia a publicaciones eliminadas
+        if (estudianteActual.getValoraciones() != null && !estudianteActual.getValoraciones().estaVacia()) {
+            for (int i = estudianteActual.getValoraciones().tamano() - 1; i >= 0; i--) {
+                ValoracionItem val = estudianteActual.getValoraciones().get(i);
+                boolean existe = false;
+                if (val.getPublicacion() != null && !val.getPublicacion().isEmpty()) {
+                    for (PublicacionItem pub : estudianteActual.getPublicaciones()) {
+                        if (val.getPublicacion().equals(pub.getContenido())) {
+                            existe = true;
+                            break;
+                        }
+                    }
+                    if (!existe) {
+                        estudianteActual.getValoraciones().eliminar(val);
+                    }
                 }
             }
         }
