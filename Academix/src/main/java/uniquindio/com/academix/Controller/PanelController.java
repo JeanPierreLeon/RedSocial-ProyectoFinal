@@ -249,8 +249,9 @@ public void initialize() {
         
         File archivo = fileChooser.showOpenDialog(null);
         if (archivo != null) {
-            // TODO: Implementar lógica para manejar el archivo seleccionado
+            // Guardar la ruta del archivo en el campo de texto (igual que imágenes/videos)
             if (publicacionTextField != null) {
+                publicacionTextField.setUserData(archivo.getAbsolutePath());
                 publicacionTextField.setText("Material seleccionado: " + archivo.getName());
             }
         }
