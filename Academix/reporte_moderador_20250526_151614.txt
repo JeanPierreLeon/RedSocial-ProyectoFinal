@@ -1,0 +1,14 @@
+=== REPORTE DE MODERADOR ===
+
+USUARIOS Y CONEXIONES:
+Usuario: jean | Conectado con: samuel, ferxxo, ana
+Usuario: ana | Conectado con: samuel, ferxxo, jean
+Usuario: samuel | Conectado con: jean, ana
+Usuario: ferxxo | Conectado con: ana, jean
+
+CONTENIDOS VALORADOS:
+Título: dasda | Autor: Ana García | Valoración promedio: 2,00 | Valoraciones: 6
+Título: gay | Autor: Jean | Valoración promedio: 1,00 | Valoraciones: 1
+Título: Imagen seleccionada: segunda parte.jpeg | Autor: Jean | Valoración promedio: 1,00 | Valoraciones: 1
+Título: fefe | Autor: Jean | Valoración promedio: 4,00 | Valoraciones: 2
+Título: Imagen seleccionada: 53facb4a-6bb0-4e3c-8b32-2ef4339ddc52.jpeg | Autor: ferxxo | Valoración promedio: 2,00 | Valoraciones: 4

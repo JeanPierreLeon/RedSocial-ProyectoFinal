@@ -21,6 +21,8 @@
                         style="-fx-background-radius: 20; -fx-background-color: #1e88e5; -fx-text-fill: white;"/>
                 <Button text="Ver Grafo" onAction="#verGrafo"
                         style="-fx-background-radius: 20; -fx-background-color: #1e88e5; -fx-text-fill: white;"/>
+                <Button text="Reporte" onAction="#descargarReporte"
+                        style="-fx-background-radius: 20; -fx-background-color: #1e88e5; -fx-text-fill: white;"/>
             </children>
         </HBox>
     </top>

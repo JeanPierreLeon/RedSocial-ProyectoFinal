@@ -1,5 +1,9 @@
 package uniquindio.com.academix.Controller;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -130,13 +134,25 @@ public class ModeradorController {
             mostrarAlerta("Sin datos", "No hay información de estudiantes para mostrar el top.");
             return;
         }
-        java.util.List<Estudiante> estudiantes = new java.util.ArrayList<>();
+        // Reemplazo de java.util.List por ListaSimple
+        uniquindio.com.academix.Model.ListaSimple<Estudiante> estudiantes = new uniquindio.com.academix.Model.ListaSimple<>();
         for (Estudiante e : academix.getListaEstudiantes()) {
             if (e.getValoraciones() != null && !e.getValoraciones().estaVacia()) {
-                estudiantes.add(e);
+                estudiantes.agregar(e);
             }
         }
-        estudiantes.sort((a, b) -> Integer.compare(b.getValoraciones().tamano(), a.getValoraciones().tamano()));
+        // Ordenar manualmente por cantidad de valoraciones (descendente)
+        for (int i = 0; i < estudiantes.tamano() - 1; i++) {
+            for (int j = 0; j < estudiantes.tamano() - i - 1; j++) {
+                if (estudiantes.get(j).getValoraciones().tamano() < estudiantes.get(j+1).getValoraciones().tamano()) {
+                    Estudiante temp = estudiantes.get(j);
+                    estudiantes.eliminar(estudiantes.get(j));
+                    estudiantes.insertarEn(j, estudiantes.get(j));
+                    estudiantes.eliminar(estudiantes.get(j+1));
+                    estudiantes.insertarEn(j+1, temp);
+                }
+            }
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("TOP 5 Estudiantes Más Valorados:\n\n");
         int count = 0;
@@ -172,5 +188,61 @@ public class ModeradorController {
         this.academix = uniquindio.com.academix.Utils.Persistencia.cargarRecursoBancoBinario();
         cargarUsuarios();
         cargarContenidos();
+    }
+
+    @FXML
+    private void descargarReporte() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("=== REPORTE DE MODERADOR ===\n\n");
+            sb.append("USUARIOS Y CONEXIONES:\n");
+            for (int i = 0; i < tablaUsuarios.getItems().size(); i++) {
+                UsuarioConexiones uc = tablaUsuarios.getItems().get(i);
+                sb.append("Usuario: ").append(uc.usuario != null ? uc.usuario.toString() : "").append(" | Conectado con: ");
+                if (uc.conexiones != null && uc.conexiones.length > 0) {
+                    for (int j = 0; j < uc.conexiones.length; j++) {
+                        Object val = uc.conexiones[j];
+                        sb.append(val != null ? val.toString() : "");
+                        if (j < uc.conexiones.length - 1) sb.append(", ");
+                    }
+                }
+                sb.append("\n");
+            }
+            sb.append("\nCONTENIDOS VALORADOS:\n");
+            for (int i = 0; i < tablaContenidos.getItems().size(); i++) {
+                PublicacionItem pub = tablaContenidos.getItems().get(i);
+                String titulo = pub.getContenido() != null ? pub.getContenido().replaceAll("\n.*", "") : "";
+                String autor = pub.getAutorNombre() != null ? pub.getAutorNombre() : "";
+                String promedio;
+                double promedioValoracion = pub.getPromedioValoraciones();
+                if (Double.isFinite(promedioValoracion)) {
+                    promedio = String.format("%.2f", promedioValoracion);
+                } else {
+                    promedio = "0.00";
+                }
+                String cantidad = (pub.getValoraciones() != null && pub.getValoraciones().tamano() >= 0) ? String.valueOf(pub.getValoraciones().tamano()) : "0";
+                sb.append("Título: ").append(titulo);
+                sb.append(" | Autor: ").append(autor);
+                sb.append(" | Valoración promedio: ").append(promedio);
+                sb.append(" | Valoraciones: ").append(cantidad);
+                sb.append("\n");
+            }
+            // Guardar archivo en la carpeta actual del usuario
+            String nombreArchivo = "reporte_moderador_" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".txt";
+            File archivo = new File(System.getProperty("user.dir"), nombreArchivo);
+            try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+                pw.print(sb.toString());
+            }
+            mostrarAlerta("Reporte generado", "El reporte se ha guardado como: " + archivo.getAbsolutePath());
+            // Abrir el archivo automáticamente después de guardarlo
+            try {
+                java.awt.Desktop.getDesktop().open(archivo);
+            } catch (Exception ex) {
+                mostrarAlerta("Aviso", "No se pudo abrir el archivo automáticamente: " + ex.getMessage());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo generar el reporte: " + e.getMessage());
+        }
     }
 }
