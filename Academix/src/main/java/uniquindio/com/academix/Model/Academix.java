@@ -80,7 +80,7 @@ public class Academix implements Serializable {
         return null;
     }
 
-    /* ─────────── Academia ─────────── */
+    /* ─────────── Academix ─────────── */
     private ListaSimple<ContenidoEducativo> contenidoEducativo = new ListaSimple<>();
     private ListaSimple<Estudiante> listaEstudiantes           = new ListaSimple<>();
 
@@ -116,13 +116,13 @@ public class Academix implements Serializable {
     @Serial
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.defaultWriteObject();
-        // Ya no es necesario omitir mensajesPorUsuario
+
     }
 
     @Serial
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-        // Ya no reinicializar mensajesPorUsuario aquí
+
         if (contenidoEducativo == null) {
             contenidoEducativo = new ListaSimple<>();
         }
@@ -165,13 +165,13 @@ public class Academix implements Serializable {
         // Verificar que no exista una solicitud pendiente
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
             SolicitudAmistad solicitud = solicitudesAmistad.get(i);
-            if (solicitud.getRemitente().equals(remitente) && 
+            if (solicitud.getRemitente().equals(remitente) &&
                 solicitud.getDestinatario().equals(destinatario) &&
                 solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
                 return; // Ya existe una solicitud pendiente
             }
         }
-        
+
         solicitudesAmistad.agregar(new SolicitudAmistad(remitente, destinatario));
     }
 
@@ -183,7 +183,7 @@ public class Academix implements Serializable {
         }
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
             SolicitudAmistad solicitud = solicitudesAmistad.get(i);
-            if (solicitud.getDestinatario().equals(usuario) && 
+            if (solicitud.getDestinatario().equals(usuario) &&
                 solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
                 pendientes.agregar(solicitud);
             }
@@ -195,17 +195,17 @@ public class Academix implements Serializable {
         // Buscar y actualizar la solicitud
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
             SolicitudAmistad solicitud = solicitudesAmistad.get(i);
-            if (solicitud.getRemitente().equals(remitente) && 
+            if (solicitud.getRemitente().equals(remitente) &&
                 solicitud.getDestinatario().equals(destinatario) &&
                 solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
-                
+
                 // 1. Marcar la solicitud como aceptada
                 solicitud.setEstado(SolicitudAmistad.EstadoSolicitud.ACEPTADA);
-                
+
                 // 2. Obtener los estudiantes involucrados
                 Estudiante estudianteRemitente = buscarEstudiante(remitente);
                 Estudiante estudianteDestinatario = buscarEstudiante(destinatario);
-                
+
                 if (estudianteRemitente != null && estudianteDestinatario != null) {
                     // 3. Actualizar las listas de amigos de ambos estudiantes
                     estudianteRemitente.agregarAmigo(estudianteDestinatario);
@@ -223,10 +223,10 @@ public class Academix implements Serializable {
     public void rechazarSolicitudAmistad(String remitente, String destinatario) {
         for (int i = 0; i < solicitudesAmistad.size(); i++) {
             SolicitudAmistad solicitud = solicitudesAmistad.get(i);
-            if (solicitud.getRemitente().equals(remitente) && 
+            if (solicitud.getRemitente().equals(remitente) &&
                 solicitud.getDestinatario().equals(destinatario) &&
                 solicitud.getEstado() == SolicitudAmistad.EstadoSolicitud.PENDIENTE) {
-                
+
                 solicitud.setEstado(SolicitudAmistad.EstadoSolicitud.RECHAZADA);
                 break;
             }

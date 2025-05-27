@@ -7,69 +7,29 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.RegistroController">
+<AnchorPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uniquindio.com.academix.Controller.RegistroController">
     <children>
-        <!-- Imagen de fondo -->
-        <ImageView fitHeight="400.0" fitWidth="700.0" preserveRatio="false">
+        <ImageView fitHeight="627.0" fitWidth="938.0" preserveRatio="false">
             <image>
                 <Image url="@../../../images/fondoazul.jpeg" />
             </image>
         </ImageView>
-
-        <!-- Contenedor principal -->
-        <VBox alignment="CENTER" layoutX="186.0" layoutY="60.0" prefWidth="328.0" spacing="15" style="-fx-background-color: #262525; -fx-background-radius: 25; -fx-padding: 30;">
+        <VBox alignment="CENTER" layoutX="275.0" layoutY="122.0" prefHeight="383.0" prefWidth="389.0" spacing="18" style="-fx-background-color: #262525; -fx-background-radius: 25; -fx-padding: 35; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 16,0,0,6);">
             <children>
-
-                <!-- Título -->
-                <Label text="REGISTRO DE USUARIO" textFill="WHITE">
+                <Label prefHeight="67.0" prefWidth="192.0" text="REGISTRO" textAlignment="CENTER" textFill="WHITE">
                     <font>
-                        <Font name="Arial Black" size="24" />
+                        <Font name="Segoe UI Semibold" size="41.0" />
                     </font>
                 </Label>
-
-                <!-- Línea decorativa -->
-                <AnchorPane prefHeight="3.0" prefWidth="200.0" style="-fx-background-color: #002CB3;" />
-
-                <!-- Usuario -->
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <ImageView fitHeight="30.0" fitWidth="29.0">
-                        <image>
-                            <Image url="@../../../images/img_1.png" />
-                        </image>
-                    </ImageView>
-                    <TextField fx:id="campoUsuario" prefHeight="25.0" prefWidth="232.0" promptText="Usuario" />
-                </HBox>
-
-                <!-- Contraseña -->
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <ImageView fitHeight="34.0" fitWidth="34.0">
-                        <image>
-                            <Image url="@../../../images/img_2.png" />
-                        </image>
-                    </ImageView>
-                    <PasswordField fx:id="campoContrasena" prefHeight="25.0" prefWidth="231.0" promptText="Contraseña" />
-                </HBox>
-
-                <!-- Confirmar Contraseña -->
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <ImageView fitHeight="34.0" fitWidth="34.0">
-                        <image>
-                            <Image url="@../../../images/img_2.png" />
-                        </image>
-                    </ImageView>
-                    <PasswordField fx:id="campoConfirmarContrasena" prefHeight="25.0" prefWidth="231.0" promptText="Confirmar Contraseña" />
-                </HBox>
-
-                <!-- Botón Registrar -->
-                <Button fx:id="btnRegistrar" onAction="#registrarEstudiante" prefWidth="150" style="-fx-background-color: #002CB3; -fx-background-radius: 90; -fx-text-fill: white;" text="Registrar" />
-
-                <!-- Mensaje de error -->
-                <Label fx:id="mensajeError" textFill="red" />
-
+                <AnchorPane prefHeight="3.0" prefWidth="120.0" style="-fx-background-color: #002CB3;" />
+                <TextField fx:id="campoUsuario" promptText="Correo electrónico" style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-font-family: 'Segoe UI';" />
+                <PasswordField fx:id="campoContrasena" promptText="Contraseña" style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-font-family: 'Segoe UI';" />
+                <PasswordField fx:id="campoConfirmarContrasena" promptText="Confirmar contraseña" style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-font-family: 'Segoe UI';" />
+                <Button fx:id="btnRegistrar" onAction="#registrarEstudiante" prefWidth="140" style="-fx-background-color: #28A745; -fx-background-radius: 90; -fx-text-fill: white; -fx-font-family: 'Segoe UI Semibold';" text="Registrar" />
+                <Label fx:id="mensajeError" style="-fx-font-family: 'Segoe UI';" textFill="red" />
             </children>
         </VBox>
     </children>

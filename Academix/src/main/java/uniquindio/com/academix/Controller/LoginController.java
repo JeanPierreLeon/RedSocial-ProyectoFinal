@@ -155,8 +155,9 @@ public class LoginController {
             });
 
             Stage stage = new Stage();
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root)); // Quitar tamaño fijo
             stage.setTitle("Registro de Estudiantes");
+            stage.centerOnScreen();
             stage.show();
         } catch (Exception e) {
             mensajeError.setText("Error al abrir el registro");
@@ -164,3 +165,4 @@ public class LoginController {
         }
     }
 }
+       

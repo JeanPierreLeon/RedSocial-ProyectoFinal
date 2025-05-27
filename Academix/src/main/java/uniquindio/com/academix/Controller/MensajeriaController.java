@@ -272,7 +272,7 @@ public class MensajeriaController {
         // Marcar como leídos los mensajes recibidos del destinatario actual
         marcarMensajesComoLeidos(usuarioDestinatarioActual);
         cargarMensajesPrevios();
-        // cargarListaConversaciones(); // Eliminar esta línea para evitar recarga/cierre inesperado
+
     }
 
     /**
@@ -288,8 +288,7 @@ public class MensajeriaController {
                 }
             }
         }
-        // Eliminar persistencia aquí para evitar escrituras excesivas
-        //guardarAcademixInstance();
+
     }
 
     /**

@@ -1,0 +1,7 @@
+=== REPORTE DE MODERADOR ===
+
+USUARIOS Y CONEXIONES:
+Usuario: jean | Conectado con: ana
+Usuario: ana | Conectado con: jean
+
+CONTENIDOS VALORADOS:
