@@ -218,14 +218,27 @@ public class InicioController {
                         } else {
                             // Mostrar botón con ícono para abrir PDF, video u otro archivo
                             String tipoBoton = "Abrir Archivo";
+                            String iconPath = null;
                             if (rutaLower.endsWith(".pdf")) {
                                 tipoBoton = "Abrir PDF";
+                                iconPath = getClass().getResource("/images/icon_pdf.png") != null ? getClass().getResource("/images/icon_pdf.png").toExternalForm() : null;
                             } else if (rutaLower.endsWith(".mp4") || rutaLower.endsWith(".avi") || rutaLower.endsWith(".mov") || rutaLower.endsWith(".mkv")) {
                                 tipoBoton = "Abrir Video";
+                                iconPath = getClass().getResource("/images/icon_video.png") != null ? getClass().getResource("/images/icon_video.png").toExternalForm() : null;
+                            } else {
+                                iconPath = getClass().getResource("/images/icon_file.png") != null ? getClass().getResource("/images/icon_file.png").toExternalForm() : null;
                             }
                             Button abrirArchivoBtn = new Button(tipoBoton);
+                            if (iconPath != null) {
+                                ImageView icono = new ImageView(new Image(iconPath));
+                                icono.setFitWidth(20);
+                                icono.setFitHeight(20);
+                                abrirArchivoBtn.setGraphic(icono);
+                            } else {
+                                abrirArchivoBtn.setGraphic(null);
+                            }
                             abrirArchivoBtn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-family: 'Segoe UI'; -fx-cursor: hand;");
-                            abrirArchivoBtn.setOnAction(e -> abrirArchivo(ruta)); // <--- CORREGIDO: ahora abre el archivo
+                            abrirArchivoBtn.setOnAction(e -> abrirArchivo(ruta));
                             HBox archivoBox = new HBox(abrirArchivoBtn);
                             archivoBox.setId("archivoBox");
                             archivoBox.setAlignment(Pos.CENTER_LEFT);
